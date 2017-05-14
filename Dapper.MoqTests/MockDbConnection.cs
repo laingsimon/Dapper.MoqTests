@@ -73,10 +73,10 @@
             if (methodCallBody == null)
                 return;
 
-            var arguments = methodCallBody.Arguments.Select(ExpressionHelper.GetParameter).ToArray();
+            var arguments = methodCallBody.Arguments.Select(ExpressionHelper.GetValue).ToArray();
             var methodName = methodCallBody.Method.Name;
-            var sql = (string)arguments.First();
-            var parameters = arguments.Last();
+            var sql = (string)arguments.First(); //TODO: find the SQL parameter by name
+            var parameters = arguments.Last(); //TODO: find the parameters parameter by name
 
             switch (methodName)
             {

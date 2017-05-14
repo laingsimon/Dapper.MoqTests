@@ -22,7 +22,7 @@
             if (!anonymousType)
                 return node;
 
-            var newArguments = node.Arguments.Select(ExpressionHelper.GetParameter).ToArray();
+            var newArguments = node.Arguments.Select(ExpressionHelper.GetValue).ToArray();
             var anonymousObject = node.Constructor.Invoke(newArguments);
             var predicateExpression = Expression.Constant(new Predicate<object>(actual => PropertiesExistsAndMatch(actual, anonymousObject)));
 

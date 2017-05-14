@@ -14,6 +14,9 @@
         [DebuggerStepThrough]
         public SqlText(string sql)
         {
+            if (string.IsNullOrEmpty(sql))
+                throw new ArgumentNullException(nameof(sql));
+
             this.sql = GetComparableText(sql);
             this.originalSql = sql;
         }
@@ -61,7 +64,7 @@
 
         public static SqlText Create(string sql)
         {
-            return sql == MockDbConnection.Any
+            return sql == Any.originalSql
                 ? Any
                 : new SqlText(sql);
         }

@@ -7,7 +7,7 @@
 
     internal static class ExpressionHelper
     {
-        internal static object GetParameter(Expression expression)
+        internal static object GetValue(Expression expression)
         {
             if (expression == null)
                 return null;
@@ -19,7 +19,7 @@
                 case ExpressionType.New:
                     //call to an object constructor, possibly any anonymous object
                     var newExpression = (NewExpression)expression;
-                    var newArguments = newExpression.Arguments.Select(GetParameter).ToArray();
+                    var newArguments = newExpression.Arguments.Select(GetValue).ToArray();
                     return newExpression.Constructor.Invoke(newArguments);
                 case ExpressionType.MemberAccess:
                     //such as property access
@@ -34,8 +34,8 @@
                     if (callExpression.Method.Name == nameof(It.IsAny) && callExpression.Method.DeclaringType == typeof(It))
                         return MockDbConnection.Any;
 
-                    var callArguments = callExpression.Arguments.Select(GetParameter).ToArray();
-                    return callExpression.Method.Invoke(GetParameter(callExpression.Object), callArguments);
+                    var callArguments = callExpression.Arguments.Select(GetValue).ToArray();
+                    return callExpression.Method.Invoke(GetValue(callExpression.Object), callArguments);
                 case ExpressionType.Lambda:
                     return expression;
             }

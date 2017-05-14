@@ -15,6 +15,9 @@
 
         public MockDbParameterCollection(object parameters)
         {
+            if (parameters == null)
+                throw new ArgumentNullException(nameof(parameters));
+
             var properties = from property in parameters.GetType().GetProperties()
                 let value = property.GetValue(parameters, null)
                 select new MockDbParameter { ParameterName = property.Name, Value = value};
