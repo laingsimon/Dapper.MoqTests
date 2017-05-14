@@ -83,7 +83,7 @@ Assemblies to assist testing Dapper database invocations
 * [x] Supports Strict execution, pass in the appropriate parameter to the `MockDbConnection` constructor
 
 ## Limitations
-* [ ] If `Dapper.QueryFirst()` leverages `ExecuteScalar` on a `DbCommand` object then this can be tested via the `QueryFirst` method
+* [ ] If `Dapper.QueryFirst()` leverages `ExecuteScalar` on a `DbCommand` object then this can be tested via the `QuerySingle` method
 * [ ] Non-anonymous objects as parameters have not been tested
 
 ## Suggestions / improvements
