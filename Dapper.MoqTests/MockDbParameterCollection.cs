@@ -43,7 +43,10 @@
         public object this[string parameterName]
         {
             get { return this.FirstOrDefault(p => p.ParameterName.Equals(parameterName, StringComparison.OrdinalIgnoreCase)); }
-            set => throw new NotImplementedException();
+            set
+            {
+                throw new NotImplementedException();
+            }
         }
 
         public bool Equals(MockDbParameterCollection executedParameters)
