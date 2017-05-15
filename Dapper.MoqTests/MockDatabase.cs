@@ -20,9 +20,9 @@
             this.behaviour = behaviour;
         }
 
-        public abstract IDataReader Query<T>(string text, object parameters);
-        public abstract T QuerySingle<T>(string text, object parameters);
-        public abstract int Execute(string text, object parameters);
+        public abstract IDataReader Query<T>(string text, object parameters = null);
+        public abstract T QuerySingle<T>(string text, object parameters = null);
+        public abstract int Execute(string text, object parameters = null);
 
         public IDataReader ExecuteReader(string text, MockDbParameterCollection parameters)
         {
