@@ -3,7 +3,9 @@
     using System;
     using System.Collections.Generic;
     using System.Data;
+    using System.Diagnostics;
     using System.Linq;
+    using System.Reflection;
     using Moq;
 
     internal abstract class MockDatabase : IMockDatabase
@@ -25,11 +27,11 @@
         public IDataReader ExecuteReader(SqlText text, MockDbParameterCollection parameters)
         {
             var expected = FindExpectedExecution(text, parameters, readerRegister);
+            var sql = expected?.ExpectedSql ?? text.ToString();
+            var sqlParams = expected?.ExpectedParameters ?? parameters;
+            var returnType = expected?.ReturnType ?? DeriveReturnTypeForCall("Query");
 
-            if (expected != null)
-                return CallQuery(expected.ExpectedSql, expected.ExpectedParameters, expected.ReturnType);
-
-            var result = Query<object>(text.ToString(), parameters);
+            var result = CallQuery(sql, sqlParams, returnType);
             if (result == null) //Or is a mock....?
                 return new DataTableReader(new DataTable());
 
@@ -40,10 +42,7 @@
         {
             var scalarExpected = FindExpectedExecution(text, parameters, scalarRegister);
             if (scalarExpected == null)
-            {
-                var readerExpected = FindExpectedExecution(text, parameters, readerRegister);
                 return ExecuteReader(text, parameters);
-            }
             var singleResult = ExecuteScalar(text, parameters);
 
             var dataTable = new DataTable
@@ -61,9 +60,25 @@
         public object ExecuteScalar(SqlText text, MockDbParameterCollection parameters)
         {
             var expected = FindExpectedExecution(text, parameters, scalarRegister);
-            return expected == null
-                ? QuerySingle<object>(text.ToString(), parameters)
-                : CallQuerySingle(expected.ExpectedSql, expected.ExpectedParameters, expected.ReturnType);
+            var sql = expected?.ExpectedSql ?? text.ToString();
+            var sqlParams = expected?.ExpectedParameters ?? parameters;
+            var returnType = expected?.ReturnType ?? DeriveReturnTypeForCall("QuerySingle");
+            return CallQuerySingle(sql, sqlParams, returnType);
+        }
+
+        private Type DeriveReturnTypeForCall(string dapperMethodToFind)
+        {
+            var frames = new StackTrace()
+                .GetFrames()
+                .Skip(3);
+            var queryMethod = frames.FirstOrDefault(f => f.GetMethod().Name == dapperMethodToFind)?.GetMethod() as MethodInfo;
+            if (queryMethod == null || !queryMethod.GetGenericArguments().Any())
+                return typeof(object);
+
+            var queryObjectType = queryMethod.GetGenericArguments().Single();
+            if (queryObjectType.ContainsGenericParameters)
+                return typeof(object);
+            return queryObjectType;
         }
 
         public int ExecuteNonQuery(SqlText text, MockDbParameterCollection parameters)
