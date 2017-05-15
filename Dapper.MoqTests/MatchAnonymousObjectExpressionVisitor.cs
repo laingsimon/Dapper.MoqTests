@@ -19,24 +19,23 @@
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            var arguments = node.Arguments.Select(ExpressionHelper.GetValue).ToArray();
-            var argumentLookup = arguments
-                .Zip(node.Method.GetParameters(), (value, param) => new {name = param.Name, value});
+            var argumentLookup = node.Arguments
+                .Zip(node.Method.GetParameters(), (argExpression, param) => new {name = param.Name, argExpression });
 
             var newArguments = from argument in argumentLookup
-                select GetExpression(argument.name, argument.value);
+                select GetExpression(argument.name, argument.argExpression);
 
             return Expression.Call(node.Object, node.Method, newArguments);
         }
 
-        private Expression GetExpression(string argumentName, object argumentValue)
+        private Expression GetExpression(string argumentName, Expression argumentExpression)
         {
             if (argumentName.Equals("parameters", StringComparison.OrdinalIgnoreCase))
-                return GetMatchArgument(argumentValue, ParametersMatch);
+                return GetMatchArgument(ExpressionHelper.GetValue(argumentExpression), ParametersMatch);
             if (argumentName.Equals("text", StringComparison.OrdinalIgnoreCase))
-                return GetMatchArgument((string)argumentValue, SqlCommandsMatch);
+                return GetMatchArgument((string)ExpressionHelper.GetValue(argumentExpression), SqlCommandsMatch);
 
-            return Expression.Constant(argumentValue);
+            return argumentExpression;
         }
 
         private Expression GetMatchArgument(object expected, Func<object, object, bool> predicate)

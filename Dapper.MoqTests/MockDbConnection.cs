@@ -70,20 +70,21 @@
             if (methodCallBody == null)
                 return;
 
-            var arguments = methodCallBody.Arguments.Select(ExpressionHelper.GetValue).ToArray();
             var methodName = methodCallBody.Method.Name;
-            var argumentsLookup = arguments.Zip(methodCallBody.Method.GetParameters(), (pValue, p) => new {pValue, p})
-                .ToDictionary(a => a.p.Name, a => a.pValue);
-            var sql = (string)argumentsLookup["text"];
-            var parameters = argumentsLookup["parameters"];
+            var argumentsLookup = methodCallBody.Arguments
+                .Zip(methodCallBody.Method.GetParameters(), (argExpression, parameter) => new { argExpression, parameter })
+                .ToDictionary(a => a.parameter.Name, a => a.argExpression);
+            var sql = (string)ExpressionHelper.GetValue(argumentsLookup["text"]);
+            var parameters = ExpressionHelper.GetValue(argumentsLookup["parameters"]);
+            var rowType = methodCallBody.Method.GetGenericArguments().FirstOrDefault();
 
             switch (methodName)
             {
                 case nameof(MockDatabase.Query):
-                    database.Object.ExpectReader(sql, parameters, methodCallBody.Method.GetGenericArguments()[0]);
+                    database.Object.ExpectReader(sql, parameters, rowType);
                     return;
                 case nameof(MockDatabase.QuerySingle):
-                    database.Object.ExpectScalar(sql, parameters, methodCallBody.Method.GetGenericArguments()[0]);
+                    database.Object.ExpectScalar(sql, parameters, rowType);
                     return;
                 case nameof(MockDatabase.Execute):
                     database.Object.ExpectNonQuery(sql, parameters);
