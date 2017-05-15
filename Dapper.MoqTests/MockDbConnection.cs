@@ -17,7 +17,7 @@
             this.database = new Mock<MockDatabase>(new object[] { behaviour });
         }
 
-        public IDbCommand CreateCommand()
+        IDbCommand IDbConnection.CreateCommand()
         {
             return new MockDbCommand(database.Object);
         }
