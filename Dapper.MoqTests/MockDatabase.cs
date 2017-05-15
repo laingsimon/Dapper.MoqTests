@@ -18,8 +18,8 @@
             this.behaviour = behaviour;
         }
 
-        public abstract IDataReader Query(string text, object parameters);
-        public abstract object QuerySingle(string text, object parameters);
+        public abstract IDataReader Query<T>(string text, object parameters);
+        public abstract T QuerySingle<T>(string text, object parameters);
         public abstract int Execute(string text, object parameters);
 
         public IDataReader ExecuteReader(SqlText text, MockDbParameterCollection parameters)
@@ -27,21 +27,36 @@
             var expected = FindExpectedExecution(text, parameters, readerRegister);
 
             if (expected != null)
-                return Query(expected.ExpectedSql, expected.ExpectedParameters);
+                return CallQuery(expected.ExpectedSql, expected.ExpectedParameters, expected.ReturnType);
 
-            var result = Query(text.ToString(), parameters);
+            var result = Query<object>(text.ToString(), parameters);
             if (result == null) //Or is a mock....?
                 return new DataTableReader(new DataTable());
 
             return result;
         }
 
+        public IDataReader ExecuteQuerySingle(SqlText text, MockDbParameterCollection parameters)
+        {
+            var singleResult = ExecuteScalar(text, parameters);
+            var dataTable = new DataTable
+            {
+                Columns =
+                {
+                    { "Column0", singleResult?.GetType() ?? typeof(object) }
+                },
+                Rows = { singleResult }
+            };
+
+            return new DataTableReader(dataTable);
+        }
+
         public object ExecuteScalar(SqlText text, MockDbParameterCollection parameters)
         {
             var expected = FindExpectedExecution(text, parameters, scalarRegister);
             return expected == null
-                ? QuerySingle(text.ToString(), parameters)
-                : QuerySingle(expected.ExpectedSql, expected.ExpectedParameters);
+                ? QuerySingle<object>(text.ToString(), parameters)
+                : CallQuerySingle(expected.ExpectedSql, expected.ExpectedParameters, expected.ReturnType);
         }
 
         public int ExecuteNonQuery(SqlText text, MockDbParameterCollection parameters)
@@ -52,14 +67,14 @@
                 : Execute(expected.GetSql(text), expected.GetParameters(parameters));
         }
 
-        public void ExpectReader(string text, object parameters)
+        public void ExpectReader(string text, object parameters, Type rowType)
         {
-            RecordSetup(text, parameters, readerRegister);
+            RecordSetup(text, parameters, readerRegister, rowType);
         }
 
-        public void ExpectScalar(string text, object parameters)
+        public void ExpectScalar(string text, object parameters, Type objectType)
         {
-            RecordSetup(text, parameters, scalarRegister);
+            RecordSetup(text, parameters, scalarRegister, objectType);
         }
 
         public void ExpectNonQuery(string text, object parameters)
@@ -67,9 +82,27 @@
             RecordSetup(text, parameters, nonQueryRegister);
         }
 
-        private static void RecordSetup(string sql, object parameters, ICollection<ExpectedExecution> register)
+        private IDataReader CallQuery(string text, object parameters, Type returnType)
         {
-            var key = new ExpectedExecution(sql, parameters);
+            var genericDatabase = GetGenericDatabase(returnType);
+            return genericDatabase.Query(text, parameters);
+        }
+
+        private object CallQuerySingle(string text, object parameters, Type returnType)
+        {
+            var genericDatabase = GetGenericDatabase(returnType);
+            return genericDatabase.QuerySingle(text, parameters);
+        }
+
+        private IGenericMockDatabase GetGenericDatabase(Type returnType)
+        {
+            var genericDatabaseType = typeof(GenericMockDatabase<>).MakeGenericType(returnType);
+            return (IGenericMockDatabase)Activator.CreateInstance(genericDatabaseType, this);
+        }
+
+        private static void RecordSetup(string sql, object parameters, ICollection<ExpectedExecution> register, Type returnType = null)
+        {
+            var key = new ExpectedExecution(sql, parameters, returnType);
 
             if (!register.Contains(key))
                 register.Add(key);
@@ -98,12 +131,14 @@
         {
             public string ExpectedSql { get; }
             public object ExpectedParameters { get; }
+            public Type ReturnType { get; }
 
-            public ExpectedExecution(string sql, object parameters)
+            public ExpectedExecution(string sql, object parameters, Type returnType)
                 : base(SqlText.Create(sql), MockDbParameterCollection.Create(parameters))
             {
                 ExpectedSql = sql;
                 ExpectedParameters = parameters;
+                ReturnType = returnType;
             }
 
             public string GetSql(SqlText actual)

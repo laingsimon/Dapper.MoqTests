@@ -75,16 +75,18 @@
 
             var arguments = methodCallBody.Arguments.Select(ExpressionHelper.GetValue).ToArray();
             var methodName = methodCallBody.Method.Name;
-            var sql = (string)arguments.First(); //TODO: find the SQL parameter by name
-            var parameters = arguments.Last(); //TODO: find the parameters parameter by name
+            var argumentsLookup = arguments.Zip(methodCallBody.Method.GetParameters(), (pValue, p) => new {pValue, p})
+                .ToDictionary(a => a.p.Name, a => a.pValue);
+            var sql = (string)argumentsLookup["text"];
+            var parameters = argumentsLookup["parameters"];
 
             switch (methodName)
             {
                 case nameof(MockDatabase.Query):
-                    database.Object.ExpectReader(sql, parameters);
+                    database.Object.ExpectReader(sql, parameters, methodCallBody.Method.GetGenericArguments()[0]);
                     return;
                 case nameof(MockDatabase.QuerySingle):
-                    database.Object.ExpectScalar(sql, parameters);
+                    database.Object.ExpectScalar(sql, parameters, methodCallBody.Method.GetGenericArguments()[0]);
                     return;
                 case nameof(MockDatabase.Execute):
                     database.Object.ExpectNonQuery(sql, parameters);

@@ -39,6 +39,9 @@
 
         IDataReader IDbCommand.ExecuteReader(CommandBehavior behavior)
         {
+            if (behavior.HasFlag(CommandBehavior.SingleResult))
+                return database.ExecuteQuerySingle(new SqlText(CommandText), parameters);
+
             return database.ExecuteReader(new SqlText(CommandText), parameters);
         }
 

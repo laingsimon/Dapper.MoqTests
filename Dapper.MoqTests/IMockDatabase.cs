@@ -4,9 +4,9 @@
 
     public interface IMockDatabase
     {
-        IDataReader Query(string text, object parameters);
+        IDataReader Query<T>(string text, object parameters);
         // ReSharper disable UnusedMemberInSuper.Global
-        object QuerySingle(string text, object parameters);
+        T QuerySingle<T>(string text, object parameters);
         // ReSharper restore UnusedMemberInSuper.Global
         int Execute(string text, object parameters);
     }
