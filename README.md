@@ -75,7 +75,7 @@ Assemblies to assist testing Dapper database invocations
 
 ## Features
 * [x] MockDbConnection implements `IDbConnection`
-* [x] Supports testing of `Query`
+* [x] Supports testing of `Query` and `QuerySingle`
 * [x] Supports testing of `Execute`
 * [x] Compares SQL test case insensitively, ignoring empty lines and leading/trailing white-space
 * [x] Compares parameter anonymous objects from different assemblies
@@ -83,8 +83,7 @@ Assemblies to assist testing Dapper database invocations
 * [x] Supports Strict execution, pass in the appropriate parameter to the `MockDbConnection` constructor
 
 ## Limitations
-* [ ] If `Dapper.QueryFirst()` leverages `ExecuteScalar` on a `DbCommand` object then this can be tested via the `QuerySingle` method
-* [ ] Non-anonymous objects as parameters have not been tested
+* [ ] If you have not set-up a `Query<T>()` or `QuerySingle<T>()`, you can only verify by `Query<object>()` or `QuerySingle<object>()`
 
 ## Suggestions / improvements
 Raise an issue and I'll see what I can do
