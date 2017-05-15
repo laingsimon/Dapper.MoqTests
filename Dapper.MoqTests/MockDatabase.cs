@@ -43,16 +43,7 @@
                 return ExecuteReader(text, parameters);
             var singleResult = ExecuteScalar(text, parameters);
 
-            var dataTable = new DataTable
-            {
-                Columns =
-                {
-                    { "Column0", singleResult?.GetType() ?? typeof(object) }
-                },
-                Rows = { singleResult }
-            };
-
-            return new DataTableReader(dataTable);
+            return singleResult.GetDataReader();
         }
 
         public object ExecuteScalar(string text, MockDbParameterCollection parameters)
