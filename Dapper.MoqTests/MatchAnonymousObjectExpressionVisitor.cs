@@ -51,9 +51,9 @@
             return Expression.Call(null, stringCreateMatch, predicateExpression);
         }
 
-        private static bool SqlCommandsMatch(string actual, string expected)
+        public static bool SqlCommandsMatch(string actual, string expected)
         {
-            if (ReferenceEquals(expected, MockDbConnection.Any))
+            if (expected == SqlText.Any)
                 return true;
 
             var actualSql = new SqlText(actual);
@@ -62,15 +62,13 @@
             return actualSql.Equals(expectedSql);
         }
 
-        private static bool ParametersMatch(object actual, object expected)
+        public static bool ParametersMatch(object actual, object expected)
         {
-            if (ReferenceEquals(expected, MockDbConnection.Any) || ReferenceEquals(expected, SqlText.Any))
+            if (ReferenceEquals(expected, MockDbParameterCollection.Any))
                 return true;
 
-            var actualParams = actual as MockDbParameterCollection ?? new MockDbParameterCollection(actual);
-            var otherParams = new MockDbParameterCollection(expected);
-
-            return actualParams.Equals(otherParams);
+            var actualParams = (MockDbParameterCollection)actual;
+            return actualParams.Equals(expected);
         }
     }
 }

@@ -6,15 +6,19 @@
     using System.Diagnostics;
     using System.Linq;
 
+    [DebuggerDisplay("{" + nameof(ToString) + "(),nq}")]
     internal class MockDbParameterCollection : List<MockDbParameter>, IDataParameterCollection, IEquatable<MockDbParameterCollection>
     {
-        public static readonly MockDbParameterCollection Any = new MockDbParameterCollection();
+        public static readonly object Any = new object();
 
         public MockDbParameterCollection()
         { }
 
-        public MockDbParameterCollection(object parameters)
+        private MockDbParameterCollection(object parameters)
         {
+            if (ReferenceEquals(parameters, Any) || parameters is MockDbParameterCollection)
+                throw new ArgumentException("Should not create this type in this way");
+
             if (parameters == null)
                 throw new ArgumentNullException(nameof(parameters));
 
@@ -99,9 +103,6 @@
 
         public override string ToString()
         {
-            if (ReferenceEquals(this, Any))
-                return "<ANY>";
-
             return string.Join(", ", this.Select(p => $"{p.ParameterName} = {p.Value}"));
         }
 
@@ -112,14 +113,7 @@
 
         public override bool Equals(object obj)
         {
-            return Equals(obj as MockDbParameterCollection);
-        }
-
-        public static MockDbParameterCollection Create(object parameters)
-        {
-            return ReferenceEquals(parameters, MockDbConnection.Any)
-                ? Any
-                : new MockDbParameterCollection(parameters);
+            return Equals(obj as MockDbParameterCollection ?? new MockDbParameterCollection(obj));
         }
     }
 }

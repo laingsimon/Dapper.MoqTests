@@ -29,25 +29,25 @@
 
         int IDbCommand.ExecuteNonQuery()
         {
-            return database.ExecuteNonQuery(new SqlText(CommandText), parameters);
+            return database.ExecuteNonQuery(CommandText, parameters);
         }
 
         IDataReader IDbCommand.ExecuteReader()
         {
-            return database.ExecuteReader(new SqlText(CommandText), parameters);
+            return database.ExecuteReader(CommandText, parameters);
         }
 
         IDataReader IDbCommand.ExecuteReader(CommandBehavior behavior)
         {
             if (behavior.HasFlag(CommandBehavior.SingleResult))
-                return database.ExecuteQuerySingle(new SqlText(CommandText), parameters);
+                return database.ExecuteQuerySingle(CommandText, parameters);
 
-            return database.ExecuteReader(new SqlText(CommandText), parameters);
+            return database.ExecuteReader(CommandText, parameters);
         }
 
         object IDbCommand.ExecuteScalar()
         {
-            return database.ExecuteScalar(new SqlText(CommandText), parameters);
+            return database.ExecuteScalar(CommandText, parameters);
         }
 
         IDataParameterCollection IDbCommand.Parameters => parameters;

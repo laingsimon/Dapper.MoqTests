@@ -1,17 +1,15 @@
 ﻿namespace Dapper.MoqTests
 {
     using System;
-    using System.Diagnostics;
     using System.Text;
 
     internal class SqlText : IEquatable<SqlText>
     {
-        internal static readonly SqlText Any = new SqlText(MockDbConnection.Any);
+        internal static readonly string Any = "<ANY>:" + Guid.NewGuid();
 
         private readonly string sql;
         private readonly string originalSql;
 
-        [DebuggerStepThrough]
         public SqlText(string sql)
         {
             if (string.IsNullOrEmpty(sql))
@@ -44,11 +42,6 @@
             return builder.ToString();
         }
 
-        public static implicit operator SqlText(string sql)
-        {
-            return new SqlText(sql);
-        }
-
         public override int GetHashCode()
         {
             return StringComparer.OrdinalIgnoreCase.GetHashCode(sql);
@@ -56,17 +49,7 @@
 
         public override string ToString()
         {
-            if (ReferenceEquals(this, Any))
-                return "<ANY>";
-
             return originalSql;
-        }
-
-        public static SqlText Create(string sql)
-        {
-            return sql == Any.originalSql
-                ? Any
-                : new SqlText(sql);
         }
     }
 }

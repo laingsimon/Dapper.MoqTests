@@ -11,9 +11,9 @@
     internal abstract class MockDatabase : IMockDatabase
     {
         private readonly MockBehavior behaviour;
-        private readonly HashSet<ExpectedExecution> readerRegister = new HashSet<ExpectedExecution>();
-        private readonly HashSet<ExpectedExecution> scalarRegister = new HashSet<ExpectedExecution>();
-        private readonly HashSet<ExpectedExecution> nonQueryRegister = new HashSet<ExpectedExecution>();
+        private readonly HashSet<SqlExecution> readerRegister = new HashSet<SqlExecution>();
+        private readonly HashSet<SqlExecution> scalarRegister = new HashSet<SqlExecution>();
+        private readonly HashSet<SqlExecution> nonQueryRegister = new HashSet<SqlExecution>();
 
         protected MockDatabase(MockBehavior behaviour)
         {
@@ -24,21 +24,19 @@
         public abstract T QuerySingle<T>(string text, object parameters);
         public abstract int Execute(string text, object parameters);
 
-        public IDataReader ExecuteReader(SqlText text, MockDbParameterCollection parameters)
+        public IDataReader ExecuteReader(string text, MockDbParameterCollection parameters)
         {
             var expected = FindExpectedExecution(text, parameters, readerRegister);
-            var sql = expected?.ExpectedSql ?? text.ToString();
-            var sqlParams = expected?.ExpectedParameters ?? parameters;
             var returnType = expected?.ReturnType ?? DeriveReturnTypeForCall("Query");
 
-            var result = CallQuery(sql, sqlParams, returnType);
+            var result = CallQuery(text, parameters, returnType);
             if (result == null) //Or is a mock....?
                 return new DataTableReader(new DataTable());
 
             return result;
         }
 
-        public IDataReader ExecuteQuerySingle(SqlText text, MockDbParameterCollection parameters)
+        public IDataReader ExecuteQuerySingle(string text, MockDbParameterCollection parameters)
         {
             var scalarExpected = FindExpectedExecution(text, parameters, scalarRegister);
             if (scalarExpected == null)
@@ -57,13 +55,11 @@
             return new DataTableReader(dataTable);
         }
 
-        public object ExecuteScalar(SqlText text, MockDbParameterCollection parameters)
+        public object ExecuteScalar(string text, MockDbParameterCollection parameters)
         {
             var expected = FindExpectedExecution(text, parameters, scalarRegister);
-            var sql = expected?.ExpectedSql ?? text.ToString();
-            var sqlParams = expected?.ExpectedParameters ?? parameters;
             var returnType = expected?.ReturnType ?? DeriveReturnTypeForCall("QuerySingle");
-            return CallQuerySingle(sql, sqlParams, returnType);
+            return CallQuerySingle(text, parameters, returnType);
         }
 
         private Type DeriveReturnTypeForCall(string dapperMethodToFind)
@@ -81,12 +77,9 @@
             return queryObjectType;
         }
 
-        public int ExecuteNonQuery(SqlText text, MockDbParameterCollection parameters)
+        public int ExecuteNonQuery(string text, MockDbParameterCollection parameters)
         {
-            var expected = FindExpectedExecution(text, parameters, nonQueryRegister);
-            return expected == null
-                ? Execute(text.ToString(), parameters)
-                : Execute(expected.GetSql(text), expected.GetParameters(parameters));
+            return Execute(text, parameters);
         }
 
         public void ExpectReader(string text, object parameters, Type rowType)
@@ -122,15 +115,15 @@
             return (IGenericMockDatabase)Activator.CreateInstance(genericDatabaseType, this);
         }
 
-        private static void RecordSetup(string sql, object parameters, ICollection<ExpectedExecution> register, Type returnType = null)
+        private static void RecordSetup(string sql, object parameters, ICollection<SqlExecution> register, Type returnType = null)
         {
-            var key = new ExpectedExecution(sql, parameters, returnType);
+            var key = new SqlExecution(sql, parameters, returnType);
 
             if (!register.Contains(key))
                 register.Add(key);
         }
 
-        private ExpectedExecution FindExpectedExecution(SqlText text, MockDbParameterCollection parameters, HashSet<ExpectedExecution> register)
+        private SqlExecution FindExpectedExecution(string text, MockDbParameterCollection parameters, HashSet<SqlExecution> register)
         {
             var actual = new SqlExecution(text, parameters);
             var matching = register.Where(ee => ee.Equals(actual)).ToArray();
@@ -149,68 +142,41 @@
             throw new InvalidOperationException("Multiple executions match the given statement and parameters, have you setup the method twice?");
         }
 
-        private class ExpectedExecution : SqlExecution, IEquatable<ExpectedExecution>
+        private class SqlExecution : IEquatable<SqlExecution>
         {
-            public string ExpectedSql { get; }
-            public object ExpectedParameters { get; }
             public Type ReturnType { get; }
+            private readonly string sql;
+            private readonly object parameters;
 
-            public ExpectedExecution(string sql, object parameters, Type returnType)
-                : base(SqlText.Create(sql), MockDbParameterCollection.Create(parameters))
+            public SqlExecution(string sql, MockDbParameterCollection parameters)
             {
-                ExpectedSql = sql;
-                ExpectedParameters = parameters;
+                this.sql = sql;
+                this.parameters = parameters;
+            }
+
+            public SqlExecution(string sql, object parameters, Type returnType = null)
+            {
                 ReturnType = returnType;
-            }
-
-            public string GetSql(SqlText actual)
-            {
-                return ReferenceEquals(Sql, SqlText.Any)
-                    ? actual.ToString()
-                    : ExpectedSql;
-            }
-
-            public object GetParameters(MockDbParameterCollection actual)
-            {
-                return ReferenceEquals(Parameters, MockDbParameterCollection.Any)
-                    ? actual
-                    : Parameters;
+                this.sql = sql;
+                this.parameters = parameters;
             }
 
             public override int GetHashCode()
             {
-                return ExpectedSql.GetHashCode() ^ ExpectedParameters.GetHashCode();
-            }
-
-            public bool Equals(ExpectedExecution other)
-            {
-                return other != null
-                       && ExpectedSql.Equals(other.ExpectedSql)
-                       && ExpectedParameters.Equals(other.ExpectedParameters);
+                return sql.GetHashCode() ^ parameters.GetHashCode() ^ (ReturnType?.GetHashCode() ?? 0);
             }
 
             public override bool Equals(object obj)
             {
-                return Equals(obj as ExpectedExecution);
-            }
-        }
-
-        private class SqlExecution : IEquatable<SqlExecution>
-        {
-            protected readonly SqlText Sql;
-            protected readonly MockDbParameterCollection Parameters;
-
-            public SqlExecution(SqlText sql, MockDbParameterCollection parameters)
-            {
-                this.Sql = sql;
-                this.Parameters = parameters;
+                return Equals(obj as SqlExecution);
             }
 
             public bool Equals(SqlExecution actual)
             {
                 return actual != null
-                       && (ReferenceEquals(Sql, SqlText.Any) || Sql.Equals(actual.Sql))
-                       && (ReferenceEquals(Parameters, MockDbParameterCollection.Any) || Parameters.Equals(actual.Parameters));
+                    && MatchAnonymousObjectExpressionVisitor.SqlCommandsMatch(actual.sql, sql)
+                    && MatchAnonymousObjectExpressionVisitor.ParametersMatch(actual.parameters, parameters)
+                    && (actual.ReturnType == null || ReturnType == actual.ReturnType);
             }
         }
     }

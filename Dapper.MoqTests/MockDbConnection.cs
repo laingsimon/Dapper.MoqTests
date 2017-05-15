@@ -10,7 +10,6 @@
     public class MockDbConnection : IDbConnection
     {
         private readonly Mock<MockDatabase> database;
-        internal static readonly string Any = Guid.NewGuid().ToString();
 
         public MockDbConnection(MockBehavior behaviour = MockBehavior.Default)
         {
@@ -62,8 +61,6 @@
 
         public void Verify<TReturn>(Expression<Func<IMockDatabase, TReturn>> expression)
         {
-            RegisterExecution(expression);
-
             database.As<IMockDatabase>().Verify(ModifySqlParametersArgumentInExpression(expression));
         }
 
