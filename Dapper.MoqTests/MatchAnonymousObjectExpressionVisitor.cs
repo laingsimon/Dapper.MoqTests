@@ -18,7 +18,7 @@
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            var arguments = node.Arguments.Select(ReduceToConstant).ToArray();
+            var arguments = node.Arguments.Select(ExpressionHelper.GetValue).ToArray();
             var argumentLookup = arguments
                 .Zip(node.Method.GetParameters(), (value, param) => new { name = param.Name, value });
 
@@ -28,14 +28,6 @@
                                     : Expression.Constant(argument.value);
 
             return Expression.Call(node.Object, node.Method, newArguments);
-        }
-
-        private static object ReduceToConstant(Expression expression)
-        {
-            var objectMember = Expression.Convert(expression, typeof(object));
-            var getterLambda = Expression.Lambda<Func<object>>(objectMember);
-            var getter = getterLambda.Compile();
-            return getter();
         }
 
         private Expression GetNewArgument(object value)
