@@ -38,7 +38,14 @@
 
         public IDataReader ExecuteQuerySingle(SqlText text, MockDbParameterCollection parameters)
         {
+            var scalarExpected = FindExpectedExecution(text, parameters, scalarRegister);
+            if (scalarExpected == null)
+            {
+                var readerExpected = FindExpectedExecution(text, parameters, readerRegister);
+                return ExecuteReader(text, parameters);
+            }
             var singleResult = ExecuteScalar(text, parameters);
+
             var dataTable = new DataTable
             {
                 Columns =
