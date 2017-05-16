@@ -3,172 +3,95 @@
     using System;
     using System.Collections.Generic;
     using System.Data;
-    using System.Diagnostics;
     using System.Linq;
-    using System.Reflection;
+    using System.Linq.Expressions;
     using Moq;
+    using System.Reflection;
 
     internal abstract class MockDatabase : IMockDatabase
     {
+        private static readonly MethodInfo queryObjectMethod = typeof(MockDatabase).GetMethod(nameof(Query)).MakeGenericMethod(typeof(object));
+        private static readonly MethodInfo executeMethod = typeof(MockDatabase).GetMethod(nameof(Execute));
+
         private readonly MockBehavior behaviour;
-        private readonly HashSet<SqlExecution> readerRegister = new HashSet<SqlExecution>();
-        private readonly HashSet<SqlExecution> scalarRegister = new HashSet<SqlExecution>();
-        private readonly HashSet<SqlExecution> nonQueryRegister = new HashSet<SqlExecution>();
+        private readonly List<Expression> setups = new List<Expression>();
 
         protected MockDatabase(MockBehavior behaviour)
         {
             this.behaviour = behaviour;
         }
 
-        public abstract IDataReader Query<T>(string text, object parameters = null);
+        public abstract IEnumerable<T> Query<T>(string text, object parameters = null);
         public abstract T QuerySingle<T>(string text, object parameters = null);
         public abstract int Execute(string text, object parameters = null);
 
-        public IDataReader ExecuteReader(string text, MockDbParameterCollection parameters)
+        public void Expect(Expression setup)
         {
-            var expected = FindExpectedExecution(text, parameters, readerRegister);
-            var returnType = expected?.ReturnType ?? DeriveReturnTypeForCall("Query");
-
-            var result = CallQuery(text, parameters, returnType);
-            if (result == null) //Or is a mock....?
-                return new DataTableReader(new DataTable());
-
-            return result;
+            this.setups.Add(setup);
         }
 
-        public IDataReader ExecuteQuerySingle(string text, MockDbParameterCollection parameters)
+        public int ExecuteNonQuery(MockDbCommand command)
         {
-            var scalarExpected = FindExpectedExecution(text, parameters, scalarRegister);
-            if (scalarExpected == null)
-                return ExecuteReader(text, parameters);
-            var singleResult = ExecuteScalar(text, parameters);
+            var parametersLookup = command.GetParameterLookup();
+            var parametersArray = (from param in executeMethod.GetParameters()
+                                   let commandValue = parametersLookup.ContainsKey(param.Name)
+                                     ? parametersLookup[param.Name]
+                                     : param.DefaultValue
+                                   select commandValue).ToArray();
 
-            return singleResult.GetDataReader();
+            return (int)executeMethod.Invoke(this, parametersArray);
         }
 
-        public object ExecuteScalar(string text, MockDbParameterCollection parameters)
+        public IDataReader ExecuteReader(MockDbCommand command)
         {
-            var expected = FindExpectedExecution(text, parameters, scalarRegister);
-            var returnType = expected?.ReturnType ?? DeriveReturnTypeForCall("QuerySingle");
-            return CallQuerySingle(text, parameters, returnType);
+            var setup = FindSetup(command, nameof(Query), nameof(QuerySingle));
+
+            var methodCall = (MethodCallExpression)setup?.Body;
+            var method = methodCall?.Method ?? queryObjectMethod;
+            var parametersLookup = command.GetParameterLookup();
+            var parametersArray = (from param in method.GetParameters()
+                                  let commandValue = parametersLookup.ContainsKey(param.Name)
+                                    ? parametersLookup[param.Name]
+                                    : param.DefaultValue
+                                  select commandValue).ToArray();
+
+            var result = method.Invoke(this, parametersArray);
+            var reader = result as IDataReader;
+            if (result == null)
+                return GetEmptyDataReader(command);
+
+            return reader ?? result.GetDataReader();
         }
 
-        private Type DeriveReturnTypeForCall(string dapperMethodToFind)
+        private DataTableReader GetEmptyDataReader(IDbCommand command)
         {
-            var frames = new StackTrace()
-                .GetFrames()
-                .Skip(3);
-            var queryMethod = frames.FirstOrDefault(f => f.GetMethod().Name == dapperMethodToFind)?.GetMethod() as MethodInfo;
-            if (queryMethod == null || !queryMethod.GetGenericArguments().Any())
-                return typeof(object);
-
-            var queryObjectType = queryMethod.GetGenericArguments().Single();
-            if (queryObjectType.ContainsGenericParameters)
-                return typeof(object);
-            return queryObjectType;
-        }
-
-        public int ExecuteNonQuery(string text, MockDbParameterCollection parameters)
-        {
-            return Execute(text, parameters);
-        }
-
-        public void ExpectReader(string text, object parameters, Type rowType)
-        {
-            RecordSetup(text, parameters, readerRegister, rowType);
-        }
-
-        public void ExpectScalar(string text, object parameters, Type objectType)
-        {
-            RecordSetup(text, parameters, scalarRegister, objectType);
-        }
-
-        public void ExpectNonQuery(string text, object parameters)
-        {
-            RecordSetup(text, parameters, nonQueryRegister);
-        }
-
-        private IDataReader CallQuery(string text, object parameters, Type returnType)
-        {
-            var genericDatabase = GetGenericDatabase(returnType);
-            return genericDatabase.Query(text, parameters);
-        }
-
-        private object CallQuerySingle(string text, object parameters, Type returnType)
-        {
-            var genericDatabase = GetGenericDatabase(returnType);
-            return genericDatabase.QuerySingle(text, parameters);
-        }
-
-        private IGenericMockDatabase GetGenericDatabase(Type returnType)
-        {
-            var genericDatabaseType = typeof(GenericMockDatabase<>).MakeGenericType(returnType);
-            return (IGenericMockDatabase)Activator.CreateInstance(genericDatabaseType, this);
-        }
-
-        private static void RecordSetup(string sql, object parameters, ICollection<SqlExecution> register, Type returnType = null)
-        {
-            var key = new SqlExecution(sql, parameters, returnType);
-
-            if (!register.Contains(key))
-                register.Add(key);
-        }
-
-        private SqlExecution FindExpectedExecution(string text, MockDbParameterCollection parameters, HashSet<SqlExecution> register)
-        {
-            var actual = new SqlExecution(text, parameters);
-            var matching = register.Where(ee => ee.Equals(actual)).ToArray();
-
-            if (!matching.Any())
+            switch (behaviour)
             {
-                if (behaviour == MockBehavior.Strict)
-                    throw new InvalidOperationException($"Unexpected call with arguments ({text}, {parameters})");
+                default:
+                    return new DataTableReader(new DataTable());
 
+                case MockBehavior.Strict:
+                    throw new InvalidOperationException($"Unexpected call to with sql: {command.CommandText} and parameters: {command.Parameters}");
+            }
+        }
+
+        public object ExecuteScalar(MockDbCommand command)
+        {
+            throw new NotImplementedException("When does Dapper ever use this?");
+        }
+
+        private LambdaExpression FindSetup(MockDbCommand command, params string[] dapperExtensionMethodNames)
+        {
+            var comparer = new DapperSetupComparer(dapperExtensionMethodNames);
+            var expression = this.setups.SingleOrDefault(comparer.Matches) as LambdaExpression;
+            if (expression == null)
                 return null;
-            }
 
-            if (matching.Length == 1)
-                return matching.Single();
+            var methodCallComparer = DapperMethodCallComparer.GetComparerForExpression(expression);
+            if (methodCallComparer.CommandMatchesExpression(command))
+                return expression;
 
-            throw new InvalidOperationException("Multiple executions match the given statement and parameters, have you setup the method twice?");
-        }
-
-        private class SqlExecution : IEquatable<SqlExecution>
-        {
-            public Type ReturnType { get; }
-            private readonly string sql;
-            private readonly object parameters;
-
-            public SqlExecution(string sql, MockDbParameterCollection parameters)
-            {
-                this.sql = sql;
-                this.parameters = parameters;
-            }
-
-            public SqlExecution(string sql, object parameters, Type returnType = null)
-            {
-                ReturnType = returnType;
-                this.sql = sql;
-                this.parameters = parameters;
-            }
-
-            public override int GetHashCode()
-            {
-                return sql.GetHashCode() ^ parameters.GetHashCode() ^ (ReturnType?.GetHashCode() ?? 0);
-            }
-
-            public override bool Equals(object obj)
-            {
-                return Equals(obj as SqlExecution);
-            }
-
-            public bool Equals(SqlExecution actual)
-            {
-                return actual != null
-                    && MatchAnonymousObjectExpressionVisitor.SqlCommandsMatch(actual.sql, sql)
-                    && MatchAnonymousObjectExpressionVisitor.ParametersMatch(actual.parameters, parameters)
-                    && (actual.ReturnType == null || ReturnType == actual.ReturnType);
-            }
+            return null;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿namespace Dapper.MoqTests
 {
     using System;
+    using System.Collections.Generic;
     using System.Data;
 
     internal class MockDbCommand : IDbCommand
@@ -29,25 +30,22 @@
 
         int IDbCommand.ExecuteNonQuery()
         {
-            return database.ExecuteNonQuery(CommandText, parameters);
+            return database.ExecuteNonQuery(this);
         }
 
         IDataReader IDbCommand.ExecuteReader()
         {
-            return database.ExecuteReader(CommandText, parameters);
+            return database.ExecuteReader(this);
         }
 
         IDataReader IDbCommand.ExecuteReader(CommandBehavior behavior)
         {
-            if (behavior.HasFlag(CommandBehavior.SingleResult))
-                return database.ExecuteQuerySingle(CommandText, parameters);
-
-            return database.ExecuteReader(CommandText, parameters);
+            return database.ExecuteReader(this);
         }
 
         object IDbCommand.ExecuteScalar()
         {
-            return database.ExecuteScalar(CommandText, parameters);
+            return database.ExecuteScalar(this);
         }
 
         IDataParameterCollection IDbCommand.Parameters => parameters;
@@ -57,5 +55,14 @@
         int IDbCommand.CommandTimeout { get; set; }
         CommandType IDbCommand.CommandType { get; set; }
         UpdateRowSource IDbCommand.UpdatedRowSource { get; set; }
+
+        public IReadOnlyDictionary<string, object> GetParameterLookup()
+        {
+            return new Dictionary<string, object>
+            {
+                { "text", CommandText },
+                { "parameters", ParametersObjectBuilder.FromParameters(parameters) }
+            };
+        }
     }
 }

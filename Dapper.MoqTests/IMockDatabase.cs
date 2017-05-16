@@ -1,13 +1,11 @@
 ﻿namespace Dapper.MoqTests
 {
-    using System.Data;
+    using System.Collections.Generic;
 
     public interface IMockDatabase
     {
-        IDataReader Query<T>(string text, object parameters = null);
-        // ReSharper disable UnusedMemberInSuper.Global
         T QuerySingle<T>(string text, object parameters = null);
-        // ReSharper restore UnusedMemberInSuper.Global
+        IEnumerable<T> Query<T>(string text, object parameters = null);
         int Execute(string text, object parameters = null);
     }
 }

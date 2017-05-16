@@ -43,17 +43,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DapperMethodCallComparer.cs" />
+    <Compile Include="DapperSetupComparer.cs" />
     <Compile Include="ExpressionHelper.cs" />
-    <Compile Include="GenericMockDatabase.cs" />
-    <Compile Include="IGenericMockDatabase.cs" />
+    <Compile Include="ExpressionMatch.cs" />
+    <Compile Include="GenericMethodCaller.cs" />
+    <Compile Include="IMatch.cs" />
     <Compile Include="IMockDatabase.cs" />
     <Compile Include="MatchAnonymousObjectExpressionVisitor.cs" />
+    <Compile Include="MatchProxy.cs" />
     <Compile Include="MockDatabase.cs" />
     <Compile Include="MockDbCommand.cs" />
     <Compile Include="MockDbConnection.cs" />
     <Compile Include="MockDbParameter.cs" />
     <Compile Include="MockDbParameterCollection.cs" />
     <Compile Include="ObjectExtensions.cs" />
+    <Compile Include="ParametersObjectBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SqlText.cs" />
   </ItemGroup>

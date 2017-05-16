@@ -14,7 +14,7 @@
         public MockDbParameterCollection()
         { }
 
-        private MockDbParameterCollection(object parameters)
+        public MockDbParameterCollection(object parameters)
         {
             if (ReferenceEquals(parameters, Any) || parameters is MockDbParameterCollection)
                 throw new ArgumentException("Should not create this type in this way");
@@ -23,8 +23,8 @@
                 throw new ArgumentNullException(nameof(parameters));
 
             var properties = from property in parameters.GetType().GetProperties()
-                let value = property.GetValue(parameters, null)
-                select new MockDbParameter { ParameterName = property.Name, Value = value};
+                             let value = property.GetValue(parameters, null)
+                             select new MockDbParameter { ParameterName = property.Name, Value = value };
 
             AddRange(properties);
         }

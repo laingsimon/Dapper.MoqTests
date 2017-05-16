@@ -1,18 +1,20 @@
 ﻿using System;
+using System.Collections;
 using System.Data;
 using System.Linq;
 
 namespace Dapper.MoqTests
 {
-    public static class ObjectExtensions
+    internal static class ObjectExtensions
     {
         public static IDataReader GetDataReader(this object value)
         {
             if (value == null || IsPrimitiveType(value.GetType()))
                 return new DataTableReader(GetDataTableForPrimativeType(value));
 
-            if (value.GetType().IsArray)
-                return new DataTableReader(GetDataTableForArray((Array)value));
+            var enumerable = value as IEnumerable;
+            if (enumerable != null)
+                return new DataTableReader(GetDataTableForArray(enumerable));
 
             var properties = value.GetType()
                 .GetProperties()
@@ -28,9 +30,14 @@ namespace Dapper.MoqTests
             return new DataTableReader(dataTable);
         }
 
-        private static DataTable GetDataTableForArray(Array value)
+        private static DataTable GetDataTableForArray(IEnumerable value)
         {
-            var properties = value.GetType().GetElementType()
+            var collectionType = value.GetType();
+            var elementType = collectionType.GetElementType()
+                ?? collectionType.GetGenericArguments().FirstOrDefault()
+                ?? typeof(object);
+
+            var properties = elementType
     .GetProperties()
     .Where(p => IsPrimitiveType(p.PropertyType))
     .ToArray();

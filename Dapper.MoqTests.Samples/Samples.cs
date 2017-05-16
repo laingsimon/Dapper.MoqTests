@@ -118,11 +118,34 @@ where Registration = @registration", new { registration = "ABC123" }));
             connection.Setup(c => c.Query<Car>(@"select *
 from [Cars]
 order by Make, Model", It.IsAny<object>()))
-                    .Returns(new[] { vauxhall, ford }.GetDataReader());
+                    .Returns(new[] { vauxhall, ford });
 
             var result = repository.GetCars();
 
             Assert.That(result.Select(c => c.Model), Is.EquivalentTo(new[] { "Astra", "Mondeo" }));
+        }
+
+        [Test]
+        public void SupportsMoqArgumentMatches()
+        {
+            var connectionFactory = new Mock<IDbConnectionFactory>();
+            var connection = new MockDbConnection();
+            var repository = new SampleRepository(connectionFactory.Object);
+            var vauxhall = new Car
+            {
+                Registration = "ABC123",
+                Make = "Vauxhall",
+                Model = "Astra"
+            };
+            connectionFactory
+                .Setup(f => f.OpenConnection())
+                .Returns(connection);
+            connection.Setup(c => c.Query<Car>(It.Is<string>(sql => sql.Contains("[Cars]")), It.IsAny<object>()))
+                    .Returns(new[] { vauxhall });
+
+            repository.GetModels("Vauxhall");
+
+            connection.Verify(c => c.Query<Car>(It.IsAny<string>(), It.Is<object>(p => p.Prop<string>("make") == "Vauxhall")));
         }
     }
 }
