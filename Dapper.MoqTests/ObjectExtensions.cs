@@ -7,6 +7,13 @@ namespace Dapper.MoqTests
 {
     internal static class ObjectExtensions
     {
+        private static readonly Type[] primitiveDataTypes =
+        {
+            typeof(string),
+            typeof(DateTime),
+            typeof(Guid)
+        };
+
         public static IDataReader GetDataReader(this object value)
         {
             if (value == null || IsPrimitiveType(value.GetType()))
@@ -37,6 +44,9 @@ namespace Dapper.MoqTests
                 ?? collectionType.GetGenericArguments().FirstOrDefault()
                 ?? typeof(object);
 
+            if (IsPrimitiveType(elementType))
+                return GetPrimitiveTypeDataTable(value, elementType);
+
             var properties = elementType
     .GetProperties()
     .Where(p => IsPrimitiveType(p.PropertyType))
@@ -50,6 +60,22 @@ namespace Dapper.MoqTests
                 var rowValues = properties.Select(p => p.GetValue(row)).ToArray();
                 dataTable.Rows.Add(rowValues);
             }
+
+            return dataTable;
+        }
+
+        private static DataTable GetPrimitiveTypeDataTable(IEnumerable value, Type elementType)
+        {
+            var dataTable = new DataTable
+            {
+                Columns =
+                {
+                    { "Column0", elementType }
+                }
+            };
+
+            foreach (var row in value)
+                dataTable.Rows.Add(new[] {row});
 
             return dataTable;
         }
@@ -68,7 +94,7 @@ namespace Dapper.MoqTests
 
         private static bool IsPrimitiveType(Type type)
         {
-            return type.IsPrimitive || type == typeof(string) || type == typeof(Guid);
+            return type.IsPrimitive || primitiveDataTypes.Contains(type);
         }
     }
 }
