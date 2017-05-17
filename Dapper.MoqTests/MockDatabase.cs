@@ -58,9 +58,32 @@
             var result = method.Invoke(this, parametersArray);
             var reader = result as IDataReader;
             if (result == null)
+            {
+                if (method.Name == nameof(QuerySingle))
+                    return GetQuerySingleDataReader(command, method.GetGenericArguments()[0]);
+
                 return GetEmptyDataReader(command);
+            }
 
             return reader ?? result.GetDataReader();
+        }
+
+        private IDataReader GetQuerySingleDataReader(IDbCommand command, Type rowType)
+        {
+            if (Nullable.GetUnderlyingType(rowType) != null)
+                rowType = typeof(object); //because DataTable doesn't support Nullable<T> as a column-type
+
+            var dataTable = new DataTable
+            {
+                Columns =
+                {
+                    { "Column0", rowType }
+                }
+            };
+
+            dataTable.Rows.Add((object)null);
+
+            return new DataTableReader(dataTable);
         }
 
         private DataTableReader GetEmptyDataReader(IDbCommand command)
