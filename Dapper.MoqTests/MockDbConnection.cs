@@ -1,4 +1,5 @@
-﻿namespace Dapper.MoqTests
+﻿[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("DynamicProxyGenAssembly2")]
+namespace Dapper.MoqTests
 {
     using System;
     using System.Data;

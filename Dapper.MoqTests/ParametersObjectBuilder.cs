@@ -15,8 +15,11 @@ namespace Dapper.MoqTests
 
             foreach (var parameter in parameters)
                 AddProperty(builder, parameter);
-
+#if NET45
             var type = builder.CreateType();
+#elif NETSTANDARD
+            var type = builder.CreateTypeInfo();
+#endif
             var instance = Activator.CreateInstance(type);
 
             foreach (var parameter in parameters)
@@ -72,7 +75,11 @@ namespace Dapper.MoqTests
         private AssemblyBuilder AssemblyBuilder()
         {
             var assembly = new AssemblyName("Dapper.MoqTests.AnonymousParameterTypes");
+#if NET45
             return AppDomain.CurrentDomain.DefineDynamicAssembly(assembly, AssemblyBuilderAccess.Run);
+#elif NETSTANDARD
+            return System.Reflection.Emit.AssemblyBuilder.DefineDynamicAssembly(assembly, AssemblyBuilderAccess.Run);
+#endif
         }
 
         private ModuleBuilder ModuleBuilder()
