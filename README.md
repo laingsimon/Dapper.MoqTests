@@ -1,6 +1,12 @@
 # Dapper.MoqTests
 Assemblies to assist testing Dapper database invocations
 
+### Usage
+
+Install-Package Dapper.MoqTests
+
+Note: With version 1.0.0 the library is compiled against .net 4.6.1 therefore is now compatible with .net standard projects.
+
 ### For example if you want to test this call:
 
     connection.Query<int>(@"select count(*)
