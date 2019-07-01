@@ -1,10 +1,12 @@
 ﻿namespace Dapper.MoqTests
 {
-    using System;
     using System.Collections.Generic;
     using System.Data;
+    using System.Data.Common;
+    using System.Threading;
+    using System.Threading.Tasks;
 
-    internal class MockDbCommand : IDbCommand
+    internal class MockDbCommand : DbCommand
     {
         private readonly MockDatabase database;
         private readonly MockDbParameterCollection parameters = new MockDbParameterCollection();
@@ -14,47 +16,39 @@
             this.database = database;
         }
 
-        void IDisposable.Dispose()
+        public override string CommandText { get; set; }
+        public override int CommandTimeout { get; set; }
+        public override CommandType CommandType { get; set; }
+        public override bool DesignTimeVisible { get; set; }
+        public override UpdateRowSource UpdatedRowSource { get; set; }
+        protected override DbConnection DbConnection { get; set; }
+
+        protected override DbParameterCollection DbParameterCollection => parameters;
+
+        protected override DbTransaction DbTransaction { get; set; }
+
+        public override void Cancel()
         { }
 
-        void IDbCommand.Prepare()
-        { }
-
-        void IDbCommand.Cancel()
-        { }
-
-        IDbDataParameter IDbCommand.CreateParameter()
-        {
-            return new MockDbParameter();
-        }
-
-        int IDbCommand.ExecuteNonQuery()
+        public override int ExecuteNonQuery()
         {
             return database.ExecuteNonQuery(this);
         }
 
-        IDataReader IDbCommand.ExecuteReader()
-        {
-            return database.ExecuteReader(this);
-        }
-
-        IDataReader IDbCommand.ExecuteReader(CommandBehavior behavior)
-        {
-            return database.ExecuteReader(this);
-        }
-
-        object IDbCommand.ExecuteScalar()
+        public override object ExecuteScalar()
         {
             return database.ExecuteScalar(this);
         }
 
-        IDataParameterCollection IDbCommand.Parameters => parameters;
-        IDbConnection IDbCommand.Connection { get; set; }
-        IDbTransaction IDbCommand.Transaction { get; set; }
-        public string CommandText { get; set; }
-        int IDbCommand.CommandTimeout { get; set; }
-        CommandType IDbCommand.CommandType { get; set; }
-        UpdateRowSource IDbCommand.UpdatedRowSource { get; set; }
+        public override Task<int> ExecuteNonQueryAsync(CancellationToken cancellationToken)
+        {
+            return Task.FromResult(ExecuteNonQuery());
+        }
+
+        public override Task<object> ExecuteScalarAsync(CancellationToken cancellationToken)
+        {
+            return Task.FromResult(ExecuteScalar());
+        }
 
         public IReadOnlyDictionary<string, object> GetParameterLookup()
         {
@@ -63,6 +57,19 @@
                 { "text", CommandText },
                 { "parameters", ParametersObjectBuilder.FromParameters(parameters) }
             };
+        }
+
+        public override void Prepare()
+        { }
+
+        protected override DbParameter CreateDbParameter()
+        {
+            return new MockDbParameter();
+        }
+
+        protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
+        {
+            return new MockDbDataReader(database.ExecuteReader(this));
         }
     }
 }

@@ -13,13 +13,13 @@ namespace Dapper.MoqTests
         {
             var builder = TypeBuilder();
 
-            foreach (var parameter in parameters)
+            foreach (MockDbParameter parameter in parameters)
                 AddProperty(builder, parameter);
 
             var type = builder.CreateType();
             var instance = Activator.CreateInstance(type);
 
-            foreach (var parameter in parameters)
+            foreach (MockDbParameter parameter in parameters)
             {
                 var propertyInfo = type.GetProperty(parameter.ParameterName);
                 if (propertyInfo == null)
