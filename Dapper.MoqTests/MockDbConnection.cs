@@ -57,9 +57,34 @@
             return database.As<IMockDatabase>().Setup(ModifySqlParametersArgumentInExpression(expression));
         }
 
+        public void Verify()
+        {
+            database.As<IMockDatabase>().Verify();
+        }
+
         public void Verify<TReturn>(Expression<Func<IMockDatabase, TReturn>> expression)
         {
             database.As<IMockDatabase>().Verify(ModifySqlParametersArgumentInExpression(expression));
+        }
+
+        public void Verify<TReturn>(Expression<Func<IMockDatabase, TReturn>> expression, string failMessage)
+        {
+            database.As<IMockDatabase>().Verify(ModifySqlParametersArgumentInExpression(expression), failMessage);
+        }
+
+        public void Verify<TReturn>(Expression<Func<IMockDatabase, TReturn>> expression, Times times)
+        {
+            database.As<IMockDatabase>().Verify(ModifySqlParametersArgumentInExpression(expression), times);
+        }
+
+        public void Verify<TReturn>(Expression<Func<IMockDatabase, TReturn>> expression, Func<Times> times)
+        {
+            database.As<IMockDatabase>().Verify(ModifySqlParametersArgumentInExpression(expression), times);
+        }
+
+        public void Verify<TReturn>(Expression<Func<IMockDatabase, TReturn>> expression, Times times, string failMessage)
+        {
+            database.As<IMockDatabase>().Verify(ModifySqlParametersArgumentInExpression(expression), times, failMessage);
         }
 
         private Expression<Func<IMockDatabase, TReturn>> ModifySqlParametersArgumentInExpression<TReturn>(Expression<Func<IMockDatabase, TReturn>> expression)

@@ -26,6 +26,24 @@ order by Make, Model", It.IsAny<object>()));
         }
 
         [Test]
+        public void VerifyQueryANumberOfTimes()
+        {
+            var connectionFactory = new Mock<IDbConnectionFactory>();
+            var connection = new MockDbConnection();
+            var repository = new SampleRepository(connectionFactory.Object);
+            connectionFactory
+                .Setup(f => f.OpenConnection())
+                .Returns(connection);
+
+            repository.GetCars();
+
+            //NOTE: As there is no setup, you must use <object> in the verify
+            connection.Verify(c => c.Query<object>(@"select *
+from [Cars]
+order by Make, Model", It.IsAny<object>()), Times.Once);
+        }
+
+        [Test]
         public void SetupOnly()
         {
             var connectionFactory = new Mock<IDbConnectionFactory>();
@@ -92,6 +110,23 @@ where Registration = @registration", new { registration = "ABC123" }));
 
             connection.Verify(c => c.Execute(@"delete from [Cars]
 where Registration = @registration", new { registration = "ABC123" }));
+        }
+
+        [Test]
+        public void ExecuteANumberOfTimes()
+        {
+            var connectionFactory = new Mock<IDbConnectionFactory>();
+            var connection = new MockDbConnection();
+            var repository = new SampleRepository(connectionFactory.Object);
+
+            connectionFactory
+                .Setup(f => f.OpenConnection())
+                .Returns(connection);
+
+            repository.DeleteCar("ABC123");
+
+            connection.Verify(c => c.Execute(@"delete from [Cars]
+where Registration = @registration", new { registration = "ABC123" }), Times.Once);
         }
 
         [Test]
