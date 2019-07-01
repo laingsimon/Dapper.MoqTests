@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Dapper.MoqTests.Samples
 {
@@ -47,6 +49,25 @@ order by Model", new { make });
             using (var connection = _connectionFactory.OpenConnection())
             {
                 connection.Execute(@"delete from [Cars] 
+where Registration = @registration", new { registration });
+            }
+        }
+
+        internal async Task<IEnumerable<Car>> GetCarsAsync()
+        {
+            using (var connection = _connectionFactory.OpenConnection())
+            {
+                return await connection.QueryAsync<Car>(@"select * 
+from [Cars] 
+order by Make, Model");
+            }
+        }
+
+        public async Task DeleteCarAsync(string registration)
+        {
+            using (var connection = _connectionFactory.OpenConnection())
+            {
+                await connection.ExecuteAsync(@"delete from [Cars] 
 where Registration = @registration", new { registration });
             }
         }

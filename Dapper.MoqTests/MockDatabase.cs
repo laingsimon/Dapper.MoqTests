@@ -7,6 +7,7 @@
     using System.Linq.Expressions;
     using Moq;
     using System.Reflection;
+    using System.Threading.Tasks;
 
     internal abstract class MockDatabase : IMockDatabase
     {
@@ -24,6 +25,9 @@
         public abstract IEnumerable<T> Query<T>(string text, object parameters = null);
         public abstract T QuerySingle<T>(string text, object parameters = null);
         public abstract int Execute(string text, object parameters = null);
+        public abstract Task<IEnumerable<T>> QueryAsync<T>(string text, object parameters = null);
+        public abstract Task<T> QuerySingleAsync<T>(string text, object parameters = null);
+        public abstract Task<int> ExecuteAsync<T>(string text, object parameters = null);
 
         public void Expect(Expression setup)
         {
