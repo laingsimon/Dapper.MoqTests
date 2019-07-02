@@ -32,22 +32,22 @@
 
         public override int ExecuteNonQuery()
         {
-            return database.ExecuteNonQuery(this);
+            return database.ExecuteNonQuery(this, false);
         }
 
         public override object ExecuteScalar()
         {
-            return database.ExecuteScalar(this);
+            return database.ExecuteScalar(this, false);
         }
 
         public override Task<int> ExecuteNonQueryAsync(CancellationToken cancellationToken)
         {
-            return Task.FromResult(ExecuteNonQuery());
+            return Task.FromResult(database.ExecuteNonQuery(this, true));
         }
 
         public override Task<object> ExecuteScalarAsync(CancellationToken cancellationToken)
         {
-            return Task.FromResult(ExecuteScalar());
+            return Task.FromResult(database.ExecuteScalar(this, true));
         }
 
         public IReadOnlyDictionary<string, object> GetParameterLookup()
@@ -69,7 +69,12 @@
 
         protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
         {
-            return new MockDbDataReader(database.ExecuteReader(this));
+            return new MockDbDataReader(database.ExecuteReader(this, false));
+        }
+
+        protected override Task<DbDataReader> ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+        {
+            return Task.FromResult<DbDataReader>(new MockDbDataReader(database.ExecuteReader(this, true)));
         }
     }
 }
