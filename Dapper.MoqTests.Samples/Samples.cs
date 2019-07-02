@@ -57,7 +57,7 @@ order by Make, Model", It.IsAny<object>()), Times.Once);
             await repository.GetCarsAsync();
 
             //NOTE: As there is no setup, you must use <object> in the verify
-            connection.Verify(c => c.Query<object>(@"select *
+            connection.Verify(c => c.QueryAsync<object>(@"select *
 from [Cars]
 order by Make, Model", It.IsAny<object>()), Times.Once);
         }
@@ -144,7 +144,7 @@ where Registration = @registration", new { registration = "ABC123" }));
 
             await repository.DeleteCarAsync("ABC123");
 
-            connection.Verify(c => c.Execute(@"delete from [Cars]
+            connection.Verify(c => c.ExecuteAsync(@"delete from [Cars]
 where Registration = @registration", new { registration = "ABC123" }));
         }
 

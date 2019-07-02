@@ -13,6 +13,8 @@
     {
         private static readonly MethodInfo queryObjectMethod = typeof(MockDatabase).GetMethod(nameof(Query)).MakeGenericMethod(typeof(object));
         private static readonly MethodInfo executeMethod = typeof(MockDatabase).GetMethod(nameof(Execute));
+        private static readonly MethodInfo queryObjectAsyncMethod = typeof(MockDatabase).GetMethod(nameof(QueryAsync)).MakeGenericMethod(typeof(object));
+        private static readonly MethodInfo executeAsyncMethod = typeof(MockDatabase).GetMethod(nameof(ExecuteAsync));
 
         private readonly MockBehavior behaviour;
         private readonly List<Expression> setups = new List<Expression>();
@@ -27,31 +29,37 @@
         public abstract int Execute(string text, object parameters = null);
         public abstract Task<IEnumerable<T>> QueryAsync<T>(string text, object parameters = null);
         public abstract Task<T> QuerySingleAsync<T>(string text, object parameters = null);
-        public abstract Task<int> ExecuteAsync<T>(string text, object parameters = null);
+        public abstract Task<int> ExecuteAsync(string text, object parameters = null);
 
         public void Expect(Expression setup)
         {
             this.setups.Add(setup);
         }
 
-        public int ExecuteNonQuery(MockDbCommand command)
+        public int ExecuteNonQuery(MockDbCommand command, bool isAsync)
         {
+            var method = isAsync ? executeAsyncMethod : executeMethod;
             var parametersLookup = command.GetParameterLookup();
-            var parametersArray = (from param in executeMethod.GetParameters()
+            var parametersArray = (from param in method.GetParameters()
                                    let commandValue = parametersLookup.ContainsKey(param.Name)
                                      ? parametersLookup[param.Name]
                                      : param.DefaultValue
                                    select commandValue).ToArray();
 
-            return (int)executeMethod.Invoke(this, parametersArray);
+            return isAsync 
+                ? ((Task<int>)method.Invoke(this, parametersArray)).Result
+                : (int)method.Invoke(this, parametersArray);
         }
 
-        public IDataReader ExecuteReader(MockDbCommand command)
+        public IDataReader ExecuteReader(MockDbCommand command, bool isAsync)
         {
-            var setup = FindSetup(command, nameof(Query), nameof(QuerySingle));
+            var setup = isAsync 
+                ? FindSetup(command, nameof(QueryAsync), nameof(QuerySingleAsync))
+                : FindSetup(command, nameof(Query), nameof(QuerySingle));
 
+            var sourceMethod = isAsync ? queryObjectAsyncMethod : queryObjectMethod;
             var methodCall = (MethodCallExpression)setup?.Body;
-            var method = methodCall?.Method ?? queryObjectMethod;
+            var method = methodCall?.Method ?? sourceMethod;
             var parametersLookup = command.GetParameterLookup();
             var parametersArray = (from param in method.GetParameters()
                                   let commandValue = parametersLookup.ContainsKey(param.Name)
@@ -102,7 +110,7 @@
             }
         }
 
-        public object ExecuteScalar(MockDbCommand command)
+        public object ExecuteScalar(MockDbCommand command, bool isAsync)
         {
             throw new NotImplementedException("When does Dapper ever use this?");
         }
