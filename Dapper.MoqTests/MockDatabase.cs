@@ -27,7 +27,7 @@
         public abstract int Execute(string text, object parameters = null);
         public abstract Task<IEnumerable<T>> QueryAsync<T>(string text, object parameters = null);
         public abstract Task<T> QuerySingleAsync<T>(string text, object parameters = null);
-        public abstract Task<int> ExecuteAsync<T>(string text, object parameters = null);
+        public abstract Task<int> ExecuteAsync(string text, object parameters = null);
 
         public void Expect(Expression setup)
         {
