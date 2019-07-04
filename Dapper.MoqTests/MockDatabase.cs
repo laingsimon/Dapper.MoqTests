@@ -11,10 +11,10 @@
 
     internal abstract class MockDatabase : IMockDatabase
     {
-        private static readonly MethodInfo queryObjectMethod = typeof(MockDatabase).GetMethod(nameof(Query)).MakeGenericMethod(typeof(object));
-        private static readonly MethodInfo executeMethod = typeof(MockDatabase).GetMethod(nameof(Execute));
-        private static readonly MethodInfo queryObjectAsyncMethod = typeof(MockDatabase).GetMethod(nameof(QueryAsync)).MakeGenericMethod(typeof(object));
-        private static readonly MethodInfo executeAsyncMethod = typeof(MockDatabase).GetMethod(nameof(ExecuteAsync));
+        private static readonly MethodInfo queryObjectMethod = GetMethod<object>(db => db.Query<object>("some sql", null));
+        private static readonly MethodInfo executeMethod = GetMethod<object>(db => db.Execute("some sql", null));
+        private static readonly MethodInfo queryObjectAsyncMethod = GetMethod<object>(db => db.QueryAsync<object>("some sql", null));
+        private static readonly MethodInfo executeAsyncMethod = GetMethod<object>(db => db.ExecuteAsync("some sql", null));
 
         private readonly MockBehavior behaviour;
         private readonly List<Expression> setups = new List<Expression>();
@@ -24,12 +24,19 @@
             this.behaviour = behaviour;
         }
 
-        public abstract IEnumerable<T> Query<T>(string text, object parameters = null);
-        public abstract T QuerySingle<T>(string text, object parameters = null);
-        public abstract int Execute(string text, object parameters = null);
-        public abstract Task<IEnumerable<T>> QueryAsync<T>(string text, object parameters = null);
-        public abstract Task<T> QuerySingleAsync<T>(string text, object parameters = null);
-        public abstract Task<int> ExecuteAsync(string text, object parameters = null);
+        public IEnumerable<T> Query<T>(string text) => Query<T>(text, null);
+        public T QuerySingle<T>(string text) => QuerySingle<T>(text, null);
+        public int Execute(string text) => Execute(text, null);
+        public Task<IEnumerable<T>> QueryAsync<T>(string text) => QueryAsync<T>(text, null);
+        public Task<T> QuerySingleAsync<T>(string text) => QuerySingleAsync<T>(text, null);
+        public Task<int> ExecuteAsync(string text) => ExecuteAsync(text, null);
+
+        public abstract IEnumerable<T> Query<T>(string text, object parameters);
+        public abstract T QuerySingle<T>(string text, object parameters);
+        public abstract int Execute(string text, object parameters);
+        public abstract Task<IEnumerable<T>> QueryAsync<T>(string text, object parameters);
+        public abstract Task<T> QuerySingleAsync<T>(string text, object parameters);
+        public abstract Task<int> ExecuteAsync(string text, object parameters);
 
         public void Expect(Expression setup)
         {
@@ -127,6 +134,19 @@
                 return expression;
 
             return null;
+        }
+
+        private static MethodInfo GetMethod<TOut>(Expression<Func<MockDatabase, TOut>> expression)
+        {
+            var unaryExpression = expression.Body as UnaryExpression;
+            if (unaryExpression != null)
+            {
+                var unaryExpressionOperand = (MethodCallExpression)unaryExpression.Operand;
+                return unaryExpressionOperand.Method;
+            }
+
+            var methodCallExpression = (MethodCallExpression)expression.Body;
+            return methodCallExpression.Method;
         }
     }
 }

@@ -63,6 +63,24 @@ order by Make, Model", It.IsAny<object>()), Times.Once);
         }
 
         [Test]
+        public async Task VerifyQueryAsyncWithParameters()
+        {
+            var connectionFactory = new Mock<IDbConnectionFactory>();
+            var connection = new MockDbConnection();
+            var repository = new SampleRepository(connectionFactory.Object);
+            connectionFactory
+                .Setup(f => f.OpenConnection())
+                .Returns(connection);
+
+            await repository.GetCarsAsync();
+
+            //NOTE: As there is no setup, you must use <object> in the verify
+            connection.Verify(c => c.QueryAsync<object>(@"select *
+from [Cars]
+order by Make, Model", new { id = 1 }));
+        }
+
+        [Test]
         public void SetupOnly()
         {
             var connectionFactory = new Mock<IDbConnectionFactory>();
@@ -188,7 +206,7 @@ where Registration = @registration", new { registration = "ABC123" }), Times.Onc
                 .Returns(connection);
             connection.Setup(c => c.Query<Car>(@"select *
 from [Cars]
-order by Make, Model", It.IsAny<object>()))
+order by Make, Model"))
                     .Returns(new[] { vauxhall, ford });
 
             var result = repository.GetCars();
