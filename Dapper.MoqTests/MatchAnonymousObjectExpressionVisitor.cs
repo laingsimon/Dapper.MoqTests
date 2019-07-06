@@ -3,26 +3,33 @@
     using System;
     using System.Linq;
     using System.Linq.Expressions;
+    using System.Reflection;
 
     internal class MatchAnonymousObjectExpressionVisitor : ExpressionVisitor
     {
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
             var argumentLookup = node.Arguments
-                .Zip(node.Method.GetParameters(), (argExpression, param) => new {name = param.Name, argExpression });
+                .Zip(node.Method.GetParameters(), (argExpression, param) => new { param, argExpression });
 
             var newArguments = from argument in argumentLookup
-                select GetExpression(argument.name, argument.argExpression);
+                select GetExpression(argument.param, argument.argExpression);
 
             return Expression.Call(node.Object, node.Method, newArguments);
         }
 
-        private Expression GetExpression(string argumentName, Expression argumentExpression)
+        private Expression GetExpression(ParameterInfo parameter, Expression argumentExpression)
         {
-            if (argumentName.Equals("parameters", StringComparison.OrdinalIgnoreCase))
-                return ExpressionHelper.MakeCallToMatch<object>(argumentExpression, ParametersMatch);
-            if (argumentName.Equals("text", StringComparison.OrdinalIgnoreCase))
-                return ExpressionHelper.MakeCallToMatch<string>(argumentExpression, SqlCommandsMatch);
+            var propertyType = parameter.GetCustomAttribute<ParameterTypeAttribute>()?.Type;
+
+            switch (propertyType)
+            {
+                case ParameterType.SqlText:
+                    return ExpressionHelper.MakeCallToMatch<string>(argumentExpression, SqlCommandsMatch);
+
+                case ParameterType.SqlParameters:
+                    return ExpressionHelper.MakeCallToMatch<object>(argumentExpression, ParametersMatch);
+            }
 
             return argumentExpression;
         }
