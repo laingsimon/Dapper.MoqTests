@@ -6,11 +6,16 @@ namespace Dapper.MoqTests
 {
     internal class ParametersObjectBuilder
     {
+        private static readonly object NoParameters = new _NoParameters();
+
         private static readonly Lazy<ParametersObjectBuilder> helper = new Lazy<ParametersObjectBuilder>(() => new ParametersObjectBuilder());
         private static readonly Lazy<ModuleBuilder> moduleBuilder = new Lazy<ModuleBuilder>(() => helper.Value.ModuleBuilder());
 
         public static object FromParameters(MockDbParameterCollection parameters)
         {
+            if (parameters.Count == 0)
+                return NoParameters;
+
             var builder = TypeBuilder();
 
             foreach (MockDbParameter parameter in parameters)
@@ -84,7 +89,7 @@ namespace Dapper.MoqTests
         private static TypeBuilder TypeBuilder()
         {
             return moduleBuilder.Value.DefineType(
-                "AnonymousParameterType" + Guid.NewGuid(),
+                "Dapper.MoqTests.AnonymousParameterType" + Guid.NewGuid(),
                 TypeAttributes.Public |
                 TypeAttributes.Class |
                 TypeAttributes.AutoClass |
@@ -92,6 +97,24 @@ namespace Dapper.MoqTests
                 TypeAttributes.BeforeFieldInit |
                 TypeAttributes.AutoLayout,
                 null);
+        }
+
+        private class _NoParameters
+        {
+            public override string ToString()
+            {
+                return "<No command parameters>";
+            }
+
+            public override bool Equals(object obj)
+            {
+                return obj is _NoParameters;
+            }
+
+            public override int GetHashCode()
+            {
+                return typeof(_NoParameters).GetHashCode();
+            }
         }
     }
 }
