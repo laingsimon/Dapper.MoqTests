@@ -1,6 +1,7 @@
 ﻿namespace Dapper.MoqTests
 {
     using System;
+    using System.Linq;
     using System.Linq.Expressions;
     using Moq;
 
@@ -25,6 +26,16 @@
                 var caller = (GenericMethodCaller)Activator.CreateInstance(callerType);
 
                 return caller.GetBool(expression, value);
+            }
+
+            if (expression.Method.Name == nameof(Match.Create) && expression.NodeType == ExpressionType.Call)
+            {
+                var predicateConstant = (ConstantExpression)expression.Arguments[0];
+                var predicateValueType = predicateConstant.Value.GetType().GenericTypeArguments.Single();
+                var callerType = typeof(GenericMethodCaller<>).MakeGenericType(predicateValueType);
+                var caller = (GenericMethodCaller)Activator.CreateInstance(callerType);
+
+                return caller.GetBoolFromPredicate(predicateConstant, value);
             }
 
             throw new NotImplementedException("How do we test this?");

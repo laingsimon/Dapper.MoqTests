@@ -51,7 +51,7 @@
 
             var method = expression.Method;
 
-            if (method.DeclaringType == typeof(It))
+            if (method.DeclaringType == typeof(It) || method.DeclaringType == typeof(Match))
                 return new ExpressionMatch(expression);
 
             var matchType = typeof(Match<>).MakeGenericType(method.GetGenericArguments()[0]);
