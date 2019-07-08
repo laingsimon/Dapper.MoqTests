@@ -72,12 +72,12 @@ order by Make, Model", It.IsAny<object>()), Times.Once);
                 .Setup(f => f.OpenConnection())
                 .Returns(connection);
 
-            await repository.GetCarsAsync();
+            await repository.GetCarAsync("reg");
 
             //NOTE: As there is no setup, you must use <object> in the verify
-            connection.Verify(c => c.QueryAsync<object>(@"select *
-from [Cars]
-order by Make, Model", new { id = 1 }));
+            connection.Verify(c => c.QueryAsync<object>(@"select * 
+from [Cars] 
+where Registration = @registration", new { registration = "reg" }));
         }
 
         [Test]
