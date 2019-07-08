@@ -58,11 +58,9 @@
                 : (int)method.Invoke(this, parametersArray);
         }
 
-        public IDataReader ExecuteReader(MockDbCommand command, bool isAsync)
+        public IDataReader ExecuteReader(MockDbCommand command, bool isAsync, bool? singleRow)
         {
-            var setup = isAsync 
-                ? FindSetup(command, nameof(QueryAsync), nameof(QuerySingleAsync))
-                : FindSetup(command, nameof(Query), nameof(QuerySingle));
+            var setup = FindSetup(command, GetDapperMethodNames(isAsync, singleRow));
 
             var sourceMethod = isAsync ? queryObjectAsyncMethod : queryObjectMethod;
             var methodCall = (MethodCallExpression)setup?.Body;
@@ -85,6 +83,23 @@
             }
 
             return reader ?? result.GetDataReader();
+        }
+
+        private string[] GetDapperMethodNames(bool isAsync, bool? singleRow)
+        {
+            if (singleRow == true)
+            {
+                return new[] {isAsync ? nameof(QuerySingleAsync) : nameof(QuerySingle)};
+            }
+
+            if (singleRow == false)
+            {
+                return new[] { isAsync ? nameof(QueryAsync) : nameof(Query) };
+            }
+
+            return isAsync
+                ? new[] {nameof(QueryAsync), nameof(QuerySingleAsync)}
+                : new[] {nameof(Query), nameof(QuerySingle)};
         }
 
         private IDataReader GetQuerySingleDataReader(IDbCommand command, Type rowType)
@@ -122,7 +137,7 @@
             throw new NotImplementedException("When does Dapper ever use this?");
         }
 
-        private LambdaExpression FindSetup(MockDbCommand command, params string[] dapperExtensionMethodNames)
+        private LambdaExpression FindSetup(MockDbCommand command, string[] dapperExtensionMethodNames)
         {
             var comparer = new DapperSetupComparer(dapperExtensionMethodNames);
             var expression = this.setups.SingleOrDefault(comparer.Matches) as LambdaExpression;

@@ -69,12 +69,21 @@
 
         protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
         {
-            return new MockDbDataReader(database.ExecuteReader(this, false));
+            return new MockDbDataReader(database.ExecuteReader(this, false, RequiresSingleResult(behavior)));
         }
 
         protected override Task<DbDataReader> ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
         {
-            return Task.FromResult<DbDataReader>(new MockDbDataReader(database.ExecuteReader(this, true)));
+            return Task.FromResult<DbDataReader>(new MockDbDataReader(database.ExecuteReader(this, true, RequiresSingleResult(behavior))));
+        }
+
+        private bool? RequiresSingleResult(CommandBehavior behaviour)
+        {
+            if (!behaviour.HasFlag(CommandBehavior.SingleResult))
+                return null; //something hasn't been passed in the way Dapper codebase says it would
+
+            //This flag never appears to be passed across, but Dapper codebase says it should
+            return behaviour.HasFlag(CommandBehavior.SingleRow);
         }
     }
 }
