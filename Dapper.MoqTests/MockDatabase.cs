@@ -11,10 +11,10 @@
 
     internal abstract class MockDatabase : IMockDatabase
     {
-        private static readonly MethodInfo queryObjectMethod = GetMethod<object>(db => db.Query<object>("some sql", null));
-        private static readonly MethodInfo executeMethod = GetMethod<object>(db => db.Execute("some sql", null));
-        private static readonly MethodInfo queryObjectAsyncMethod = GetMethod<object>(db => db.QueryAsync<object>("some sql", null));
-        private static readonly MethodInfo executeAsyncMethod = GetMethod<object>(db => db.ExecuteAsync("some sql", null));
+        private static readonly MethodInfo queryObjectMethod = GetMethod<object>(db => db.Query<object>("some sql", null, null));
+        private static readonly MethodInfo executeMethod = GetMethod<object>(db => db.Execute("some sql", null, null));
+        private static readonly MethodInfo queryObjectAsyncMethod = GetMethod<object>(db => db.QueryAsync<object>("some sql", null, null));
+        private static readonly MethodInfo executeAsyncMethod = GetMethod<object>(db => db.ExecuteAsync("some sql", null, null));
 
         private readonly MockBehavior behaviour;
         private readonly List<Expression> setups = new List<Expression>();
@@ -37,6 +37,13 @@
         public abstract Task<IEnumerable<T>> QueryAsync<T>(string text, object parameters);
         public abstract Task<T> QuerySingleAsync<T>(string text, object parameters);
         public abstract Task<int> ExecuteAsync(string text, object parameters);
+
+        public abstract IEnumerable<T> Query<T>(string text, object parameters, IDbTransaction transaction);
+        public abstract T QuerySingle<T>(string text, object parameters, IDbTransaction transaction);
+        public abstract int Execute(string text, object parameters, IDbTransaction transaction);
+        public abstract Task<IEnumerable<T>> QueryAsync<T>(string text, object parameters, IDbTransaction transaction);
+        public abstract Task<T> QuerySingleAsync<T>(string text, object parameters, IDbTransaction transaction);
+        public abstract Task<int> ExecuteAsync(string text, object parameters, IDbTransaction transaction);
 
         public void Expect(Expression setup)
         {
