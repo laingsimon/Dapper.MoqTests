@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Linq;
 
 namespace Dapper.MoqTests
 {
@@ -21,6 +22,8 @@ namespace Dapper.MoqTests
             foreach (MockDbParameter parameter in parameters)
                 AddProperty(builder, parameter);
 
+            AddToStringOverride(builder, parameters.ToString());
+
             var type = builder.CreateType();
             var instance = Activator.CreateInstance(type);
 
@@ -33,6 +36,22 @@ namespace Dapper.MoqTests
             }
 
             return instance;
+        }
+
+        private static void AddToStringOverride(TypeBuilder builder, string stringRepresentation)
+        {
+            var methodBuilder = builder.DefineMethod(
+                nameof(ToString),
+                MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual | MethodAttributes.Final, CallingConventions.HasThis,
+                typeof(string),
+                Type.EmptyTypes);
+            methodBuilder.SetReturnType(typeof(string));
+
+            var il = methodBuilder.GetILGenerator();
+            il.Emit(OpCodes.Ldstr, $"{{ {stringRepresentation} }}");
+            il.Emit(OpCodes.Ret);
+
+            builder.DefineMethodOverride(methodBuilder, typeof(object).GetMethod(nameof(ToString)));
         }
 
         private static void AddProperty(TypeBuilder builder, MockDbParameter parameter)
@@ -96,7 +115,7 @@ namespace Dapper.MoqTests
                 TypeAttributes.AnsiClass |
                 TypeAttributes.BeforeFieldInit |
                 TypeAttributes.AutoLayout,
-                null);
+                typeof(object));
         }
 
         private class _NoParameters
