@@ -98,7 +98,7 @@ where Registration = @registration", new { registration = "reg" }, It.IsAny<IDbT
                 .Returns(connection);
             connection.Setup(c => c.QuerySingle<Car>(@"select *
 from [Cars]
-where Registration = @registration", new { registration = "ABC123" }))
+where Registration = @registration", new { registration = "ABC123" }, It.IsAny<IDbTransaction>()))
                     .Returns(car);
 
             var result = repository.GetCar("ABC123");
@@ -122,7 +122,7 @@ where Registration = @registration", new { registration = "ABC123" }))
             connectionFactory
                 .Setup(f => f.OpenConnection())
                 .Returns(connection);
-            connection.Setup(c => c.QuerySingle<Car>(It.IsAny<string>(), It.IsAny<object>()))
+            connection.Setup(c => c.QuerySingle<Car>(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbTransaction>()))
                     .Returns(car);
 
             repository.GetCar("ABC123");
@@ -130,7 +130,7 @@ where Registration = @registration", new { registration = "ABC123" }))
             //NOTE: because the call to QuerySingle() was setup we should use the correct type-argument here
             connection.Verify(c => c.QuerySingle<Car>(@"select *
 from [Cars]
-where Registration = @registration", new { registration = "ABC123" }));
+where Registration = @registration", new { registration = "ABC123" }, It.IsAny<IDbTransaction>()));
         }
 
         [Test]
@@ -207,7 +207,7 @@ where Registration = @registration", new { registration = "ABC123" }, null), Tim
                 .Returns(connection);
             connection.Setup(c => c.Query<Car>(@"select *
 from [Cars]
-order by Make, Model"))
+order by Make, Model", It.IsAny<object>(), It.IsAny<IDbTransaction>()))
                     .Returns(new[] { vauxhall, ford });
 
             var result = repository.GetCars();

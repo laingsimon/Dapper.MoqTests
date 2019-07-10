@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using System.Data;
+using Moq;
 using NUnit.Framework;
 using System.Threading.Tasks;
 
@@ -22,11 +23,11 @@ namespace Dapper.MoqTests.Samples
             //NOTE: As there is no setup, you must use <object> in the verify
             try
             {
-                connection.Verify(c => c.Query<object>(@"incorrect sql", It.IsAny<object>()));
+                connection.Verify(c => c.Query<object>(@"incorrect sql", It.IsAny<object>(), It.IsAny<IDbTransaction>()));
             }
             catch (MockException exc)
             {
-                Assert.That(exc.Message.Trim(), Is.EqualTo(@"Expected invocation on the mock at least once, but was never performed: c => c.Query<Object>(Match.Create<String>(, () => ""incorrect sql""), It.IsAny<Object>())
+                Assert.That(exc.Message.Trim(), Is.EqualTo(@"Expected invocation on the mock at least once, but was never performed: c => c.Query<Object>(Match.Create<String>(, () => ""incorrect sql""), It.IsAny<Object>(), It.IsAny<IDbTransaction>())
 No setups configured.
 
 Performed invocations:
@@ -53,13 +54,13 @@ order by Make, Model"", <No command parameters>, null)"));
             {
                 connection.Verify(c => c.QueryAsync<object>(@"select * 
 from [Cars] 
-where Registration = @registration", new { registration = "incorrect value" }));
+where Registration = @registration", new { registration = "incorrect value" }, It.IsAny<IDbTransaction>()));
             }
             catch (MockException exc)
             {
                 Assert.That(exc.Message.Trim(), Is.EqualTo(@"Expected invocation on the mock at least once, but was never performed: c => c.QueryAsync<Object>(Match.Create<String>(, () => ""select * 
 from [Cars] 
-where Registration = @registration""), Match.Create<Object>(, () => { registration = incorrect value }))
+where Registration = @registration""), Match.Create<Object>(, () => { registration = incorrect value }), It.IsAny<IDbTransaction>())
 No setups configured.
 
 Performed invocations:
@@ -86,13 +87,13 @@ where Registration = @registration"", { registration = reg }, null)"));
             {
                 connection.Verify(c => c.QueryAsync<object>(@"select * 
 from [Cars] 
-where Registration = @registration", new { registration = 1 }));
+where Registration = @registration", new { registration = 1 }, It.IsAny<IDbTransaction>()));
             }
             catch (MockException exc)
             {
                 Assert.That(exc.Message.Trim(), Is.EqualTo(@"Expected invocation on the mock at least once, but was never performed: c => c.QueryAsync<Object>(Match.Create<String>(, () => ""select * 
 from [Cars] 
-where Registration = @registration""), Match.Create<Object>(, () => { registration = 1 }))
+where Registration = @registration""), Match.Create<Object>(, () => { registration = 1 }), It.IsAny<IDbTransaction>())
 No setups configured.
 
 Performed invocations:
@@ -119,13 +120,13 @@ where Registration = @registration"", { registration = reg }, null)"));
             {
                 connection.Verify(c => c.QueryAsync<object>(@"select * 
 from [Cars] 
-where Registration = @registration", new { foo = "bar" }));
+where Registration = @registration", new { foo = "bar" }, It.IsAny<IDbTransaction>()));
             }
             catch (MockException exc)
             {
                 Assert.That(exc.Message.Trim(), Is.EqualTo(@"Expected invocation on the mock at least once, but was never performed: c => c.QueryAsync<Object>(Match.Create<String>(, () => ""select * 
 from [Cars] 
-where Registration = @registration""), Match.Create<Object>(, () => { foo = bar }))
+where Registration = @registration""), Match.Create<Object>(, () => { foo = bar }), It.IsAny<IDbTransaction>())
 No setups configured.
 
 Performed invocations:

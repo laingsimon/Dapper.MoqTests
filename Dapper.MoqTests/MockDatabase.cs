@@ -24,26 +24,12 @@
             this.behaviour = behaviour;
         }
 
-        public IEnumerable<T> Query<T>(string text) => Query<T>(text, null);
-        public T QuerySingle<T>(string text) => QuerySingle<T>(text, null);
-        public int Execute(string text) => Execute(text, null);
-        public Task<IEnumerable<T>> QueryAsync<T>(string text) => QueryAsync<T>(text, null);
-        public Task<T> QuerySingleAsync<T>(string text) => QuerySingleAsync<T>(text, null);
-        public Task<int> ExecuteAsync(string text) => ExecuteAsync(text, null);
-
-        public abstract IEnumerable<T> Query<T>(string text, object parameters);
-        public abstract T QuerySingle<T>(string text, object parameters);
-        public abstract int Execute(string text, object parameters);
-        public abstract Task<IEnumerable<T>> QueryAsync<T>(string text, object parameters);
-        public abstract Task<T> QuerySingleAsync<T>(string text, object parameters);
-        public abstract Task<int> ExecuteAsync(string text, object parameters);
-
-        public abstract IEnumerable<T> Query<T>(string text, object parameters, IDbTransaction transaction);
-        public abstract T QuerySingle<T>(string text, object parameters, IDbTransaction transaction);
-        public abstract int Execute(string text, object parameters, IDbTransaction transaction);
-        public abstract Task<IEnumerable<T>> QueryAsync<T>(string text, object parameters, IDbTransaction transaction);
-        public abstract Task<T> QuerySingleAsync<T>(string text, object parameters, IDbTransaction transaction);
-        public abstract Task<int> ExecuteAsync(string text, object parameters, IDbTransaction transaction);
+        public abstract IEnumerable<T> Query<T>(string text, object parameters = null, IDbTransaction transaction = null);
+        public abstract T QuerySingle<T>(string text, object parameters = null, IDbTransaction transaction = null);
+        public abstract int Execute(string text, object parameters = null, IDbTransaction transaction = null);
+        public abstract Task<IEnumerable<T>> QueryAsync<T>(string text, object parameters = null, IDbTransaction transaction = null);
+        public abstract Task<T> QuerySingleAsync<T>(string text, object parameters = null, IDbTransaction transaction = null);
+        public abstract Task<int> ExecuteAsync(string text, object parameters = null, IDbTransaction transaction = null);
 
         public void Expect(Expression setup)
         {
