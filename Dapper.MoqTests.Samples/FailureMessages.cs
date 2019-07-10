@@ -32,7 +32,7 @@ No setups configured.
 Performed invocations:
 MockDatabase.Query<Object>(""select * 
 from [Cars] 
-order by Make, Model"", <No command parameters>)"));
+order by Make, Model"", <No command parameters>, null)"));
             }
         }
 
@@ -65,7 +65,7 @@ No setups configured.
 Performed invocations:
 MockDatabase.QueryAsync<Object>(""select * 
 from [Cars] 
-where Registration = @registration"", { registration = reg })"));
+where Registration = @registration"", { registration = reg }, null)"));
             }
         }
 
@@ -98,7 +98,7 @@ No setups configured.
 Performed invocations:
 MockDatabase.QueryAsync<Object>(""select * 
 from [Cars] 
-where Registration = @registration"", { registration = reg })"));
+where Registration = @registration"", { registration = reg }, null)"));
             }
         }
 
@@ -131,7 +131,7 @@ No setups configured.
 Performed invocations:
 MockDatabase.QueryAsync<Object>(""select * 
 from [Cars] 
-where Registration = @registration"", { registration = reg })"));
+where Registration = @registration"", { registration = reg }, null)"));
             }
         }
     }

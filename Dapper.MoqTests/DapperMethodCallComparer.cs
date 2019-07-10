@@ -36,10 +36,8 @@
             var expectedParameters = command.GetParameterLookup();
             var parameterValues = from arg in call
                 let match = ResolveToMatch(arg.Value as MethodCallExpression)
-                let paramValue = expectedParameters.ContainsKey(arg.Key.Name)
-                    ? expectedParameters[arg.Key.Name]
-                    : null
-                select new { arg, matches = match.Matches(paramValue) };
+                let paramValue = expectedParameters.GetValue(arg.Key)
+                select new { arg, matches = match != null && match.Matches(paramValue) };
 
             return parameterValues.All(a => a.matches);
         }

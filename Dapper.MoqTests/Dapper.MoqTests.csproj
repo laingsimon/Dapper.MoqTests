@@ -60,6 +60,7 @@
     <Compile Include="MockDbParameter.cs" />
     <Compile Include="MockDbParameterCollection.cs" />
     <Compile Include="ObjectExtensions.cs" />
+    <Compile Include="ParameterLookupExtensions.cs" />
     <Compile Include="ParametersObjectBuilder.cs" />
     <Compile Include="ParameterTypeAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

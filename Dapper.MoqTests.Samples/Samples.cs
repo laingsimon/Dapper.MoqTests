@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using System.Data;
+using Moq;
 using NUnit.Framework;
 using System.Linq;
 using System.Threading.Tasks;
@@ -23,7 +24,7 @@ namespace Dapper.MoqTests.Samples
             //NOTE: As there is no setup, you must use <object> in the verify
             connection.Verify(c => c.Query<object>(@"select *
 from [Cars]
-order by Make, Model", It.IsAny<object>()));
+order by Make, Model", It.IsAny<object>(), It.IsAny<IDbTransaction>()));
         }
 
         [Test]
@@ -41,7 +42,7 @@ order by Make, Model", It.IsAny<object>()));
             //NOTE: As there is no setup, you must use <object> in the verify
             connection.Verify(c => c.Query<object>(@"select *
 from [Cars]
-order by Make, Model", It.IsAny<object>()), Times.Once);
+order by Make, Model", It.IsAny<object>(), It.IsAny<IDbTransaction>()), Times.Once);
         }
 
         [Test]
@@ -59,7 +60,7 @@ order by Make, Model", It.IsAny<object>()), Times.Once);
             //NOTE: As there is no setup, you must use <object> in the verify
             connection.Verify(c => c.QueryAsync<object>(@"select *
 from [Cars]
-order by Make, Model", It.IsAny<object>()), Times.Once);
+order by Make, Model", It.IsAny<object>(), It.IsAny<IDbTransaction>()), Times.Once);
         }
 
         [Test]
@@ -77,7 +78,7 @@ order by Make, Model", It.IsAny<object>()), Times.Once);
             //NOTE: As there is no setup, you must use <object> in the verify
             connection.Verify(c => c.QueryAsync<object>(@"select * 
 from [Cars] 
-where Registration = @registration", new { registration = "reg" }));
+where Registration = @registration", new { registration = "reg" }, It.IsAny<IDbTransaction>()));
         }
 
         [Test]
@@ -146,7 +147,7 @@ where Registration = @registration", new { registration = "ABC123" }));
             repository.DeleteCar("ABC123");
 
             connection.Verify(c => c.Execute(@"delete from [Cars]
-where Registration = @registration", new { registration = "ABC123" }));
+where Registration = @registration", new { registration = "ABC123" }, null));
         }
 
         [Test]
@@ -163,7 +164,7 @@ where Registration = @registration", new { registration = "ABC123" }));
             await repository.DeleteCarAsync("ABC123");
 
             connection.Verify(c => c.ExecuteAsync(@"delete from [Cars]
-where Registration = @registration", new { registration = "ABC123" }));
+where Registration = @registration", new { registration = "ABC123" }, null));
         }
 
         [Test]
@@ -180,7 +181,7 @@ where Registration = @registration", new { registration = "ABC123" }));
             repository.DeleteCar("ABC123");
 
             connection.Verify(c => c.Execute(@"delete from [Cars]
-where Registration = @registration", new { registration = "ABC123" }), Times.Once);
+where Registration = @registration", new { registration = "ABC123" }, null), Times.Once);
         }
 
         [Test]
@@ -229,12 +230,12 @@ order by Make, Model"))
             connectionFactory
                 .Setup(f => f.OpenConnection())
                 .Returns(connection);
-            connection.Setup(c => c.Query<Car>(It.Is<string>(sql => sql.Contains("[Cars]")), It.IsAny<object>()))
+            connection.Setup(c => c.Query<Car>(It.Is<string>(sql => sql.Contains("[Cars]")), It.IsAny<object>(), It.IsAny<IDbTransaction>()))
                     .Returns(new[] { vauxhall });
 
             repository.GetModels("Vauxhall");
 
-            connection.Verify(c => c.Query<Car>(It.IsAny<string>(), It.Is<object>(p => p.Prop<string>("make") == "Vauxhall")));
+            connection.Verify(c => c.Query<Car>(It.IsAny<string>(), It.Is<object>(p => p.Prop<string>("make") == "Vauxhall"), It.IsAny<IDbTransaction>()));
         }
     }
 }

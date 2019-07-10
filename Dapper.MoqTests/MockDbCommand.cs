@@ -50,12 +50,13 @@
             return Task.FromResult(database.ExecuteScalar(this, true));
         }
 
-        public IReadOnlyDictionary<string, object> GetParameterLookup()
+        public IReadOnlyDictionary<ParameterType, object> GetParameterLookup()
         {
-            return new Dictionary<string, object>
+            return new Dictionary<ParameterType, object>
             {
-                { "text", CommandText },
-                { "parameters", ParametersObjectBuilder.FromParameters(parameters) }
+                { ParameterType.SqlText, CommandText },
+                { ParameterType.SqlParameters, ParametersObjectBuilder.FromParameters(parameters) },
+                { ParameterType.SqlTransaction, DbTransaction }
             };
         }
 

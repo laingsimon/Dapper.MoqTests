@@ -54,11 +54,7 @@
         {
             var method = isAsync ? executeAsyncMethod : executeMethod;
             var parametersLookup = command.GetParameterLookup();
-            var parametersArray = (from param in method.GetParameters()
-                                   let commandValue = parametersLookup.ContainsKey(param.Name)
-                                     ? parametersLookup[param.Name]
-                                     : param.DefaultValue
-                                   select commandValue).ToArray();
+            var parametersArray = method.GetValues(parametersLookup);
 
             return isAsync 
                 ? ((Task<int>)method.Invoke(this, parametersArray)).Result
@@ -73,11 +69,7 @@
             var methodCall = (MethodCallExpression)setup?.Body;
             var method = methodCall?.Method ?? sourceMethod;
             var parametersLookup = command.GetParameterLookup();
-            var parametersArray = (from param in method.GetParameters()
-                                  let commandValue = parametersLookup.ContainsKey(param.Name)
-                                    ? parametersLookup[param.Name]
-                                    : param.DefaultValue
-                                  select commandValue).ToArray();
+            var parametersArray = method.GetValues(parametersLookup);
 
             var result = method.Invoke(this, parametersArray);
             var reader = result as IDataReader;
