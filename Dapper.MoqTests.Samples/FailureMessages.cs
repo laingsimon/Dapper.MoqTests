@@ -135,5 +135,38 @@ from [Cars]
 where Registration = @registration"", { registration = reg }, null)"));
             }
         }
+
+        [Test]
+        public async Task VerifyGenericCallWithoutSetup()
+        {
+            var connectionFactory = new Mock<IDbConnectionFactory>();
+            var connection = new MockDbConnection();
+            var repository = new SampleRepository(connectionFactory.Object);
+            connectionFactory
+                .Setup(f => f.OpenConnection())
+                .Returns(connection);
+
+            await repository.GetCarAsync("reg");
+
+            //NOTE: As there is no setup, you must use <object> in the verify
+            try
+            {
+                connection.Verify(c => c.QueryAsync<Car>(@"select * 
+from [Cars] 
+where Registration = @registration", It.IsAny<object>(), It.IsAny<IDbTransaction>()));
+            }
+            catch (MockException exc)
+            {
+                Assert.That(exc.Message.Trim(), Is.EqualTo(@"Expected invocation on the mock at least once, but was never performed: c => c.QueryAsync<Car>(Match.Create<String>(, () => ""select * 
+from [Cars] 
+where Registration = @registration""), It.IsAny<Object>(), It.IsAny<IDbTransaction>())
+No setups configured.
+
+Performed invocations:
+MockDatabase.QueryAsync<Object>(""select * 
+from [Cars] 
+where Registration = @registration"", { registration = reg }, null)"));
+            }
+        }
     }
 }
