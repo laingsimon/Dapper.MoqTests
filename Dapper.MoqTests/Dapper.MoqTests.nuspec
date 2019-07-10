@@ -7,6 +7,8 @@
     <owners>Simon Laing</owners>
     <projectUrl>https://github.com/laingsimon/Dapper.MoqTests</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
+	<license type="expression">Apache-2.0</license>
+	<repository type="git" url="https://github.com/laingsimon/Dapper.MoqTests" />
     <description>Assembly that provides assistance in testing Dapper methods, allows for Verify and Setup with sql and parameters</description>
     <dependencies>
       <dependency id="Moq" version="4.5.3" />
