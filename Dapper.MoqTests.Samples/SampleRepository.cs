@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Dapper.MoqTests.Samples
@@ -76,8 +77,10 @@ order by Make, Model");
         {
             using (var connection = _connectionFactory.OpenConnection())
             {
+                var transaction = connection.BeginTransaction();
                 await connection.ExecuteAsync(@"delete from [Cars] 
-where Registration = @registration", new { registration });
+where Registration = @registration", new { registration }, transaction: transaction);
+                transaction.Commit();
             }
         }
     }

@@ -164,7 +164,7 @@ where Registration = @registration", new { registration = "ABC123" }, null));
             await repository.DeleteCarAsync("ABC123");
 
             connection.Verify(c => c.ExecuteAsync(@"delete from [Cars]
-where Registration = @registration", new { registration = "ABC123" }, null));
+where Registration = @registration", new { registration = "ABC123" }, It.IsAny<IDbTransaction>()));
         }
 
         [Test]
@@ -236,6 +236,29 @@ order by Make, Model", It.IsAny<object>(), It.IsAny<IDbTransaction>()))
             repository.GetModels("Vauxhall");
 
             connection.Verify(c => c.Query<Car>(It.IsAny<string>(), It.Is<object>(p => p.Prop<string>("make") == "Vauxhall"), It.IsAny<IDbTransaction>()));
+        }
+
+        [Test]
+        public async Task SupportsTransactions()
+        {
+            var connectionFactory = new Mock<IDbConnectionFactory>();
+            var connection = new MockDbConnection();
+            var repository = new SampleRepository(connectionFactory.Object);
+            var vauxhall = new Car
+            {
+                Registration = "ABC123",
+                Make = "Vauxhall",
+                Model = "Astra"
+            };
+            var transaction = new MockDbTransaction();
+            connectionFactory
+                .Setup(f => f.OpenConnection())
+                .Returns(connection);
+            connection.Setup(c => c.BeginTransaction()).Returns(transaction);
+
+            await repository.DeleteCarAsync("Vauxhall");
+
+            connection.Verify(c => c.ExecuteAsync(It.IsAny<string>(), It.IsAny<object>(), transaction));
         }
     }
 }

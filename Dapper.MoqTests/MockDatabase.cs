@@ -30,6 +30,8 @@
         public abstract Task<IEnumerable<T>> QueryAsync<T>(string text, object parameters = null, IDbTransaction transaction = null);
         public abstract Task<T> QuerySingleAsync<T>(string text, object parameters = null, IDbTransaction transaction = null);
         public abstract Task<int> ExecuteAsync(string text, object parameters = null, IDbTransaction transaction = null);
+        public abstract IDbTransaction BeginTransaction();
+        public abstract IDbTransaction BeginTransaction(IsolationLevel il);
 
         public void Expect(Expression setup)
         {

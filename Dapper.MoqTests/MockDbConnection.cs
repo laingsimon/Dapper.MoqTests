@@ -20,19 +20,19 @@
             return new MockDbCommand(database.Object);
         }
 
-        #region non-implemented members
-        void IDisposable.Dispose()
-        { }
-
         IDbTransaction IDbConnection.BeginTransaction()
         {
-            return new Mock<IDbTransaction>().Object;
+            return database.Object.BeginTransaction() ?? new MockDbTransaction(this);
         }
 
         IDbTransaction IDbConnection.BeginTransaction(IsolationLevel il)
         {
-            return new Mock<IDbTransaction>().Object;
+            return database.Object.BeginTransaction(il) ?? new MockDbTransaction(this, il);
         }
+
+        #region non-implemented members
+        void IDisposable.Dispose()
+        { }
 
         void IDbConnection.Close()
         { }

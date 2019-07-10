@@ -36,5 +36,8 @@ namespace Dapper.MoqTests
             [ParameterType(ParameterType.SqlText)] string text,
             [ParameterType(ParameterType.SqlParameters)] object parameters = null,
             [ParameterType(ParameterType.SqlTransaction)] IDbTransaction transaction = null);
+
+        IDbTransaction BeginTransaction(IsolationLevel il);
+        IDbTransaction BeginTransaction();
     }
 }
