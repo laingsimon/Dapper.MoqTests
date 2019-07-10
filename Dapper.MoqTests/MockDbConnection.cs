@@ -2,11 +2,12 @@
 {
     using System;
     using System.Data;
+    using System.Data.Common;
     using System.Linq.Expressions;
     using Moq;
     using Moq.Language.Flow;
 
-    public class MockDbConnection : IDbConnection
+    public class MockDbConnection : DbConnection, IDbConnection
     {
         private readonly Mock<MockDatabase> database;
 
@@ -15,39 +16,35 @@
             this.database = new Mock<MockDatabase>(new object[] { behaviour });
         }
 
-        IDbCommand IDbConnection.CreateCommand()
+        protected override DbCommand CreateDbCommand()
         {
             return new MockDbCommand(database.Object);
         }
 
-        IDbTransaction IDbConnection.BeginTransaction()
+        protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel)
         {
-            return database.Object.BeginTransaction() ?? new MockDbTransaction(this);
-        }
-
-        IDbTransaction IDbConnection.BeginTransaction(IsolationLevel il)
-        {
-            return database.Object.BeginTransaction(il) ?? new MockDbTransaction(this, il);
+            return database.Object.BeginTransaction(isolationLevel) ?? new MockDbTransaction(this, isolationLevel);
         }
 
         #region non-implemented members
         void IDisposable.Dispose()
         { }
 
-        void IDbConnection.Close()
+        public override void Close()
         { }
 
-        void IDbConnection.ChangeDatabase(string databaseName)
+        public override void ChangeDatabase(string databaseName)
         { }
 
-        void IDbConnection.Open()
+        public override void Open()
         { }
 
-        string IDbConnection.ConnectionString { get; set; }
-
-        int IDbConnection.ConnectionTimeout { get; } = 1;
-        string IDbConnection.Database { get; } = "";
-        ConnectionState IDbConnection.State { get; } = ConnectionState.Open;
+        public override string ConnectionString { get; set; }
+        public override int ConnectionTimeout { get; } = 1;
+        public override string Database { get; } = "";
+        public override ConnectionState State { get; } = ConnectionState.Open;
+        public override string DataSource { get; }
+        public override string ServerVersion { get; }
 
         #endregion
 

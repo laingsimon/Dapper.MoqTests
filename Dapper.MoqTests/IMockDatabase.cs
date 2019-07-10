@@ -4,6 +4,7 @@ namespace Dapper.MoqTests
 {
     using System.Collections.Generic;
     using System.Data;
+    using System.Data.Common;
 
     public interface IMockDatabase
     {
@@ -37,7 +38,6 @@ namespace Dapper.MoqTests
             [ParameterType(ParameterType.SqlParameters)] object parameters = null,
             [ParameterType(ParameterType.SqlTransaction)] IDbTransaction transaction = null);
 
-        IDbTransaction BeginTransaction(IsolationLevel il);
-        IDbTransaction BeginTransaction();
+        DbTransaction BeginTransaction(IsolationLevel il);
     }
 }

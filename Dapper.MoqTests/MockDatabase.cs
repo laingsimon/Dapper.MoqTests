@@ -8,6 +8,7 @@
     using Moq;
     using System.Reflection;
     using System.Threading.Tasks;
+    using System.Data.Common;
 
     internal abstract class MockDatabase : IMockDatabase
     {
@@ -30,8 +31,7 @@
         public abstract Task<IEnumerable<T>> QueryAsync<T>(string text, object parameters = null, IDbTransaction transaction = null);
         public abstract Task<T> QuerySingleAsync<T>(string text, object parameters = null, IDbTransaction transaction = null);
         public abstract Task<int> ExecuteAsync(string text, object parameters = null, IDbTransaction transaction = null);
-        public abstract IDbTransaction BeginTransaction();
-        public abstract IDbTransaction BeginTransaction(IsolationLevel il);
+        public abstract DbTransaction BeginTransaction(IsolationLevel il);
 
         public void Expect(Expression setup)
         {

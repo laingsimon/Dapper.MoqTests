@@ -254,7 +254,7 @@ order by Make, Model", It.IsAny<object>(), It.IsAny<IDbTransaction>()))
             connectionFactory
                 .Setup(f => f.OpenConnection())
                 .Returns(connection);
-            connection.Setup(c => c.BeginTransaction()).Returns(transaction);
+            connection.Setup(c => c.BeginTransaction(It.IsAny<IsolationLevel>())).Returns(transaction);
 
             await repository.DeleteCarAsync("Vauxhall");
 
