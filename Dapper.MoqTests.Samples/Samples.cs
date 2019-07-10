@@ -239,7 +239,7 @@ order by Make, Model", It.IsAny<object>(), It.IsAny<IDbTransaction>()))
         }
 
         [Test]
-        public async Task SupportsTransactions()
+        public async Task SupportsExpectedTransactionVerification()
         {
             var connectionFactory = new Mock<IDbConnectionFactory>();
             var connection = new MockDbConnection();
@@ -259,6 +259,28 @@ order by Make, Model", It.IsAny<object>(), It.IsAny<IDbTransaction>()))
             await repository.DeleteCarAsync("Vauxhall");
 
             connection.Verify(c => c.ExecuteAsync(It.IsAny<string>(), It.IsAny<object>(), transaction));
+        }
+
+        [Test]
+        public async Task SupportsTransactionVerificationWithoutSetup()
+        {
+            var connectionFactory = new Mock<IDbConnectionFactory>();
+            var connection = new MockDbConnection();
+            var repository = new SampleRepository(connectionFactory.Object);
+            var vauxhall = new Car
+            {
+                Registration = "ABC123",
+                Make = "Vauxhall",
+                Model = "Astra"
+            };
+            var transaction = new MockDbTransaction();
+            connectionFactory
+                .Setup(f => f.OpenConnection())
+                .Returns(connection);
+
+            await repository.DeleteCarAsync("Vauxhall");
+
+            connection.Verify(c => c.ExecuteAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbTransaction>()));
         }
     }
 }
