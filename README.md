@@ -92,6 +92,7 @@ public void Test()
 * [x] Supports Strict execution, pass in the appropriate parameter to the `MockDbConnection` constructor
 * [x] Supports Async data methods, from version 1.1.0
 * [x] Supports verification of method execution times, from version 1.1.0
+* [x] Supports verification of transaction usage, from version 1.2.0
 
 ## Limitations
 * [ ] If you have not set-up a `Query<T>()` or `QuerySingle<T>()`, you can only verify by `Query<object>()` or `QuerySingle<object>()`
