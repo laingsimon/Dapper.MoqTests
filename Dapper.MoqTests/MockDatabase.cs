@@ -12,11 +12,6 @@
 
     internal abstract class MockDatabase : IMockDatabase
     {
-        private static readonly MethodInfo queryObjectMethod = GetMethod<object>(db => db.Query<object>("some sql", null, null));
-        private static readonly MethodInfo executeMethod = GetMethod<object>(db => db.Execute("some sql", null, null));
-        private static readonly MethodInfo queryObjectAsyncMethod = GetMethod<object>(db => db.QueryAsync<object>("some sql", null, null));
-        private static readonly MethodInfo executeAsyncMethod = GetMethod<object>(db => db.ExecuteAsync("some sql", null, null));
-
         private readonly MockBehavior behaviour;
         private readonly List<Expression> setups = new List<Expression>();
 
@@ -38,9 +33,9 @@
             this.setups.Add(setup);
         }
 
-        public int ExecuteNonQuery(MockDbCommand command, bool isAsync)
+        public int ExecuteNonQuery(MockDbCommand command, bool isAsync, MethodBase dapperEntrypoint)
         {
-            var method = isAsync ? executeAsyncMethod : executeMethod;
+            var method = DapperMethods.GetExecuteMethod(dapperEntrypoint);
             var parametersLookup = command.GetParameterLookup();
             var parametersArray = method.GetValues(parametersLookup);
 
@@ -49,11 +44,11 @@
                 : (int)method.Invoke(this, parametersArray);
         }
 
-        public IDataReader ExecuteReader(MockDbCommand command, bool isAsync, bool? singleRow)
+        public IDataReader ExecuteReader(MockDbCommand command, MethodBase dapperEntrypoint)
         {
-            var setup = FindSetup(command, GetDapperMethodNames(isAsync, singleRow));
+            var sourceMethod = DapperMethods.GetQueryMethod(dapperEntrypoint);
+            var setup = FindSetup(command, sourceMethod);
 
-            var sourceMethod = isAsync ? queryObjectAsyncMethod : queryObjectMethod;
             var methodCall = (MethodCallExpression)setup?.Body;
             var method = methodCall?.Method ?? sourceMethod;
             var parametersLookup = command.GetParameterLookup();
@@ -70,23 +65,6 @@
             }
 
             return reader ?? result.GetDataReader();
-        }
-
-        private string[] GetDapperMethodNames(bool isAsync, bool? singleRow)
-        {
-            if (singleRow == true)
-            {
-                return new[] {isAsync ? nameof(QuerySingleAsync) : nameof(QuerySingle)};
-            }
-
-            if (singleRow == false)
-            {
-                return new[] { isAsync ? nameof(QueryAsync) : nameof(Query) };
-            }
-
-            return isAsync
-                ? new[] {nameof(QueryAsync), nameof(QuerySingleAsync)}
-                : new[] {nameof(Query), nameof(QuerySingle)};
         }
 
         private IDataReader GetQuerySingleDataReader(IDbCommand command, Type rowType)
@@ -119,14 +97,14 @@
             }
         }
 
-        public object ExecuteScalar(MockDbCommand command, bool isAsync)
+        public object ExecuteScalar(MockDbCommand command, MethodBase dapperEntrypoint)
         {
             throw new NotImplementedException("When does Dapper ever use this?");
         }
 
-        private LambdaExpression FindSetup(MockDbCommand command, string[] dapperExtensionMethodNames)
+        private LambdaExpression FindSetup(MockDbCommand command, MethodInfo methodToFind)
         {
-            var comparer = new DapperSetupComparer(dapperExtensionMethodNames);
+            var comparer = new DapperSetupComparer(methodToFind);
             var expression = this.setups.SingleOrDefault(comparer.Matches) as LambdaExpression;
             if (expression == null)
                 return null;
@@ -136,19 +114,6 @@
                 return expression;
 
             return null;
-        }
-
-        private static MethodInfo GetMethod<TOut>(Expression<Func<MockDatabase, TOut>> expression)
-        {
-            var unaryExpression = expression.Body as UnaryExpression;
-            if (unaryExpression != null)
-            {
-                var unaryExpressionOperand = (MethodCallExpression)unaryExpression.Operand;
-                return unaryExpressionOperand.Method;
-            }
-
-            var methodCallExpression = (MethodCallExpression)expression.Body;
-            return methodCallExpression.Method;
         }
     }
 }

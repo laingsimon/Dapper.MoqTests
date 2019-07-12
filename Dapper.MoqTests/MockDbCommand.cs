@@ -1,4 +1,8 @@
-﻿namespace Dapper.MoqTests
+﻿using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
+
+namespace Dapper.MoqTests
 {
     using System.Collections.Generic;
     using System.Data;
@@ -32,22 +36,26 @@
 
         public override int ExecuteNonQuery()
         {
-            return database.ExecuteNonQuery(this, false);
+            var dapperEntrypoint = FirstDapperCallInStack();
+            return database.ExecuteNonQuery(this, false, dapperEntrypoint);
         }
 
         public override object ExecuteScalar()
         {
-            return database.ExecuteScalar(this, false);
+            var dapperEntrypoint = FirstDapperCallInStack();
+            return database.ExecuteScalar(this, dapperEntrypoint);
         }
 
         public override Task<int> ExecuteNonQueryAsync(CancellationToken cancellationToken)
         {
-            return Task.FromResult(database.ExecuteNonQuery(this, true));
+            var dapperEntrypoint = FirstDapperCallInStack();
+            return Task.FromResult(database.ExecuteNonQuery(this, true, dapperEntrypoint));
         }
 
         public override Task<object> ExecuteScalarAsync(CancellationToken cancellationToken)
         {
-            return Task.FromResult(database.ExecuteScalar(this, true));
+            var dapperEntrypoint = FirstDapperCallInStack();
+            return Task.FromResult(database.ExecuteScalar(this, dapperEntrypoint));
         }
 
         public IReadOnlyDictionary<ParameterType, object> GetParameterLookup()
@@ -70,21 +78,24 @@
 
         protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
         {
-            return new MockDbDataReader(database.ExecuteReader(this, false, RequiresSingleResult(behavior)));
+            var dapperEntrypoint = FirstDapperCallInStack();
+            return new MockDbDataReader(database.ExecuteReader(this, dapperEntrypoint));
         }
 
         protected override Task<DbDataReader> ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
         {
-            return Task.FromResult<DbDataReader>(new MockDbDataReader(database.ExecuteReader(this, true, RequiresSingleResult(behavior))));
+            var dapperEntryPoint = FirstDapperCallInStack();
+            return Task.FromResult<DbDataReader>(new MockDbDataReader(database.ExecuteReader(this, dapperEntryPoint)));
         }
 
-        private bool? RequiresSingleResult(CommandBehavior behaviour)
+        private MethodBase FirstDapperCallInStack()
         {
-            if (!behaviour.HasFlag(CommandBehavior.SingleResult))
-                return null; //something hasn't been passed in the way Dapper codebase says it would
+            //This is inefficient, but yields accurate results, so is worth the performance hit
 
-            //This flag never appears to be passed across, but Dapper codebase says it should
-            return behaviour.HasFlag(CommandBehavior.SingleRow);
+            var stack = new StackTrace();
+            return stack.GetFrames()?
+                .Select(f => f.GetMethod())
+                .LastOrDefault(method => method.DeclaringType == typeof(SqlMapper));
         }
     }
 }
