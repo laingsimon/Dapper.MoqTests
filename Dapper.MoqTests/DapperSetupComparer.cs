@@ -1,15 +1,16 @@
-﻿namespace Dapper.MoqTests
+﻿using System.Reflection;
+
+namespace Dapper.MoqTests
 {
-    using System.Linq;
     using System.Linq.Expressions;
 
     internal class DapperSetupComparer
     {
-        private readonly string[] dapperMethodNames;
+        private readonly MethodInfo _methodToFind;
 
-        public DapperSetupComparer(string[] dapperMethodNames)
+        public DapperSetupComparer(MethodInfo methodToFind)
         {
-            this.dapperMethodNames = dapperMethodNames;
+            _methodToFind = methodToFind;
         }
 
         public bool Matches(Expression expression)
@@ -18,12 +19,10 @@
             if (methodCallExpression == null)
                 return false;
 
-            return dapperMethodNames.Any(name => Matches(name, methodCallExpression));
-        }
-
-        private bool Matches(string dapperMethodName, MethodCallExpression methodCallExpression)
-        {
-            return methodCallExpression.Method.Name == dapperMethodName;
+            return _methodToFind.Name == methodCallExpression.Method.Name
+                   && _methodToFind.IsGenericMethod == methodCallExpression.Method.IsGenericMethod
+                   && _methodToFind.GetGenericArguments().Length ==
+                   methodCallExpression.Method.GetGenericArguments().Length;
         }
     }
 }

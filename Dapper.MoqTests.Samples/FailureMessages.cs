@@ -52,19 +52,19 @@ order by Make, Model"", <No command parameters>, null)"));
             //NOTE: As there is no setup, you must use <object> in the verify
             try
             {
-                connection.Verify(c => c.QueryAsync<object>(@"select * 
+                connection.Verify(c => c.QuerySingleAsync<object>(@"select * 
 from [Cars] 
 where Registration = @registration", new { registration = "incorrect value" }, It.IsAny<IDbTransaction>()));
             }
             catch (MockException exc)
             {
-                Assert.That(exc.Message.Trim(), Is.EqualTo(@"Expected invocation on the mock at least once, but was never performed: c => c.QueryAsync<Object>(Match.Create<String>(, () => ""select * 
+                Assert.That(exc.Message.Trim(), Is.EqualTo(@"Expected invocation on the mock at least once, but was never performed: c => c.QuerySingleAsync<Object>(Match.Create<String>(, () => ""select * 
 from [Cars] 
 where Registration = @registration""), Match.Create<Object>(, () => { registration = incorrect value }), It.IsAny<IDbTransaction>())
 No setups configured.
 
 Performed invocations:
-MockDatabase.QueryAsync<Object>(""select * 
+MockDatabase.QuerySingleAsync<Object>(""select * 
 from [Cars] 
 where Registration = @registration"", { registration = reg }, null)"));
             }
@@ -85,19 +85,19 @@ where Registration = @registration"", { registration = reg }, null)"));
             //NOTE: As there is no setup, you must use <object> in the verify
             try
             {
-                connection.Verify(c => c.QueryAsync<object>(@"select * 
+                connection.Verify(c => c.QuerySingleAsync<object>(@"select * 
 from [Cars] 
 where Registration = @registration", new { registration = 1 }, It.IsAny<IDbTransaction>()));
             }
             catch (MockException exc)
             {
-                Assert.That(exc.Message.Trim(), Is.EqualTo(@"Expected invocation on the mock at least once, but was never performed: c => c.QueryAsync<Object>(Match.Create<String>(, () => ""select * 
+                Assert.That(exc.Message.Trim(), Is.EqualTo(@"Expected invocation on the mock at least once, but was never performed: c => c.QuerySingleAsync<Object>(Match.Create<String>(, () => ""select * 
 from [Cars] 
 where Registration = @registration""), Match.Create<Object>(, () => { registration = 1 }), It.IsAny<IDbTransaction>())
 No setups configured.
 
 Performed invocations:
-MockDatabase.QueryAsync<Object>(""select * 
+MockDatabase.QuerySingleAsync<Object>(""select * 
 from [Cars] 
 where Registration = @registration"", { registration = reg }, null)"));
             }
@@ -118,19 +118,19 @@ where Registration = @registration"", { registration = reg }, null)"));
             //NOTE: As there is no setup, you must use <object> in the verify
             try
             {
-                connection.Verify(c => c.QueryAsync<object>(@"select * 
+                connection.Verify(c => c.QuerySingleAsync<object>(@"select * 
 from [Cars] 
 where Registration = @registration", new { foo = "bar" }, It.IsAny<IDbTransaction>()));
             }
             catch (MockException exc)
             {
-                Assert.That(exc.Message.Trim(), Is.EqualTo(@"Expected invocation on the mock at least once, but was never performed: c => c.QueryAsync<Object>(Match.Create<String>(, () => ""select * 
+                Assert.That(exc.Message.Trim(), Is.EqualTo(@"Expected invocation on the mock at least once, but was never performed: c => c.QuerySingleAsync<Object>(Match.Create<String>(, () => ""select * 
 from [Cars] 
 where Registration = @registration""), Match.Create<Object>(, () => { foo = bar }), It.IsAny<IDbTransaction>())
 No setups configured.
 
 Performed invocations:
-MockDatabase.QueryAsync<Object>(""select * 
+MockDatabase.QuerySingleAsync<Object>(""select * 
 from [Cars] 
 where Registration = @registration"", { registration = reg }, null)"));
             }
@@ -151,19 +151,19 @@ where Registration = @registration"", { registration = reg }, null)"));
             //NOTE: As there is no setup, you must use <object> in the verify
             try
             {
-                connection.Verify(c => c.QueryAsync<Car>(@"select * 
+                connection.Verify(c => c.QuerySingleAsync<Car>(@"select * 
 from [Cars] 
 where Registration = @registration", It.IsAny<object>(), It.IsAny<IDbTransaction>()));
             }
             catch (MockException exc)
             {
-                Assert.That(exc.Message.Trim(), Is.EqualTo(@"Expected invocation on the mock at least once, but was never performed: c => c.QueryAsync<Car>(Match.Create<String>(, () => ""select * 
+                Assert.That(exc.Message.Trim(), Is.EqualTo(@"Expected invocation on the mock at least once, but was never performed: c => c.QuerySingleAsync<Car>(Match.Create<String>(, () => ""select * 
 from [Cars] 
 where Registration = @registration""), It.IsAny<Object>(), It.IsAny<IDbTransaction>())
 No setups configured.
 
 Performed invocations:
-MockDatabase.QueryAsync<Object>(""select * 
+MockDatabase.QuerySingleAsync<Object>(""select * 
 from [Cars] 
 where Registration = @registration"", { registration = reg }, null)"));
             }

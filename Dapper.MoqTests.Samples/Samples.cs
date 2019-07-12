@@ -76,7 +76,7 @@ order by Make, Model", It.IsAny<object>(), It.IsAny<IDbTransaction>()), Times.On
             await repository.GetCarAsync("reg");
 
             //NOTE: As there is no setup, you must use <object> in the verify
-            connection.Verify(c => c.QueryAsync<object>(@"select * 
+            connection.Verify(c => c.QuerySingleAsync<object>(@"select * 
 from [Cars] 
 where Registration = @registration", new { registration = "reg" }, It.IsAny<IDbTransaction>()));
         }
