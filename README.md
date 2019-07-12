@@ -84,8 +84,7 @@ public void Test()
 
 ## Features
 * [x] MockDbConnection implements `IDbConnection`
-* [x] Supports testing of `Query` and `QuerySingle`
-* [x] Supports testing of `Execute`
+* [x] Supports testing of `Query`, `Execute`, etc - see [What's supported](https://github.com/laingsimon/Dapper.MoqTests/wiki/What's-supported)
 * [x] Compares SQL test case insensitively, ignoring empty lines and leading/trailing white-space
 * [x] Compares parameter anonymous objects from different assemblies
 * [x] Testing framework isn't restricted, can by **NUnit**, **MsTest** or anything else
