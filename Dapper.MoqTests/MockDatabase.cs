@@ -33,9 +33,9 @@
             this.setups.Add(setup);
         }
 
-        public int ExecuteNonQuery(MockDbCommand command, bool isAsync, MethodBase dapperEntrypoint)
+        public int ExecuteNonQuery(MockDbCommand command, bool isAsync, MethodBase dapperEntrypoint, Type dataType)
         {
-            var method = DapperMethods.GetExecuteMethod(dapperEntrypoint);
+            var method = DapperMethods.GetExecuteMethod(dapperEntrypoint, dataType);
             var parametersLookup = command.GetParameterLookup();
             var parametersArray = method.GetValues(parametersLookup);
 
@@ -44,9 +44,9 @@
                 : (int)method.Invoke(this, parametersArray);
         }
 
-        public IDataReader ExecuteReader(MockDbCommand command, MethodBase dapperEntrypoint)
+        public IDataReader ExecuteReader(MockDbCommand command, MethodBase dapperEntrypoint, Type dataType)
         {
-            var sourceMethod = DapperMethods.GetQueryMethod(dapperEntrypoint);
+            var sourceMethod = DapperMethods.GetQueryMethod(dapperEntrypoint, dataType);
             var setup = FindSetup(command, sourceMethod);
 
             var methodCall = (MethodCallExpression)setup?.Body;
@@ -97,7 +97,7 @@
             }
         }
 
-        public object ExecuteScalar(MockDbCommand command, MethodBase dapperEntrypoint)
+        public object ExecuteScalar(MockDbCommand command, MethodBase dapperEntrypoint, Type dataType)
         {
             throw new NotImplementedException("When does Dapper ever use this?");
         }

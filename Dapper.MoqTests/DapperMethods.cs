@@ -31,18 +31,26 @@ namespace Dapper.MoqTests
             return methodCallExpression.Method;
         }
 
-        public static MethodInfo GetExecuteMethod(MethodBase dapperEntrypoint)
+        public static MethodInfo GetExecuteMethod(MethodBase dapperEntrypoint, Type dataType)
         {
-            return _dapperMethods[dapperEntrypoint.Name];
+            var method = _dapperMethods[dapperEntrypoint.Name];
+            if (dataType == null)
+                return method;
+
+            return method.GetGenericMethodDefinition().MakeGenericMethod(dataType);
         }
 
-        public static MethodInfo GetQueryMethod(MethodBase dapperEntrypoint)
+        public static MethodInfo GetQueryMethod(MethodBase dapperEntrypoint, Type dataType)
         {
             var key = dapperEntrypoint.IsGenericMethod
                 ? $"{dapperEntrypoint.Name}[{string.Join(", ", dapperEntrypoint.GetGenericArguments().Select(t => t.Name))}]"
                 : dapperEntrypoint.Name;
 
-            return _dapperMethods[key];
+            var method = _dapperMethods[key];
+            if (dataType == null)
+                return method;
+
+            return method.GetGenericMethodDefinition().MakeGenericMethod(dataType);
         }
 
         internal static bool IsSingleResultMethod(MethodInfo method)
