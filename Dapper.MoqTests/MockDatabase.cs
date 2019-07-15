@@ -58,7 +58,7 @@
             var reader = result as IDataReader;
             if (result == null)
             {
-                if (method.Name == nameof(QuerySingle))
+                if (DapperMethods.IsSingleResultMethod(method))
                     return GetQuerySingleDataReader(command, method.GetGenericArguments()[0]);
 
                 return GetEmptyDataReader(command);

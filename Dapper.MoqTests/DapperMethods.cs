@@ -44,5 +44,10 @@ namespace Dapper.MoqTests
 
             return _dapperMethods[key];
         }
+
+        internal static bool IsSingleResultMethod(MethodInfo method)
+        {
+            return method.Name.StartsWith("QuerySingle");
+        }
     }
 }
