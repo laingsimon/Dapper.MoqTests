@@ -43,6 +43,16 @@ where Registration = @registration", new { registration });
             }
         }
 
+        public async Task<int> GetCarCountAsync(string registration)
+        {
+            using (var connection = _connectionFactory.OpenConnection())
+            {
+                return await connection.QuerySingleAsync<int>(@"select * 
+from [Cars] 
+where Registration = @registration", new { registration });
+            }
+        }
+
         public IEnumerable<string> GetModels(string make)
         {
             using (var connection = _connectionFactory.OpenConnection())

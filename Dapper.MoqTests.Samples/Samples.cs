@@ -9,6 +9,12 @@ namespace Dapper.MoqTests.Samples
     [TestFixture]
     public class Samples
     {
+        [SetUp]
+        public void BeforeEachTest()
+        {
+            SqlMapper.PurgeQueryCache();
+        }
+
         [Test]
         public void VerifyOnly()
         {
@@ -21,8 +27,7 @@ namespace Dapper.MoqTests.Samples
 
             repository.GetCars();
 
-            //NOTE: As there is no setup, you must use <object> in the verify
-            connection.Verify(c => c.Query<object>(@"select *
+            connection.Verify(c => c.Query<Car>(@"select *
 from [Cars]
 order by Make, Model", It.IsAny<object>(), It.IsAny<IDbTransaction>()));
         }
@@ -39,8 +44,7 @@ order by Make, Model", It.IsAny<object>(), It.IsAny<IDbTransaction>()));
 
             repository.GetCars();
 
-            //NOTE: As there is no setup, you must use <object> in the verify
-            connection.Verify(c => c.Query<object>(@"select *
+            connection.Verify(c => c.Query<Car>(@"select *
 from [Cars]
 order by Make, Model", It.IsAny<object>(), It.IsAny<IDbTransaction>()), Times.Once);
         }
@@ -57,8 +61,7 @@ order by Make, Model", It.IsAny<object>(), It.IsAny<IDbTransaction>()), Times.On
 
             await repository.GetCarsAsync();
 
-            //NOTE: As there is no setup, you must use <object> in the verify
-            connection.Verify(c => c.QueryAsync<object>(@"select *
+            connection.Verify(c => c.QueryAsync<Car>(@"select *
 from [Cars]
 order by Make, Model", It.IsAny<object>(), It.IsAny<IDbTransaction>()), Times.Once);
         }
@@ -75,8 +78,7 @@ order by Make, Model", It.IsAny<object>(), It.IsAny<IDbTransaction>()), Times.On
 
             await repository.GetCarAsync("reg");
 
-            //NOTE: As there is no setup, you must use <object> in the verify
-            connection.Verify(c => c.QuerySingleAsync<object>(@"select * 
+            connection.Verify(c => c.QuerySingleAsync<Car>(@"select * 
 from [Cars] 
 where Registration = @registration", new { registration = "reg" }, It.IsAny<IDbTransaction>()));
         }
@@ -127,7 +129,6 @@ where Registration = @registration", new { registration = "ABC123" }, It.IsAny<I
 
             repository.GetCar("ABC123");
 
-            //NOTE: because the call to QuerySingle() was setup we should use the correct type-argument here
             connection.Verify(c => c.QuerySingle<Car>(@"select *
 from [Cars]
 where Registration = @registration", new { registration = "ABC123" }, It.IsAny<IDbTransaction>()));
@@ -281,6 +282,37 @@ order by Make, Model", It.IsAny<object>(), It.IsAny<IDbTransaction>()))
             await repository.DeleteCarAsync("Vauxhall");
 
             connection.Verify(c => c.ExecuteAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbTransaction>()));
+        }
+
+        [Test]
+        public async Task VerifyTwoDifferentGenericCallsWithSameSqlWhenSettingEnabled()
+        {
+            try
+            {
+                Settings.ResetDapperCachePerCommand = true;
+
+                var connectionFactory = new Mock<IDbConnectionFactory>();
+                var connection = new MockDbConnection();
+                var repository = new SampleRepository(connectionFactory.Object);
+                connectionFactory
+                    .Setup(f => f.OpenConnection())
+                    .Returns(connection);
+
+                await repository.GetCarAsync("reg");
+                await repository.GetCarCountAsync("reg");
+
+                connection.Verify(c => c.QuerySingleAsync<Car>(@"select *
+from [Cars] 
+where Registration = @registration", It.IsAny<object>(), It.IsAny<IDbTransaction>()));
+
+                connection.Verify(c => c.QuerySingleAsync<int>(@"select *
+from [Cars] 
+where Registration = @registration", It.IsAny<object>(), It.IsAny<IDbTransaction>()));
+            }
+            finally
+            {
+                Settings.ResetDapperCachePerCommand = false;
+            }
         }
     }
 }

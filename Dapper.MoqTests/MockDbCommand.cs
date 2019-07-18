@@ -4,20 +4,24 @@ using System.Reflection;
 
 namespace Dapper.MoqTests
 {
+    using System;
     using System.Collections.Generic;
     using System.Data;
     using System.Data.Common;
     using System.Threading;
     using System.Threading.Tasks;
+    using static Dapper.SqlMapper;
 
     internal class MockDbCommand : DbCommand
     {
         private readonly MockDatabase database;
         private readonly MockDbParameterCollection parameters = new MockDbParameterCollection();
+        private readonly Lazy<Identity> identity;
 
         public MockDbCommand(MockDatabase database)
         {
             this.database = database;
+            identity = new Lazy<Identity>(() => DapperCacheInfo.GetIdentity(this));
         }
 
         public override string CommandText { get; set; }
@@ -37,25 +41,25 @@ namespace Dapper.MoqTests
         public override int ExecuteNonQuery()
         {
             var dapperEntrypoint = FirstDapperCallInStack();
-            return database.ExecuteNonQuery(this, false, dapperEntrypoint);
+            return database.ExecuteNonQuery(this, false, dapperEntrypoint, identity.Value.type);
         }
 
         public override object ExecuteScalar()
         {
             var dapperEntrypoint = FirstDapperCallInStack();
-            return database.ExecuteScalar(this, dapperEntrypoint);
+            return database.ExecuteScalar(this, dapperEntrypoint, identity.Value.type);
         }
 
         public override Task<int> ExecuteNonQueryAsync(CancellationToken cancellationToken)
         {
             var dapperEntrypoint = FirstDapperCallInStack();
-            return Task.FromResult(database.ExecuteNonQuery(this, true, dapperEntrypoint));
+            return Task.FromResult(database.ExecuteNonQuery(this, true, dapperEntrypoint, identity.Value.type));
         }
 
         public override Task<object> ExecuteScalarAsync(CancellationToken cancellationToken)
         {
             var dapperEntrypoint = FirstDapperCallInStack();
-            return Task.FromResult(database.ExecuteScalar(this, dapperEntrypoint));
+            return Task.FromResult(database.ExecuteScalar(this, dapperEntrypoint, identity.Value.type));
         }
 
         public IReadOnlyDictionary<ParameterType, object> GetParameterLookup()
@@ -79,13 +83,13 @@ namespace Dapper.MoqTests
         protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
         {
             var dapperEntrypoint = FirstDapperCallInStack();
-            return new MockDbDataReader(database.ExecuteReader(this, dapperEntrypoint));
+            return new MockDbDataReader(database.ExecuteReader(this, dapperEntrypoint, identity.Value.type));
         }
 
         protected override Task<DbDataReader> ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
         {
             var dapperEntryPoint = FirstDapperCallInStack();
-            return Task.FromResult<DbDataReader>(new MockDbDataReader(database.ExecuteReader(this, dapperEntryPoint)));
+            return Task.FromResult<DbDataReader>(new MockDbDataReader(database.ExecuteReader(this, dapperEntryPoint, identity.Value.type)));
         }
 
         private MethodBase FirstDapperCallInStack()
@@ -96,6 +100,14 @@ namespace Dapper.MoqTests
             return stack.GetFrames()?
                 .Select(f => f.GetMethod())
                 .LastOrDefault(method => method.DeclaringType == typeof(SqlMapper));
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (Settings.ResetDapperCachePerCommand)
+                DapperCacheInfo.PurgeQueriedIdentities();
+
+            base.Dispose(disposing);
         }
     }
 }
