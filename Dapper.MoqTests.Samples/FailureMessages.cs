@@ -22,17 +22,17 @@ namespace Dapper.MoqTests.Samples
 
             try
             {
-                connection.Verify(c => c.Query<Car>(@"incorrect sql", It.IsAny<object>(), It.IsAny<IDbTransaction>()));
+                connection.Verify(c => c.Query<Car>(@"incorrect sql", It.IsAny<object>(), It.IsAny<IDbTransaction>(), true, null, null));
             }
             catch (MockException exc)
             {
-                Assert.That(exc.Message.Trim(), Is.EqualTo(@"Expected invocation on the mock at least once, but was never performed: c => c.Query<Car>(Match.Create<String>(, () => ""incorrect sql""), It.IsAny<Object>(), It.IsAny<IDbTransaction>())
+                Assert.That(exc.Message.Trim(), Is.EqualTo(@"Expected invocation on the mock at least once, but was never performed: c => c.Query<Car>(Match.Create<String>(, () => ""incorrect sql""), It.IsAny<Object>(), It.IsAny<IDbTransaction>(), True, null, null)
 No setups configured.
 
 Performed invocations:
 MockDatabase.Query<Car>(""select * 
 from [Cars] 
-order by Make, Model"", <No command parameters>, null)"));
+order by Make, Model"", <No command parameters>, null, True, null, null)"));
             }
         }
 
@@ -52,19 +52,19 @@ order by Make, Model"", <No command parameters>, null)"));
             {
                 connection.Verify(c => c.QuerySingleAsync<Car>(@"select * 
 from [Cars] 
-where Registration = @registration", new { registration = "incorrect value" }, It.IsAny<IDbTransaction>()));
+where Registration = @registration", new { registration = "incorrect value" }, It.IsAny<IDbTransaction>(), null, null));
             }
             catch (MockException exc)
             {
                 Assert.That(exc.Message.Trim(), Is.EqualTo(@"Expected invocation on the mock at least once, but was never performed: c => c.QuerySingleAsync<Car>(Match.Create<String>(, () => ""select * 
 from [Cars] 
-where Registration = @registration""), Match.Create<Object>(, () => { registration = incorrect value }), It.IsAny<IDbTransaction>())
+where Registration = @registration""), Match.Create<Object>(, () => { registration = incorrect value }), It.IsAny<IDbTransaction>(), null, null)
 No setups configured.
 
 Performed invocations:
 MockDatabase.QuerySingleAsync<Car>(""select * 
 from [Cars] 
-where Registration = @registration"", { registration = reg }, null)"));
+where Registration = @registration"", { registration = reg }, null, null, null)"));
             }
         }
 
@@ -84,19 +84,19 @@ where Registration = @registration"", { registration = reg }, null)"));
             {
                 connection.Verify(c => c.QuerySingleAsync<Car>(@"select * 
 from [Cars] 
-where Registration = @registration", new { registration = 1 }, It.IsAny<IDbTransaction>()));
+where Registration = @registration", new { registration = 1 }, It.IsAny<IDbTransaction>(), null, null));
             }
             catch (MockException exc)
             {
                 Assert.That(exc.Message.Trim(), Is.EqualTo(@"Expected invocation on the mock at least once, but was never performed: c => c.QuerySingleAsync<Car>(Match.Create<String>(, () => ""select * 
 from [Cars] 
-where Registration = @registration""), Match.Create<Object>(, () => { registration = 1 }), It.IsAny<IDbTransaction>())
+where Registration = @registration""), Match.Create<Object>(, () => { registration = 1 }), It.IsAny<IDbTransaction>(), null, null)
 No setups configured.
 
 Performed invocations:
 MockDatabase.QuerySingleAsync<Car>(""select * 
 from [Cars] 
-where Registration = @registration"", { registration = reg }, null)"));
+where Registration = @registration"", { registration = reg }, null, null, null)"));
             }
         }
 
@@ -116,19 +116,19 @@ where Registration = @registration"", { registration = reg }, null)"));
             {
                 connection.Verify(c => c.QuerySingleAsync<Car>(@"select * 
 from [Cars] 
-where Registration = @registration", new { foo = "bar" }, It.IsAny<IDbTransaction>()));
+where Registration = @registration", new { foo = "bar" }, It.IsAny<IDbTransaction>(), null, null));
             }
             catch (MockException exc)
             {
                 Assert.That(exc.Message.Trim(), Is.EqualTo(@"Expected invocation on the mock at least once, but was never performed: c => c.QuerySingleAsync<Car>(Match.Create<String>(, () => ""select * 
 from [Cars] 
-where Registration = @registration""), Match.Create<Object>(, () => { foo = bar }), It.IsAny<IDbTransaction>())
+where Registration = @registration""), Match.Create<Object>(, () => { foo = bar }), It.IsAny<IDbTransaction>(), null, null)
 No setups configured.
 
 Performed invocations:
 MockDatabase.QuerySingleAsync<Car>(""select * 
 from [Cars] 
-where Registration = @registration"", { registration = reg }, null)"));
+where Registration = @registration"", { registration = reg }, null, null, null)"));
             }
         }
 
@@ -148,7 +148,7 @@ where Registration = @registration"", { registration = reg }, null)"));
             {
                 connection.Verify(c => c.QuerySingleAsync<Car>(@"select * 
 from [Cars] 
-where Registration = @registration", It.IsAny<object>(), It.IsAny<IDbTransaction>()));
+where Registration = @registration", It.IsAny<object>(), It.IsAny<IDbTransaction>(), null, null));
             }
             catch (MockException exc)
             {
@@ -187,31 +187,31 @@ CommandType: 0
 
 To be able to Verify the Dapper call accurately the Command and Parameters (and return type) must be unique for every invocation of a Dapper method.
 
-Possible options: `System.Int32`, `Dapper.MoqTests.Samples.Car`
+Possible options: `Dapper.MoqTests.Samples.Car`, `System.Int32`
 
 If this issue cannot be resolved, consider setting `Dapper.MoqTests.Settings.ResetDapperCachePerCommand` to `true`, note this is not a thread-safe approach"));
 
            connection.Verify(c => c.QuerySingleAsync<Car>(@"select *
 from [Cars] 
-where Registration = @registration", It.IsAny<object>(), It.IsAny<IDbTransaction>()));
+where Registration = @registration", It.IsAny<object>(), It.IsAny<IDbTransaction>(), null, null));
 
             try
             {
                 connection.Verify(c => c.QuerySingleAsync<int>(@"select *
 from [Cars] 
-where Registration = @registration", It.IsAny<object>(), It.IsAny<IDbTransaction>()));
+where Registration = @registration", It.IsAny<object>(), It.IsAny<IDbTransaction>(), null, null));
             }
             catch (System.Exception exc)
             {
                 Assert.That(exc.Message.Trim(), Is.EqualTo(@"Expected invocation on the mock at least once, but was never performed: c => c.QuerySingleAsync<Int32>(Match.Create<String>(, () => ""select *
 from [Cars] 
-where Registration = @registration""), It.IsAny<Object>(), It.IsAny<IDbTransaction>())
+where Registration = @registration""), It.IsAny<Object>(), It.IsAny<IDbTransaction>(), null, null)
 No setups configured.
 
 Performed invocations:
 MockDatabase.QuerySingleAsync<Car>(""select * 
 from [Cars] 
-where Registration = @registration"", { registration = reg }, null)"));
+where Registration = @registration"", { registration = reg }, null, null, null)"));
             }
         }
     }

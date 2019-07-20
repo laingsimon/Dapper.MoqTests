@@ -64,7 +64,10 @@ namespace Dapper.MoqTests
             {
                 { ParameterType.SqlText, CommandText },
                 { ParameterType.SqlParameters, ParametersObjectBuilder.FromParameters(_parameters) },
-                { ParameterType.SqlTransaction, DbTransaction }
+                { ParameterType.SqlTransaction, DbTransaction },
+                { ParameterType.CommandType, CommandType == 0 ? default(CommandType?) : CommandType },
+                { ParameterType.CommandTimeout, CommandTimeout == 0 ? default(int?) : CommandTimeout },
+                { ParameterType.Buffered, true } //TODO: Work out this value
             };
         }
 

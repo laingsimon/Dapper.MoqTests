@@ -10,12 +10,12 @@ namespace Dapper.MoqTests
     {
         private static readonly IReadOnlyDictionary<string, MethodInfo> Methods = new Dictionary<string, MethodInfo>
         {
-            { "Query[T]", GetMethod<object>(db => db.Query<object>("some sql", null, null)) },
-            { "Execute", GetMethod<object>(db => db.Execute("some sql", null, null)) },
-            { "QueryAsync[T]", GetMethod<object>(db => db.QueryAsync<object>("some sql", null, null))},
-            { "ExecuteAsync", GetMethod<object>(db => db.ExecuteAsync("some sql", null, null))},
-            { "QuerySingleAsync[T]", GetMethod<object>(db => db.QuerySingleAsync<object>("some sql", null, null))},
-            { "QuerySingle[T]", GetMethod(db => db.QuerySingle<object>("some sql", null, null))}
+            { "Query[T]", GetMethod<object>(db => db.Query<object>("some sql", null, null, true, null, null)) },
+            { "Execute", GetMethod<object>(db => db.Execute("some sql", null, null, null, null)) },
+            { "QueryAsync[T]", GetMethod<object>(db => db.QueryAsync<object>("some sql", null, null, null, null))},
+            { "ExecuteAsync", GetMethod<object>(db => db.ExecuteAsync("some sql", null, null, null, null))},
+            { "QuerySingleAsync[T]", GetMethod<object>(db => db.QuerySingleAsync<object>("some sql", null, null, null, null))},
+            { "QuerySingle[T]", GetMethod(db => db.QuerySingle<object>("some sql", null, null, null, null))}
         };
 
         private static MethodInfo GetMethod<TOut>(Expression<Func<MockDatabase, TOut>> expression)

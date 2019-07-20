@@ -59,7 +59,7 @@ namespace Dapper.MoqTests
             var expected = GetValueFromExpression<T>(expression);
             var createMatch = GetCreateMatchMethod<T>();
             var predicateExpression = Expression.Constant(new Predicate<T>(actual => predicate(actual, expected)));
-            Expression<Func<T>> presentationExpression = GetPresentationExpression(expected);
+            var presentationExpression = GetPresentationExpression(expected);
             var renderExpression = Expression.Quote(presentationExpression);
             var resultExpression = Expression.Call(null, createMatch, predicateExpression, renderExpression);
             return resultExpression;

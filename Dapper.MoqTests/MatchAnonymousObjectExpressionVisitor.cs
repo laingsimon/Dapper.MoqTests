@@ -49,6 +49,9 @@ namespace Dapper.MoqTests
             if (ReferenceEquals(expected, MockDbParameterCollection.Any))
                 return true;
 
+            if (actual == null)
+                return expected == null;
+
             var actualParams = new MockDbParameterCollection(actual);
             return actualParams.Equals(expected);
         }

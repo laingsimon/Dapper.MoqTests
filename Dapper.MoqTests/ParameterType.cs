@@ -4,6 +4,9 @@
     {
         SqlParameters,
         SqlText,
-        SqlTransaction
+        SqlTransaction,
+        CommandTimeout,
+        CommandType,
+        Buffered
     }
 }

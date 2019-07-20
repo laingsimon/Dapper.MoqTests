@@ -55,7 +55,6 @@
     <Compile Include="ExpressionMatch.cs" />
     <Compile Include="GenericMethodCaller.cs" />
     <Compile Include="IMatch.cs" />
-    <Compile Include="IMockDatabase.cs" />
     <Compile Include="MatchAnonymousObjectExpressionVisitor.cs" />
     <Compile Include="MatchProxy.cs" />
     <Compile Include="MockDatabase.cs" />

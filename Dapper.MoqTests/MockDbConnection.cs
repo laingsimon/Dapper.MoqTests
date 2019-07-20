@@ -48,10 +48,10 @@ namespace Dapper.MoqTests
 
         #endregion
 
-        public ISetup<IMockDatabase, TReturn> Setup<TReturn>(Expression<Func<IMockDatabase, TReturn>> expression)
+        public ISetup<MockDatabase, TReturn> Setup<TReturn>(Expression<Func<MockDatabase, TReturn>> expression)
         {
             _database.Object.Expect(expression);
-            return _database.As<IMockDatabase>().Setup(ModifySqlParametersArgumentInExpression(expression));
+            return _database.Setup(ModifySqlParametersArgumentInExpression(expression));
         }
 
         /// <summary>Verifies that all verifiable expectations have been met.</summary>
@@ -72,7 +72,7 @@ namespace Dapper.MoqTests
         /// <exception cref="T:Moq.MockException">Not all verifiable expectations were met.</exception>
         public void Verify()
         {
-            _database.As<IMockDatabase>().Verify();
+            _database.Verify();
         }
 
         /// <summary>
@@ -93,9 +93,9 @@ namespace Dapper.MoqTests
         /// <exception cref="T:Moq.MockException">The invocation was not performed on the mock.</exception>
         /// <param name="expression">Expression to verify.</param>
         /// <typeparam name="TResult">Type of return value from the expression.</typeparam>
-        public void Verify<TResult>(Expression<Func<IMockDatabase, TResult>> expression)
+        public void Verify<TResult>(Expression<Func<MockDatabase, TResult>> expression)
         {
-            _database.As<IMockDatabase>().Verify(ModifySqlParametersArgumentInExpression(expression));
+            _database.Verify(ModifySqlParametersArgumentInExpression(expression));
         }
 
         /// <summary>
@@ -119,9 +119,9 @@ namespace Dapper.MoqTests
         /// <param name="expression">Expression to verify.</param>
         /// <param name="failMessage">Message to show if verification fails.</param>
         /// <typeparam name="TResult">Type of return value from the expression.</typeparam>
-        public void Verify<TResult>(Expression<Func<IMockDatabase, TResult>> expression, string failMessage)
+        public void Verify<TResult>(Expression<Func<MockDatabase, TResult>> expression, string failMessage)
         {
-            _database.As<IMockDatabase>().Verify(ModifySqlParametersArgumentInExpression(expression), failMessage);
+            _database.Verify(ModifySqlParametersArgumentInExpression(expression), failMessage);
         }
 
         /// <summary>
@@ -136,9 +136,9 @@ namespace Dapper.MoqTests
         /// <param name="expression">Expression to verify.</param>
         /// <param name="times">The number of times a method is allowed to be called.</param>
         /// <typeparam name="TResult">Type of return value from the expression.</typeparam>
-        public void Verify<TResult>(Expression<Func<IMockDatabase, TResult>> expression, Times times)
+        public void Verify<TResult>(Expression<Func<MockDatabase, TResult>> expression, Times times)
         {
-            _database.As<IMockDatabase>().Verify(ModifySqlParametersArgumentInExpression(expression), times);
+            _database.Verify(ModifySqlParametersArgumentInExpression(expression), times);
         }
 
         /// <summary>
@@ -153,9 +153,9 @@ namespace Dapper.MoqTests
         /// <param name="expression">Expression to verify.</param>
         /// <param name="times">The number of times a method is allowed to be called.</param>
         /// <typeparam name="TResult">Type of return value from the expression.</typeparam>
-        public void Verify<TResult>(Expression<Func<IMockDatabase, TResult>> expression, Func<Times> times)
+        public void Verify<TResult>(Expression<Func<MockDatabase, TResult>> expression, Func<Times> times)
         {
-            _database.As<IMockDatabase>().Verify(ModifySqlParametersArgumentInExpression(expression), times);
+            _database.Verify(ModifySqlParametersArgumentInExpression(expression), times);
         }
 
         /// <summary>
@@ -171,15 +171,15 @@ namespace Dapper.MoqTests
         /// <param name="times">The number of times a method is allowed to be called.</param>
         /// <param name="failMessage">Message to show if verification fails.</param>
         /// <typeparam name="TResult">Type of return value from the expression.</typeparam>
-        public void Verify<TResult>(Expression<Func<IMockDatabase, TResult>> expression, Times times, string failMessage)
+        public void Verify<TResult>(Expression<Func<MockDatabase, TResult>> expression, Times times, string failMessage)
         {
-            _database.As<IMockDatabase>().Verify(ModifySqlParametersArgumentInExpression(expression), times, failMessage);
+            _database.Verify(ModifySqlParametersArgumentInExpression(expression), times, failMessage);
         }
 
-        private static Expression<Func<IMockDatabase, TReturn>> ModifySqlParametersArgumentInExpression<TReturn>(Expression<Func<IMockDatabase, TReturn>> expression)
+        private static Expression<Func<MockDatabase, TReturn>> ModifySqlParametersArgumentInExpression<TReturn>(Expression<Func<MockDatabase, TReturn>> expression)
         {
             var visitor = new MatchAnonymousObjectExpressionVisitor();
-            var newExpression = (Expression<Func<IMockDatabase, TReturn>>)visitor.Visit(expression);
+            var newExpression = (Expression<Func<MockDatabase, TReturn>>)visitor.Visit(expression);
             return newExpression;
         }
     }
