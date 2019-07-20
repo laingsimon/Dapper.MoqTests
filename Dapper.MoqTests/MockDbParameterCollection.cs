@@ -1,15 +1,14 @@
-﻿namespace Dapper.MoqTests
-{
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.Data;
-    using System.Data.Common;
-    using System.Diagnostics;
-    using System.Linq;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Data.Common;
+using System.Diagnostics;
+using System.Linq;
 
+namespace Dapper.MoqTests
+{
     [DebuggerDisplay("{" + nameof(ToString) + "(),nq}")]
-    internal class MockDbParameterCollection : DbParameterCollection, IDataParameterCollection, IEquatable<MockDbParameterCollection>, IEnumerable<MockDbParameter>
+    internal class MockDbParameterCollection : DbParameterCollection, IEquatable<MockDbParameterCollection>, IEnumerable<MockDbParameter>
     {
         public static readonly object Any = new object();
 
@@ -31,7 +30,7 @@
                              select new MockDbParameter { ParameterName = property.Name, Value = value };
 
             foreach (var dbParameter in dbParameters)
-                SetParameter(dbParameter.ParameterName, (DbParameter)(object)dbParameter);
+                _parameters.Add(dbParameter);
         }
 
         public override int Count => _parameters.Count;
@@ -54,15 +53,6 @@
         {
             _parameters.RemoveAll(p => p.ParameterName.Equals(parameterName, StringComparison.OrdinalIgnoreCase));
         }
-
-        /*public override object this[string parameterName]
-        {
-            get { return _parameters.FirstOrDefault(p => p.ParameterName.Equals(parameterName, StringComparison.OrdinalIgnoreCase)); }
-            set 
-            {
-                SetParameter(parameterName, (MockDbParameter)value);
-            }
-        }*/
 
         public bool Equals(MockDbParameterCollection executedParameters)
         {

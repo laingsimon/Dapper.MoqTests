@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Net.Sockets;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 
 namespace Dapper.MoqTests
 {
@@ -27,7 +23,7 @@ namespace Dapper.MoqTests
                 select lookup.GetValue(param, defaultValue ?? param.DefaultValue)).ToArray();
         }
 
-        public static T GetCustomAttributeFromSelfOrInterface<T>(this ParameterInfo parameter)
+        private static T GetCustomAttributeFromSelfOrInterface<T>(this ParameterInfo parameter)
             where T: Attribute
         {
             var attribute = parameter.GetCustomAttribute<T>();
@@ -40,6 +36,9 @@ namespace Dapper.MoqTests
 
             var declaringMethod = (MethodInfo) declaringMember;
             var declaringType = declaringMember.DeclaringType;
+            if (declaringType == null)
+                return null;
+
             var implementedInterfaces = declaringType.GetInterfaces();
 
             if (!implementedInterfaces.Any())
@@ -57,10 +56,7 @@ namespace Dapper.MoqTests
             var parameterFromInterfaceMember = methodFromInterface.GetParameters()
                 .SingleOrDefault(p => p.Name == parameter.Name && p.ParameterType == parameter.ParameterType);
 
-            if (parameterFromInterfaceMember == null)
-                return null;
-
-            return parameterFromInterfaceMember.GetCustomAttribute<T>();
+            return parameterFromInterfaceMember?.GetCustomAttribute<T>();
         }
 
         private static MethodInfo GetMethodThatMatches(this Type type, MethodInfo referenceMethod)

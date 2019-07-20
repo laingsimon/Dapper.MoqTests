@@ -1,10 +1,9 @@
-﻿namespace Dapper.MoqTests
-{
-    using System;
-    using System.Linq;
-    using System.Linq.Expressions;
-    using System.Reflection;
+﻿using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 
+namespace Dapper.MoqTests
+{
     internal class MatchAnonymousObjectExpressionVisitor : ExpressionVisitor
     {
         protected override Expression VisitMethodCall(MethodCallExpression node)
@@ -18,7 +17,7 @@
             return Expression.Call(node.Object, node.Method, newArguments);
         }
 
-        private Expression GetExpression(ParameterInfo parameter, Expression argumentExpression)
+        private static Expression GetExpression(ParameterInfo parameter, Expression argumentExpression)
         {
             var propertyType = parameter.GetCustomAttribute<ParameterTypeAttribute>()?.Type;
 

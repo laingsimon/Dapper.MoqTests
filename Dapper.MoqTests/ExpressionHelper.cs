@@ -1,14 +1,14 @@
-﻿namespace Dapper.MoqTests
-{
-    using System;
-    using System.Linq;
-    using System.Linq.Expressions;
-    using System.Reflection;
-    using Moq;
+﻿using System;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using Moq;
 
+namespace Dapper.MoqTests
+{
     internal static class ExpressionHelper
     {
-        public static object GetValueFromExpression(Expression expression)
+        private static object GetValueFromExpression(Expression expression)
         {
             return GetValueFromExpression<object>(expression);
         }
@@ -16,7 +16,7 @@
         public static T GetValueFromExpression<T>(Expression expression)
         {
             if (expression == null)
-                return default(T);
+                return default;
 
             switch (expression.NodeType)
             {
@@ -25,7 +25,7 @@
                 case ExpressionType.New:
                     //call to an object constructor, possibly any anonymous object
                     var newExpression = (NewExpression)expression;
-                    var newArguments = newExpression.Arguments.Select(arg => GetValueFromExpression(arg)).ToArray();
+                    var newArguments = newExpression.Arguments.Select(GetValueFromExpression).ToArray();
                     return (T)newExpression.Constructor.Invoke(newArguments);
                 case ExpressionType.MemberAccess:
                     //such as property access
@@ -37,7 +37,7 @@
                     return (T)getter();
                 case ExpressionType.Call:
                     var callExpression = (MethodCallExpression)expression;
-                    var callArguments = callExpression.Arguments.Select(arg => GetValueFromExpression(arg)).ToArray();
+                    var callArguments = callExpression.Arguments.Select(GetValueFromExpression).ToArray();
                     return (T)callExpression.Method.Invoke(GetValueFromExpression<object>(callExpression.Object), callArguments);
                 case ExpressionType.Quote:
                     var quoteExpression = (UnaryExpression)expression;
@@ -72,7 +72,7 @@
 
         private static MethodInfo GetCreateMatchMethod<T>()
         {
-            return GetCreateMatchMethod(() => Match.Create<T>(a => true, () => default(T)));
+            return GetCreateMatchMethod(() => Match.Create(a => true, () => default(T)));
         }
 
         private static MethodInfo GetCreateMatchMethod<T>(Expression<Func<T>> expression)

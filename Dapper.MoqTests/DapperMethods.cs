@@ -8,7 +8,7 @@ namespace Dapper.MoqTests
 {
     internal static class DapperMethods
     {
-        private static readonly IReadOnlyDictionary<string, MethodInfo> _dapperMethods = new Dictionary<string, MethodInfo>
+        private static readonly IReadOnlyDictionary<string, MethodInfo> Methods = new Dictionary<string, MethodInfo>
         {
             { "Query[T]", GetMethod<object>(db => db.Query<object>("some sql", null, null)) },
             { "Execute", GetMethod<object>(db => db.Execute("some sql", null, null)) },
@@ -33,7 +33,7 @@ namespace Dapper.MoqTests
 
         public static MethodInfo GetExecuteMethod(MethodBase dapperEntrypoint, Type dataType)
         {
-            var method = _dapperMethods[dapperEntrypoint.Name];
+            var method = Methods[dapperEntrypoint.Name];
             if (dataType == null)
                 return method;
 
@@ -46,7 +46,7 @@ namespace Dapper.MoqTests
                 ? $"{dapperEntrypoint.Name}[{string.Join(", ", dapperEntrypoint.GetGenericArguments().Select(t => t.Name))}]"
                 : dapperEntrypoint.Name;
 
-            var method = _dapperMethods[key];
+            var method = Methods[key];
             if (dataType == null)
                 return method;
 

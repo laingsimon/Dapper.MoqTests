@@ -1,23 +1,23 @@
+using System.Reflection;
+using Moq;
+
 namespace Dapper.MoqTests
 {
-    using System.Reflection;
-    using Moq;
-
     internal class MatchProxy : IMatch
     {
-        private static readonly MethodInfo matches =
+        private static readonly MethodInfo MatchesMethod =
             typeof(Match).GetMethod("Matches", BindingFlags.Instance | BindingFlags.NonPublic);
 
-        private readonly Match underlying;
+        private readonly Match _underlying;
 
         public MatchProxy(Match underlying)
         {
-            this.underlying = underlying;
+            _underlying = underlying;
         }
 
         public bool Matches(object value)
         {
-            return (bool)matches.Invoke(underlying, new[] {value});
+            return (bool)MatchesMethod.Invoke(_underlying, new[] {value});
         }
     }
 }

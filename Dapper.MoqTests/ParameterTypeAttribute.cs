@@ -12,11 +12,4 @@ namespace Dapper.MoqTests
 
         public ParameterType Type { get; }
     }
-
-    public enum ParameterType
-    {
-        SqlParameters,
-        SqlText,
-        SqlTransaction
-    }
 }

@@ -1,29 +1,29 @@
-﻿namespace Dapper.MoqTests
-{
-    using System;
-    using System.Data;
-    using System.Data.Common;
-    using System.Linq.Expressions;
-    using Moq;
-    using Moq.Language.Flow;
+﻿using System;
+using System.Data;
+using System.Data.Common;
+using System.Linq.Expressions;
+using Moq;
+using Moq.Language.Flow;
 
+namespace Dapper.MoqTests
+{
     public class MockDbConnection : DbConnection, IDbConnection
     {
-        private readonly Mock<MockDatabase> database;
+        private readonly Mock<MockDatabase> _database;
 
         public MockDbConnection(MockBehavior behaviour = MockBehavior.Default)
         {
-            this.database = new Mock<MockDatabase>(new object[] { behaviour });
+            _database = new Mock<MockDatabase>(new object[] { behaviour });
         }
 
         protected override DbCommand CreateDbCommand()
         {
-            return new MockDbCommand(database.Object);
+            return new MockDbCommand(_database.Object);
         }
 
         protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel)
         {
-            return database.Object.BeginTransaction(isolationLevel) ?? new MockDbTransaction(this, isolationLevel);
+            return _database.Object.BeginTransaction(isolationLevel) ?? new MockDbTransaction(this, isolationLevel);
         }
 
         #region non-implemented members
@@ -43,48 +43,48 @@
         public override int ConnectionTimeout { get; } = 1;
         public override string Database { get; } = "";
         public override ConnectionState State { get; } = ConnectionState.Open;
-        public override string DataSource { get; }
-        public override string ServerVersion { get; }
+        public override string DataSource { get; } = "";
+        public override string ServerVersion { get; } = "";
 
         #endregion
 
         public ISetup<IMockDatabase, TReturn> Setup<TReturn>(Expression<Func<IMockDatabase, TReturn>> expression)
         {
-            database.Object.Expect(expression);
-            return database.As<IMockDatabase>().Setup(ModifySqlParametersArgumentInExpression(expression));
+            _database.Object.Expect(expression);
+            return _database.As<IMockDatabase>().Setup(ModifySqlParametersArgumentInExpression(expression));
         }
 
         public void Verify()
         {
-            database.As<IMockDatabase>().Verify();
+            _database.As<IMockDatabase>().Verify();
         }
 
         public void Verify<TReturn>(Expression<Func<IMockDatabase, TReturn>> expression)
         {
-            database.As<IMockDatabase>().Verify(ModifySqlParametersArgumentInExpression(expression));
+            _database.As<IMockDatabase>().Verify(ModifySqlParametersArgumentInExpression(expression));
         }
 
         public void Verify<TReturn>(Expression<Func<IMockDatabase, TReturn>> expression, string failMessage)
         {
-            database.As<IMockDatabase>().Verify(ModifySqlParametersArgumentInExpression(expression), failMessage);
+            _database.As<IMockDatabase>().Verify(ModifySqlParametersArgumentInExpression(expression), failMessage);
         }
 
         public void Verify<TReturn>(Expression<Func<IMockDatabase, TReturn>> expression, Times times)
         {
-            database.As<IMockDatabase>().Verify(ModifySqlParametersArgumentInExpression(expression), times);
+            _database.As<IMockDatabase>().Verify(ModifySqlParametersArgumentInExpression(expression), times);
         }
 
         public void Verify<TReturn>(Expression<Func<IMockDatabase, TReturn>> expression, Func<Times> times)
         {
-            database.As<IMockDatabase>().Verify(ModifySqlParametersArgumentInExpression(expression), times);
+            _database.As<IMockDatabase>().Verify(ModifySqlParametersArgumentInExpression(expression), times);
         }
 
         public void Verify<TReturn>(Expression<Func<IMockDatabase, TReturn>> expression, Times times, string failMessage)
         {
-            database.As<IMockDatabase>().Verify(ModifySqlParametersArgumentInExpression(expression), times, failMessage);
+            _database.As<IMockDatabase>().Verify(ModifySqlParametersArgumentInExpression(expression), times, failMessage);
         }
 
-        private Expression<Func<IMockDatabase, TReturn>> ModifySqlParametersArgumentInExpression<TReturn>(Expression<Func<IMockDatabase, TReturn>> expression)
+        private static Expression<Func<IMockDatabase, TReturn>> ModifySqlParametersArgumentInExpression<TReturn>(Expression<Func<IMockDatabase, TReturn>> expression)
         {
             var visitor = new MatchAnonymousObjectExpressionVisitor();
             var newExpression = (Expression<Func<IMockDatabase, TReturn>>)visitor.Visit(expression);

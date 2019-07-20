@@ -1,33 +1,32 @@
-﻿namespace Dapper.MoqTests
-{
-    using System;
-    using System.Linq;
-    using System.Linq.Expressions;
-    using System.Reflection;
-    using Moq;
+﻿using System;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using Moq;
 
+namespace Dapper.MoqTests
+{
     internal class DapperMethodCallComparer
     {
-        private readonly MethodCallExpression methodCallExpression;
+        private readonly MethodCallExpression _methodCallExpression;
 
         public static DapperMethodCallComparer GetComparerForExpression(Expression expression)
         {
             var methodCallExpression = ExpressionHelper.GetMethodCallExpression(expression);
-            if (methodCallExpression == null)
-                return null;
-
-            return new DapperMethodCallComparer(methodCallExpression);
+            return methodCallExpression == null 
+                ? null 
+                : new DapperMethodCallComparer(methodCallExpression);
         }
 
         private DapperMethodCallComparer(MethodCallExpression methodCallExpression)
         {
-            this.methodCallExpression = methodCallExpression;
+            _methodCallExpression = methodCallExpression;
         }
 
         public bool CommandMatchesExpression(MockDbCommand command)
         {
             var visitor = new MatchAnonymousObjectExpressionVisitor();
-            var comparisonVisitor = (MethodCallExpression)visitor.Visit(methodCallExpression);
+            var comparisonVisitor = (MethodCallExpression)visitor.Visit(_methodCallExpression);
 
             var call = comparisonVisitor.Method.GetParameters()
                 .Zip(comparisonVisitor.Arguments, (methodArg, callArg) => new { methodArg, callArg })

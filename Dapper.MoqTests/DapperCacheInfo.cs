@@ -1,18 +1,15 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Reflection;
-using static Dapper.SqlMapper;
 
 namespace Dapper.MoqTests
 {
     internal static class DapperCacheInfo
     {
-        private static readonly FieldInfo _queryCacheField = typeof(SqlMapper).GetField("_queryCache", BindingFlags.Static | BindingFlags.NonPublic);
+        private static readonly FieldInfo QueryCacheField = typeof(SqlMapper).GetField("_queryCache", BindingFlags.Static | BindingFlags.NonPublic);
 
-        private static IDictionary QueryCache => (IDictionary)_queryCacheField.GetValue(null);
+        private static IDictionary QueryCache => (IDictionary)QueryCacheField.GetValue(null);
 
         public static void PurgeQueriedIdentities()
         {
@@ -20,9 +17,9 @@ namespace Dapper.MoqTests
             QueryCache.Clear();
         }
 
-        internal static Identity GetIdentity(MockDbCommand mockDbCommand)
+        internal static SqlMapper.Identity GetIdentity(MockDbCommand mockDbCommand)
         {
-            var identities = (from identity in QueryCache.Keys.Cast<Identity>()
+            var identities = (from identity in QueryCache.Keys.Cast<SqlMapper.Identity>()
                 where identity.sql == mockDbCommand.CommandText
                       && ParametersMatch(identity, mockDbCommand)
                 select identity).ToArray();
@@ -47,7 +44,7 @@ Possible options: {string.Join(", ", ambiguous)}
 If this issue cannot be resolved, consider setting `Dapper.MoqTests.Settings.ResetDapperCachePerCommand` to `true`, note this is not a thread-safe approach");
         }
 
-        private static bool ParametersMatch(Identity identity, MockDbCommand mockDbCommand)
+        private static bool ParametersMatch(SqlMapper.Identity identity, MockDbCommand mockDbCommand)
         {
             var properties = identity.parametersType?.GetProperties() ?? new PropertyInfo[0];
             return properties.All(p => mockDbCommand.Parameters.Contains(p.Name))

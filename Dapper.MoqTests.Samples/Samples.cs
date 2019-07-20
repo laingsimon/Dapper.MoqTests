@@ -245,12 +245,6 @@ order by Make, Model", It.IsAny<object>(), It.IsAny<IDbTransaction>()))
             var connectionFactory = new Mock<IDbConnectionFactory>();
             var connection = new MockDbConnection();
             var repository = new SampleRepository(connectionFactory.Object);
-            var vauxhall = new Car
-            {
-                Registration = "ABC123",
-                Make = "Vauxhall",
-                Model = "Astra"
-            };
             var transaction = new MockDbTransaction();
             connectionFactory
                 .Setup(f => f.OpenConnection())
@@ -268,13 +262,7 @@ order by Make, Model", It.IsAny<object>(), It.IsAny<IDbTransaction>()))
             var connectionFactory = new Mock<IDbConnectionFactory>();
             var connection = new MockDbConnection();
             var repository = new SampleRepository(connectionFactory.Object);
-            var vauxhall = new Car
-            {
-                Registration = "ABC123",
-                Make = "Vauxhall",
-                Model = "Astra"
-            };
-            var transaction = new MockDbTransaction();
+
             connectionFactory
                 .Setup(f => f.OpenConnection())
                 .Returns(connection);

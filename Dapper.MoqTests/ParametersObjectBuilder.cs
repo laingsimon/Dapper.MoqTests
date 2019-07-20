@@ -1,23 +1,20 @@
 ﻿using System;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Linq;
 
 namespace Dapper.MoqTests
 {
-    internal class ParametersObjectBuilder
+    internal static class ParametersObjectBuilder
     {
-        private static readonly object NoParameters = new _NoParameters();
-
-        private static readonly Lazy<ParametersObjectBuilder> helper = new Lazy<ParametersObjectBuilder>(() => new ParametersObjectBuilder());
-        private static readonly Lazy<ModuleBuilder> moduleBuilder = new Lazy<ModuleBuilder>(() => helper.Value.ModuleBuilder());
+        private static readonly object NoParameters = new EmptyParameters();
+        private static readonly Lazy<ModuleBuilder> ModuleBuilder = new Lazy<ModuleBuilder>(GetModuleBuilder);
 
         public static object FromParameters(MockDbParameterCollection parameters)
         {
             if (parameters.Count == 0)
                 return NoParameters;
 
-            var builder = TypeBuilder();
+            var builder = GetTypeBuilder();
 
             foreach (MockDbParameter parameter in parameters)
                 AddProperty(builder, parameter);
@@ -51,7 +48,9 @@ namespace Dapper.MoqTests
             il.Emit(OpCodes.Ldstr, $"{{ {stringRepresentation} }}");
             il.Emit(OpCodes.Ret);
 
-            builder.DefineMethodOverride(methodBuilder, typeof(object).GetMethod(nameof(ToString)));
+            var toStringMethod = typeof(object).GetMethod(nameof(ToString));
+            if (toStringMethod != null)
+                builder.DefineMethodOverride(methodBuilder, toStringMethod);
         }
 
         private static void AddProperty(TypeBuilder builder, MockDbParameter parameter)
@@ -62,21 +61,21 @@ namespace Dapper.MoqTests
             var fieldBuilder = builder.DefineField("_" + propertyName, propertyType, FieldAttributes.Private);
 
             var propertyBuilder = builder.DefineProperty(propertyName, PropertyAttributes.HasDefault, propertyType, null);
-            var getPropMthdBldr = builder.DefineMethod("get_" + propertyName, MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig, propertyType, Type.EmptyTypes);
-            var getIl = getPropMthdBldr.GetILGenerator();
+            var getPropMethodBuilder = builder.DefineMethod("get_" + propertyName, MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig, propertyType, Type.EmptyTypes);
+            var getIl = getPropMethodBuilder.GetILGenerator();
 
             getIl.Emit(OpCodes.Ldarg_0);
             getIl.Emit(OpCodes.Ldfld, fieldBuilder);
             getIl.Emit(OpCodes.Ret);
 
-            var setPropMthdBldr =
+            var setPropMethodBuilder =
                 builder.DefineMethod("set_" + propertyName,
                   MethodAttributes.Public |
                   MethodAttributes.SpecialName |
                   MethodAttributes.HideBySig,
                   null, new[] { propertyType });
 
-            var setIl = setPropMthdBldr.GetILGenerator();
+            var setIl = setPropMethodBuilder.GetILGenerator();
             var modifyProperty = setIl.DefineLabel();
             var exitSet = setIl.DefineLabel();
 
@@ -89,25 +88,25 @@ namespace Dapper.MoqTests
             setIl.MarkLabel(exitSet);
             setIl.Emit(OpCodes.Ret);
 
-            propertyBuilder.SetGetMethod(getPropMthdBldr);
-            propertyBuilder.SetSetMethod(setPropMthdBldr);
+            propertyBuilder.SetGetMethod(getPropMethodBuilder);
+            propertyBuilder.SetSetMethod(setPropMethodBuilder);
         }
 
-        private AssemblyBuilder AssemblyBuilder()
+        private static AssemblyBuilder GetAssemblyBuilder()
         {
             var assembly = new AssemblyName("Dapper.MoqTests.AnonymousParameterTypes");
             return AppDomain.CurrentDomain.DefineDynamicAssembly(assembly, AssemblyBuilderAccess.Run);
         }
 
-        private ModuleBuilder ModuleBuilder()
+        private static ModuleBuilder GetModuleBuilder()
         {
-            var assemblyBuilder = AssemblyBuilder();
+            var assemblyBuilder = GetAssemblyBuilder();
             return assemblyBuilder.DefineDynamicModule("MainModule");
         }
 
-        private static TypeBuilder TypeBuilder()
+        private static TypeBuilder GetTypeBuilder()
         {
-            return moduleBuilder.Value.DefineType(
+            return ModuleBuilder.Value.DefineType(
                 "Dapper.MoqTests.AnonymousParameterType" + Guid.NewGuid(),
                 TypeAttributes.Public |
                 TypeAttributes.Class |
@@ -118,7 +117,7 @@ namespace Dapper.MoqTests
                 typeof(object));
         }
 
-        private class _NoParameters
+        private class EmptyParameters
         {
             public override string ToString()
             {
@@ -127,12 +126,12 @@ namespace Dapper.MoqTests
 
             public override bool Equals(object obj)
             {
-                return obj is _NoParameters;
+                return obj is EmptyParameters;
             }
 
             public override int GetHashCode()
             {
-                return typeof(_NoParameters).GetHashCode();
+                return typeof(EmptyParameters).GetHashCode();
             }
         }
     }

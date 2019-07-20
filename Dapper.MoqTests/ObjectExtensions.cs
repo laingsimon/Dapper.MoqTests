@@ -7,7 +7,7 @@ namespace Dapper.MoqTests
 {
     internal static class ObjectExtensions
     {
-        private static readonly Type[] primitiveDataTypes =
+        private static readonly Type[] PrimitiveDataTypes =
         {
             typeof(string),
             typeof(DateTime),
@@ -17,7 +17,7 @@ namespace Dapper.MoqTests
         public static IDataReader GetDataReader(this object value)
         {
             if (value == null || IsPrimitiveType(value.GetType()))
-                return new DataTableReader(GetDataTableForPrimativeType(value));
+                return new DataTableReader(GetDataTableForPrimitiveType(value));
 
             var enumerable = value as IEnumerable;
             if (enumerable != null)
@@ -48,9 +48,9 @@ namespace Dapper.MoqTests
                 return GetPrimitiveTypeDataTable(value, elementType);
 
             var properties = elementType
-    .GetProperties()
-    .Where(p => IsPrimitiveType(p.PropertyType))
-    .ToArray();
+                .GetProperties()
+                .Where(p => IsPrimitiveType(p.PropertyType))
+                .ToArray();
             var dataTable = new DataTable();
             foreach (var property in properties)
                 dataTable.Columns.Add(property.Name, property.PropertyType);
@@ -75,12 +75,12 @@ namespace Dapper.MoqTests
             };
 
             foreach (var row in value)
-                dataTable.Rows.Add(new[] {row});
+                dataTable.Rows.Add(row);
 
             return dataTable;
         }
 
-        private static DataTable GetDataTableForPrimativeType(object value)
+        private static DataTable GetDataTableForPrimitiveType(object value)
         {
             return new DataTable
             {
@@ -94,7 +94,7 @@ namespace Dapper.MoqTests
 
         private static bool IsPrimitiveType(Type type)
         {
-            return type.IsPrimitive || primitiveDataTypes.Contains(type);
+            return type.IsPrimitive || PrimitiveDataTypes.Contains(type);
         }
     }
 }

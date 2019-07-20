@@ -1,23 +1,23 @@
-﻿namespace Dapper.MoqTests
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Data;
-    using System.Linq;
-    using System.Linq.Expressions;
-    using Moq;
-    using System.Reflection;
-    using System.Threading.Tasks;
-    using System.Data.Common;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Linq.Expressions;
+using Moq;
+using System.Reflection;
+using System.Threading.Tasks;
+using System.Data.Common;
 
+namespace Dapper.MoqTests
+{
     internal abstract class MockDatabase : IMockDatabase
     {
-        private readonly MockBehavior behaviour;
-        private readonly List<Expression> setups = new List<Expression>();
+        private readonly MockBehavior _behaviour;
+        private readonly List<Expression> _setups = new List<Expression>();
 
         protected MockDatabase(MockBehavior behaviour)
         {
-            this.behaviour = behaviour;
+            _behaviour = behaviour;
         }
 
         public abstract IEnumerable<T> Query<T>(string text, object parameters = null, IDbTransaction transaction = null);
@@ -30,7 +30,7 @@
 
         public void Expect(Expression setup)
         {
-            this.setups.Add(setup);
+            _setups.Add(setup);
         }
 
         public int ExecuteNonQuery(MockDbCommand command, bool isAsync, MethodBase dapperEntrypoint, Type dataType)
@@ -59,7 +59,7 @@
             if (result == null)
             {
                 if (DapperMethods.IsSingleResultMethod(method))
-                    return GetQuerySingleDataReader(command, method.GetGenericArguments()[0]);
+                    return GetQuerySingleDataReader(method.GetGenericArguments()[0]);
 
                 return GetEmptyDataReader(command);
             }
@@ -67,7 +67,7 @@
             return reader ?? result.GetDataReader();
         }
 
-        private IDataReader GetQuerySingleDataReader(IDbCommand command, Type rowType)
+        private IDataReader GetQuerySingleDataReader(Type rowType)
         {
             if (Nullable.GetUnderlyingType(rowType) != null)
                 rowType = typeof(object); //because DataTable doesn't support Nullable<T> as a column-type
@@ -87,7 +87,7 @@
 
         private DataTableReader GetEmptyDataReader(IDbCommand command)
         {
-            switch (behaviour)
+            switch (_behaviour)
             {
                 default:
                     return new DataTableReader(new DataTable());
@@ -97,15 +97,10 @@
             }
         }
 
-        public object ExecuteScalar(MockDbCommand command, MethodBase dapperEntrypoint, Type dataType)
-        {
-            throw new NotImplementedException("When does Dapper ever use this?");
-        }
-
         private LambdaExpression FindSetup(MockDbCommand command, MethodInfo methodToFind)
         {
             var comparer = new DapperSetupComparer(methodToFind);
-            var expression = this.setups.SingleOrDefault(comparer.Matches) as LambdaExpression;
+            var expression = _setups.SingleOrDefault(comparer.Matches) as LambdaExpression;
             if (expression == null)
                 return null;
 

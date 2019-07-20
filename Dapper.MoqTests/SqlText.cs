@@ -1,27 +1,27 @@
-﻿namespace Dapper.MoqTests
-{
-    using System;
-    using System.Text;
+﻿using System;
+using System.Text;
 
+namespace Dapper.MoqTests
+{
     internal class SqlText : IEquatable<SqlText>
     {
         internal static readonly string Any = "<ANY>:" + Guid.NewGuid();
 
-        private readonly string sql;
-        private readonly string originalSql;
+        private readonly string _sql;
+        private readonly string _originalSql;
 
         public SqlText(string sql)
         {
             if (string.IsNullOrEmpty(sql))
                 throw new ArgumentNullException(nameof(sql));
 
-            this.sql = GetComparableText(sql);
-            this.originalSql = sql;
+            _sql = GetComparableText(sql);
+            _originalSql = sql;
         }
 
         public bool Equals(SqlText other)
         {
-            return other != null && sql.Equals(other.sql, StringComparison.OrdinalIgnoreCase);
+            return other != null && _sql.Equals(other._sql, StringComparison.OrdinalIgnoreCase);
         }
 
         public override bool Equals(object obj)
@@ -44,12 +44,12 @@
 
         public override int GetHashCode()
         {
-            return StringComparer.OrdinalIgnoreCase.GetHashCode(sql);
+            return StringComparer.OrdinalIgnoreCase.GetHashCode(_sql);
         }
 
         public override string ToString()
         {
-            return originalSql;
+            return _originalSql;
         }
     }
 }

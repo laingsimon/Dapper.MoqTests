@@ -68,6 +68,7 @@
     <Compile Include="ObjectExtensions.cs" />
     <Compile Include="ParameterLookupExtensions.cs" />
     <Compile Include="ParametersObjectBuilder.cs" />
+    <Compile Include="ParameterType.cs" />
     <Compile Include="ParameterTypeAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs" />

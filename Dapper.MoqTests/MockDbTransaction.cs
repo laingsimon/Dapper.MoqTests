@@ -8,7 +8,7 @@ namespace Dapper.MoqTests
         public override IsolationLevel IsolationLevel { get; }
         protected override DbConnection DbConnection { get; }
 
-        public MockDbTransaction(DbConnection connection, IsolationLevel il = default(IsolationLevel))
+        public MockDbTransaction(DbConnection connection, IsolationLevel il = default)
         {
             DbConnection = connection;
             IsolationLevel = il;
