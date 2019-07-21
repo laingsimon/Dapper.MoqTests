@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
 using System.Threading.Tasks;
 
 namespace Dapper.MoqTests.Samples
@@ -90,6 +92,14 @@ order by Make, Model");
                 await connection.ExecuteAsync(@"delete from [Cars] 
 where Registration = @registration", new { registration }, transaction: transaction);
                 transaction.Commit();
+            }
+        }
+
+        public async Task GetModelsSinceAsync(string make, int sinceYear)
+        {
+            using (var connection = _connectionFactory.OpenConnection())
+            {
+                await connection.QueryAsync<Car>(@"sp_getModelsSince", new { make, sinceYear }, commandType: CommandType.StoredProcedure);
             }
         }
     }

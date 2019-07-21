@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -22,18 +23,53 @@ namespace Dapper.MoqTests
             var identities = (from identity in QueryCache.Keys.Cast<SqlMapper.Identity>()
                 where identity.sql == mockDbCommand.CommandText
                       && ParametersMatch(identity, mockDbCommand)
+                      && CommandTypeMatches(identity, mockDbCommand)
                 select identity).ToArray();
 
             if (identities.Length <= 1)
-                return identities.SingleOrDefault();
+            {
+                return identities.SingleOrDefault() 
+                    ?? SingleIdentityIfTextMatches(mockDbCommand) 
+                    ?? throw GetIdentityNotFoundException(mockDbCommand);
+            }
 
             var ambiguous =
-                identities.Select(id => $"`{id.type?.FullName ?? "<untyped>"}`");
+                identities.Select(id => $"`{id.type?.FullName ?? "<untyped>"}`")
+                .ToArray();
 
-            throw new InvalidOperationException(
-                $@"Unable to detect the required response type for the command, it could be one of {identities.Length} possible options.
+            throw GetIdentityAmbiguousException(mockDbCommand, ambiguous);
+        }
 
-Command: '{mockDbCommand.CommandText}'
+        private static SqlMapper.Identity SingleIdentityIfTextMatches(MockDbCommand mockDbCommand)
+        {
+            if (QueryCache.Keys.Count != 1)
+            {
+                return null;
+            }
+
+            return (from identity in QueryCache.Keys.Cast<SqlMapper.Identity>()
+                    where identity.sql == mockDbCommand.CommandText
+                    select identity).SingleOrDefault();
+        }
+
+        private static InvalidOperationException GetIdentityNotFoundException(MockDbCommand mockDbCommand)
+        {
+            return new InvalidOperationException(
+                $@"Unable to detext the identity for the command, it could have been one of {QueryCache.Keys.Count} possible options.
+
+command: '{mockDbCommand.CommandText}'
+Parameters: `{mockDbCommand.Parameters}`
+CommandType: {mockDbCommand.CommandType}
+
+To be able to Verify the Dapper call accurately the Command and Parameters (and return type) must be unique for every invocation of a Dapper method.");
+        }
+
+        private static InvalidOperationException GetIdentityAmbiguousException(MockDbCommand mockDbCommand, IReadOnlyCollection<string> ambiguous)
+        {
+            return new InvalidOperationException(
+                $@"Unable to detect the required response type for the command, it could be one of {ambiguous.Count} possible options.
+
+command: '{mockDbCommand.CommandText}'
 Parameters: `{mockDbCommand.Parameters}`
 CommandType: {mockDbCommand.CommandType}
 
@@ -49,6 +85,14 @@ If this issue cannot be resolved, consider setting `Dapper.MoqTests.Settings.Res
             var properties = identity.parametersType?.GetProperties() ?? new PropertyInfo[0];
             return properties.All(p => mockDbCommand.Parameters.Contains(p.Name))
                 && properties.Length == mockDbCommand.Parameters.Count;
+        }
+
+        private static bool CommandTypeMatches(SqlMapper.Identity identity, MockDbCommand mockDbCommand)
+        {
+            if (identity.commandType == 0 || identity.commandType == null)
+                return true;
+
+            return mockDbCommand.CommandType == identity.commandType.Value;
         }
     }
 }
