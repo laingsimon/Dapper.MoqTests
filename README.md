@@ -92,6 +92,8 @@ public void Test()
 * [x] Supports Async data methods, from version 1.1.0
 * [x] Supports verification of method execution times, from version 1.1.0
 * [x] Supports verification of transaction usage, from version 1.2.0
+* [x] Supports verification of stored procedures & sql text, from version 1.4.0
+* [x] Supports verification of command timeout, from version 1.4.0
 
 ## Suggestions / improvements
 Raise an issue and I'll see what I can do
