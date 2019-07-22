@@ -183,7 +183,7 @@ Command: 'select *
 from [Cars] 
 where Registration = @registration'
 Parameters: `registration = reg`
-CommandType: 0
+CommandType: Text
 
 To be able to Verify the Dapper call accurately the Command and Parameters (and return type) must be unique for every invocation of a Dapper method.
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Reflection;
 
@@ -66,12 +67,16 @@ To be able to Verify the Dapper call accurately the Command and Parameters (and 
 
         private static InvalidOperationException GetIdentityAmbiguousException(MockDbCommand mockDbCommand, IReadOnlyCollection<string> ambiguous)
         {
+            var commandType = mockDbCommand.CommandType == 0 
+                ? CommandType.Text 
+                : mockDbCommand.CommandType;
+
             return new InvalidOperationException(
                 $@"Unable to detect the required response type for the command, it could be one of {ambiguous.Count} possible options.
 
-command: '{mockDbCommand.CommandText}'
+Command: '{mockDbCommand.CommandText}'
 Parameters: `{mockDbCommand.Parameters}`
-CommandType: {mockDbCommand.CommandType}
+CommandType: {commandType}
 
 To be able to Verify the Dapper call accurately the Command and Parameters (and return type) must be unique for every invocation of a Dapper method.
 
