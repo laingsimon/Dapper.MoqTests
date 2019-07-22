@@ -99,7 +99,11 @@ where Registration = @registration", new { registration }, transaction: transact
         {
             using (var connection = _connectionFactory.OpenConnection())
             {
-                await connection.QueryAsync<Car>(@"sp_getModelsSince", new { make, sinceYear }, commandType: CommandType.StoredProcedure);
+                await connection.QueryAsync<Car>(
+                    @"sp_getModelsSince", 
+                    new { make, sinceYear }, 
+                    commandType: CommandType.StoredProcedure,
+                    commandTimeout: 100);
             }
         }
     }

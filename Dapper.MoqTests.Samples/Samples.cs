@@ -310,7 +310,23 @@ where Registration = @registration", It.IsAny<object>(), It.IsAny<IDbTransaction
 
             await repository.GetModelsSinceAsync("Vauxhall", 2018);
 
-            connection.Verify(c => c.QueryAsync<Car>("sp_getModelsSince", new { make = "Vauxhall", sinceYear = 2018 }, It.IsAny<IDbTransaction>(), null, CommandType.StoredProcedure));
+            connection.Verify(c => c.QueryAsync<Car>("sp_getModelsSince", new { make = "Vauxhall", sinceYear = 2018 }, It.IsAny<IDbTransaction>(), It.IsAny<int?>(), CommandType.StoredProcedure));
+        }
+
+        [Test]
+        public async Task SupportsCommandTimeout()
+        {
+            var connectionFactory = new Mock<IDbConnectionFactory>();
+            var connection = new MockDbConnection();
+            var repository = new SampleRepository(connectionFactory.Object);
+
+            connectionFactory
+                .Setup(f => f.OpenConnection())
+                .Returns(connection);
+
+            await repository.GetModelsSinceAsync("Vauxhall", 2018);
+
+            connection.Verify(c => c.QueryAsync<Car>(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbTransaction>(), 100, It.IsAny<CommandType>()));
         }
     }
 }
