@@ -50,7 +50,6 @@ namespace Dapper.MoqTests
 
         public ISetup<MockDatabase, TReturn> Setup<TReturn>(Expression<Func<MockDatabase, TReturn>> expression)
         {
-            _database.Object.Expect(expression);
             return _database.Setup(ModifySqlParametersArgumentInExpression(expression));
         }
 

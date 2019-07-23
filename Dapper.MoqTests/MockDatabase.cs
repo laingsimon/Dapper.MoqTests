@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Linq.Expressions;
 using Moq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -13,7 +11,6 @@ namespace Dapper.MoqTests
     public abstract class MockDatabase
     {
         private readonly MockBehavior _behaviour;
-        private readonly List<Expression> _setups = new List<Expression>();
 
         protected MockDatabase(MockBehavior behaviour)
         {
@@ -132,11 +129,6 @@ namespace Dapper.MoqTests
 
         public abstract DbTransaction BeginTransaction(IsolationLevel il);
 
-        public void Expect(Expression setup)
-        {
-            _setups.Add(setup);
-        }
-
         internal int ExecuteNonQuery(MockDbCommand command, bool isAsync, MethodBase dapperEntrypoint, Type dataType)
         {
             var method = DapperMethods.GetExecuteMethod(dapperEntrypoint, dataType);
@@ -150,11 +142,7 @@ namespace Dapper.MoqTests
 
         internal IDataReader ExecuteReader(MockDbCommand command, MethodBase dapperEntrypoint, Type dataType)
         {
-            var sourceMethod = DapperMethods.GetQueryMethod(dapperEntrypoint, dataType);
-            var setup = FindSetup(command, sourceMethod);
-
-            var methodCall = (MethodCallExpression)setup?.Body;
-            var method = methodCall?.Method ?? sourceMethod;
+            var method = DapperMethods.GetQueryMethod(dapperEntrypoint, dataType);
             var parametersLookup = command.GetParameterLookup();
             var parametersArray = method.GetValues(parametersLookup);
 
@@ -199,20 +187,6 @@ namespace Dapper.MoqTests
                 case MockBehavior.Strict:
                     throw new InvalidOperationException($"Unexpected call to with sql: {command.CommandText} and parameters: {command.Parameters}");
             }
-        }
-
-        private LambdaExpression FindSetup(MockDbCommand command, MethodInfo methodToFind)
-        {
-            var comparer = new DapperSetupComparer(methodToFind);
-            var expression = _setups.SingleOrDefault(comparer.Matches) as LambdaExpression;
-            if (expression == null)
-                return null;
-
-            var methodCallComparer = DapperMethodCallComparer.GetComparerForExpression(expression);
-            if (methodCallComparer.CommandMatchesExpression(command))
-                return expression;
-
-            return null;
         }
     }
 }
