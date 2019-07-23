@@ -56,7 +56,7 @@ namespace Dapper.MoqTests
         private static InvalidOperationException GetIdentityNotFoundException(MockDbCommand mockDbCommand)
         {
             return new InvalidOperationException(
-                $@"Unable to detext the identity for the command, it could have been one of {QueryCache.Keys.Count} possible options.
+                $@"Unable to detect the identity for the command, it could have been one of {QueryCache.Keys.Count} possible options.
 
 command: '{mockDbCommand.CommandText}'
 Parameters: `{mockDbCommand.Parameters}`
