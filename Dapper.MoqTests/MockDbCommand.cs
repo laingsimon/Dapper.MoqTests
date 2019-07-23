@@ -38,8 +38,8 @@ namespace Dapper.MoqTests
 
         public override int ExecuteNonQuery()
         {
-            var dapperEntrypoint = FirstDapperCallInStack();
-            return _database.ExecuteNonQuery(this, false, dapperEntrypoint, _identity.Value.type);
+            var dapperMethod = FirstDapperCallInStack();
+            return _database.ExecuteNonQuery(this, false, dapperMethod, _identity.Value.type);
         }
 
         public override object ExecuteScalar()
@@ -49,8 +49,8 @@ namespace Dapper.MoqTests
 
         public override Task<int> ExecuteNonQueryAsync(CancellationToken cancellationToken)
         {
-            var dapperEntrypoint = FirstDapperCallInStack();
-            return Task.FromResult(_database.ExecuteNonQuery(this, true, dapperEntrypoint, _identity.Value.type));
+            var dapperMethod = FirstDapperCallInStack();
+            return Task.FromResult(_database.ExecuteNonQuery(this, true, dapperMethod, _identity.Value.type));
         }
 
         public override Task<object> ExecuteScalarAsync(CancellationToken cancellationToken)
@@ -81,14 +81,14 @@ namespace Dapper.MoqTests
 
         protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
         {
-            var dapperEntrypoint = FirstDapperCallInStack();
-            return new MockDbDataReader(_database.ExecuteReader(this, dapperEntrypoint, _identity.Value.type));
+            var dapperMethod = FirstDapperCallInStack();
+            return new MockDbDataReader(_database.ExecuteReader(this, dapperMethod, _identity.Value.type));
         }
 
         protected override Task<DbDataReader> ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
         {
-            var dapperEntryPoint = FirstDapperCallInStack();
-            return Task.FromResult<DbDataReader>(new MockDbDataReader(_database.ExecuteReader(this, dapperEntryPoint, _identity.Value.type)));
+            var dapperMethod = FirstDapperCallInStack();
+            return Task.FromResult<DbDataReader>(new MockDbDataReader(_database.ExecuteReader(this, dapperMethod, _identity.Value.type)));
         }
 
         private MethodBase FirstDapperCallInStack()

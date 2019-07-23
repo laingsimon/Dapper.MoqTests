@@ -7,6 +7,12 @@ namespace Dapper.MoqTests
 {
     internal static class ParameterLookupExtensions
     {
+        public static object[] GetValues(this MethodInfo method, IReadOnlyDictionary<ParameterType, object> lookup, object defaultValue = null)
+        {
+            return (from param in method.GetParameters()
+                select lookup.GetValue(param, defaultValue ?? param.DefaultValue)).ToArray();
+        }
+
         private static object GetValue(this IReadOnlyDictionary<ParameterType, object> parametersLookup, ParameterInfo parameter, object defaultValue = null)
         {
             var paramType = parameter.GetCustomAttributeFromSelfOrInterface<ParameterTypeAttribute>();
@@ -15,12 +21,6 @@ namespace Dapper.MoqTests
                 return defaultValue;
 
             return parametersLookup[paramType.Type];
-        }
-
-        public static object[] GetValues(this MethodInfo method, IReadOnlyDictionary<ParameterType, object> lookup, object defaultValue = null)
-        {
-            return (from param in method.GetParameters()
-                select lookup.GetValue(param, defaultValue ?? param.DefaultValue)).ToArray();
         }
 
         private static T GetCustomAttributeFromSelfOrInterface<T>(this ParameterInfo parameter)

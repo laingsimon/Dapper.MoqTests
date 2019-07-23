@@ -8,7 +8,7 @@ namespace Dapper.MoqTests.Samples
         public static T Prop<T>(this object instance, string propertyName)
         {
             if (instance == null)
-                return default(T);
+                return default;
 
             var property = instance.GetType().GetProperty(propertyName, BindingFlags.Instance | BindingFlags.IgnoreCase | BindingFlags.Public);
             if (property == null)

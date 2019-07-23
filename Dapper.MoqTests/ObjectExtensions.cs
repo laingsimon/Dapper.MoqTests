@@ -17,10 +17,9 @@ namespace Dapper.MoqTests
         public static IDataReader GetDataReader(this object value)
         {
             if (value == null || IsPrimitiveType(value.GetType()))
-                return new DataTableReader(GetDataTableForPrimitiveType(value));
+                return new DataTableReader(GetPrimitiveTypeDataTable(new[] { value }, value?.GetType() ?? typeof(object)));
 
-            var enumerable = value as IEnumerable;
-            if (enumerable != null)
+            if (value is IEnumerable enumerable)
                 return new DataTableReader(GetDataTableForArray(enumerable));
 
             var properties = value.GetType()
@@ -78,18 +77,6 @@ namespace Dapper.MoqTests
                 dataTable.Rows.Add(row);
 
             return dataTable;
-        }
-
-        private static DataTable GetDataTableForPrimitiveType(object value)
-        {
-            return new DataTable
-            {
-                Columns =
-                {
-                    { "Column0", value?.GetType() ?? typeof(object) }
-                },
-                Rows = { value }
-            };
         }
 
         private static bool IsPrimitiveType(Type type)

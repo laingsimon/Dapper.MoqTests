@@ -13,7 +13,7 @@ namespace Dapper.MoqTests
             return GetValueFromExpression<object>(expression);
         }
 
-        public static T GetValueFromExpression<T>(Expression expression)
+        private static T GetValueFromExpression<T>(Expression expression)
         {
             if (expression == null)
                 return default;
@@ -77,22 +77,8 @@ namespace Dapper.MoqTests
 
         private static MethodInfo GetCreateMatchMethod<T>(Expression<Func<T>> expression)
         {
-            var methodCallExpression = (MethodCallExpression)expression.Body;
+            var methodCallExpression = (MethodCallExpression) expression.Body;
             return methodCallExpression.Method;
-        }
-
-        public static MethodCallExpression GetMethodCallExpression(Expression expression)
-        {
-            var methodCallExpression = expression as MethodCallExpression;
-
-            if (methodCallExpression != null)
-                return methodCallExpression;
-
-            var lambdaExpression = expression as LambdaExpression;
-            if (lambdaExpression == null)
-                return null;
-
-            return GetMethodCallExpression(lambdaExpression.Body);
         }
     }
 }

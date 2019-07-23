@@ -8,6 +8,9 @@ using System.Data.Common;
 
 namespace Dapper.MoqTests
 {
+    /// <summary>
+    /// A type that represents the Dapper calls that can be intercepted and Mocked/Verified
+    /// </summary>
     public abstract class MockDatabase
     {
         private readonly MockBehavior _behaviour;
@@ -129,9 +132,9 @@ namespace Dapper.MoqTests
 
         public abstract DbTransaction BeginTransaction(IsolationLevel il);
 
-        internal int ExecuteNonQuery(MockDbCommand command, bool isAsync, MethodBase dapperEntrypoint, Type dataType)
+        internal int ExecuteNonQuery(MockDbCommand command, bool isAsync, MethodBase dapperMethod, Type dataType)
         {
-            var method = DapperMethods.GetExecuteMethod(dapperEntrypoint, dataType);
+            var method = DapperMethods.GetExecuteMethod(dapperMethod, dataType);
             var parametersLookup = command.GetParameterLookup();
             var parametersArray = method.GetValues(parametersLookup);
 
@@ -140,9 +143,9 @@ namespace Dapper.MoqTests
                 : (int)method.Invoke(this, parametersArray);
         }
 
-        internal IDataReader ExecuteReader(MockDbCommand command, MethodBase dapperEntrypoint, Type dataType)
+        internal IDataReader ExecuteReader(MockDbCommand command, MethodBase dapperMethod, Type dataType)
         {
-            var method = DapperMethods.GetQueryMethod(dapperEntrypoint, dataType);
+            var method = DapperMethods.GetQueryMethod(dapperMethod, dataType);
             var parametersLookup = command.GetParameterLookup();
             var parametersArray = method.GetValues(parametersLookup);
 

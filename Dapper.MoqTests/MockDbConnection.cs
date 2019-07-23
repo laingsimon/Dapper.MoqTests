@@ -7,6 +7,9 @@ using Moq.Language.Flow;
 
 namespace Dapper.MoqTests
 {
+    /// <summary>
+    /// A DbConnection that supports Setup and Verify of Dapper calls.
+    /// </summary>
     public class MockDbConnection : DbConnection, IDbConnection
     {
         private readonly Mock<MockDatabase> _database;
@@ -69,6 +72,7 @@ namespace Dapper.MoqTests
         /// 	</code>
         /// </example>
         /// <exception cref="T:Moq.MockException">Not all verifiable expectations were met.</exception>
+        // ReSharper disable once UnusedMember.Global
         public void Verify()
         {
             _database.Verify();
@@ -92,6 +96,7 @@ namespace Dapper.MoqTests
         /// <exception cref="T:Moq.MockException">The invocation was not performed on the mock.</exception>
         /// <param name="expression">Expression to verify.</param>
         /// <typeparam name="TResult">Type of return value from the expression.</typeparam>
+        // ReSharper disable once UnusedMember.Global
         public void Verify<TResult>(Expression<Func<MockDatabase, TResult>> expression)
         {
             _database.Verify(ModifySqlParametersArgumentInExpression(expression));
@@ -118,6 +123,7 @@ namespace Dapper.MoqTests
         /// <param name="expression">Expression to verify.</param>
         /// <param name="failMessage">Message to show if verification fails.</param>
         /// <typeparam name="TResult">Type of return value from the expression.</typeparam>
+        // ReSharper disable once UnusedMember.Global
         public void Verify<TResult>(Expression<Func<MockDatabase, TResult>> expression, string failMessage)
         {
             _database.Verify(ModifySqlParametersArgumentInExpression(expression), failMessage);
@@ -135,6 +141,7 @@ namespace Dapper.MoqTests
         /// <param name="expression">Expression to verify.</param>
         /// <param name="times">The number of times a method is allowed to be called.</param>
         /// <typeparam name="TResult">Type of return value from the expression.</typeparam>
+        // ReSharper disable once UnusedMember.Global
         public void Verify<TResult>(Expression<Func<MockDatabase, TResult>> expression, Times times)
         {
             _database.Verify(ModifySqlParametersArgumentInExpression(expression), times);
@@ -152,6 +159,7 @@ namespace Dapper.MoqTests
         /// <param name="expression">Expression to verify.</param>
         /// <param name="times">The number of times a method is allowed to be called.</param>
         /// <typeparam name="TResult">Type of return value from the expression.</typeparam>
+        // ReSharper disable once UnusedMember.Global
         public void Verify<TResult>(Expression<Func<MockDatabase, TResult>> expression, Func<Times> times)
         {
             _database.Verify(ModifySqlParametersArgumentInExpression(expression), times);
@@ -170,6 +178,7 @@ namespace Dapper.MoqTests
         /// <param name="times">The number of times a method is allowed to be called.</param>
         /// <param name="failMessage">Message to show if verification fails.</param>
         /// <typeparam name="TResult">Type of return value from the expression.</typeparam>
+        // ReSharper disable once UnusedMember.Global
         public void Verify<TResult>(Expression<Func<MockDatabase, TResult>> expression, Times times, string failMessage)
         {
             _database.Verify(ModifySqlParametersArgumentInExpression(expression), times, failMessage);

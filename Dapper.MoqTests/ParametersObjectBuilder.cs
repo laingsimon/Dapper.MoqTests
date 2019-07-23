@@ -1,30 +1,36 @@
 ﻿using System;
+using System.Data;
+using System.Data.Common;
 using System.Reflection;
 using System.Reflection.Emit;
+using PropertyAttributes = System.Reflection.PropertyAttributes;
 
 namespace Dapper.MoqTests
 {
+    /// <summary>
+    /// An anonymous object builder from a MockDbParameterCollection
+    /// </summary>
     internal static class ParametersObjectBuilder
     {
-        private static readonly object NoParameters = new EmptyParameters();
         private static readonly Lazy<ModuleBuilder> ModuleBuilder = new Lazy<ModuleBuilder>(GetModuleBuilder);
 
-        public static object FromParameters(MockDbParameterCollection parameters)
+        public static object FromParameters(DbParameterCollection parameters)
         {
-            if (parameters.Count == 0)
-                return NoParameters;
-
             var builder = GetTypeBuilder();
 
-            foreach (MockDbParameter parameter in parameters)
+            foreach (DbParameter parameter in parameters)
                 AddProperty(builder, parameter);
 
-            AddToStringOverride(builder, parameters.ToString());
+            AddToStringOverride(
+                builder, 
+                parameters.Count == 0 
+                    ? " "
+                    : $" {parameters} ");
 
             var type = builder.CreateType();
             var instance = Activator.CreateInstance(type);
 
-            foreach (MockDbParameter parameter in parameters)
+            foreach (DbParameter parameter in parameters)
             {
                 var propertyInfo = type.GetProperty(parameter.ParameterName);
                 if (propertyInfo == null)
@@ -45,7 +51,7 @@ namespace Dapper.MoqTests
             methodBuilder.SetReturnType(typeof(string));
 
             var il = methodBuilder.GetILGenerator();
-            il.Emit(OpCodes.Ldstr, $"{{ {stringRepresentation} }}");
+            il.Emit(OpCodes.Ldstr, $"{{{stringRepresentation}}}");
             il.Emit(OpCodes.Ret);
 
             var toStringMethod = typeof(object).GetMethod(nameof(ToString));
@@ -53,7 +59,7 @@ namespace Dapper.MoqTests
                 builder.DefineMethodOverride(methodBuilder, toStringMethod);
         }
 
-        private static void AddProperty(TypeBuilder builder, MockDbParameter parameter)
+        private static void AddProperty(TypeBuilder builder, IDataParameter parameter)
         {
             var propertyType = parameter.Value.GetType();
             var propertyName = parameter.ParameterName;
@@ -115,24 +121,6 @@ namespace Dapper.MoqTests
                 TypeAttributes.BeforeFieldInit |
                 TypeAttributes.AutoLayout,
                 typeof(object));
-        }
-
-        private class EmptyParameters
-        {
-            public override string ToString()
-            {
-                return "<No command parameters>";
-            }
-
-            public override bool Equals(object obj)
-            {
-                return obj is EmptyParameters;
-            }
-
-            public override int GetHashCode()
-            {
-                return typeof(EmptyParameters).GetHashCode();
-            }
         }
     }
 }

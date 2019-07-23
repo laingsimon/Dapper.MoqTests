@@ -20,8 +20,7 @@ namespace Dapper.MoqTests
 
         private static MethodInfo GetMethod<TOut>(Expression<Func<MockDatabase, TOut>> expression)
         {
-            var unaryExpression = expression.Body as UnaryExpression;
-            if (unaryExpression != null)
+            if (expression.Body is UnaryExpression unaryExpression)
             {
                 var unaryExpressionOperand = (MethodCallExpression)unaryExpression.Operand;
                 return unaryExpressionOperand.Method;
@@ -31,20 +30,20 @@ namespace Dapper.MoqTests
             return methodCallExpression.Method;
         }
 
-        public static MethodInfo GetExecuteMethod(MethodBase dapperEntrypoint, Type dataType)
+        public static MethodInfo GetExecuteMethod(MethodBase dapperMethod, Type dataType)
         {
-            var method = Methods[dapperEntrypoint.Name];
+            var method = Methods[dapperMethod.Name];
             if (dataType == null)
                 return method;
 
             return method.GetGenericMethodDefinition().MakeGenericMethod(dataType);
         }
 
-        public static MethodInfo GetQueryMethod(MethodBase dapperEntrypoint, Type dataType)
+        public static MethodInfo GetQueryMethod(MethodBase dapperMethod, Type dataType)
         {
-            var key = dapperEntrypoint.IsGenericMethod
-                ? $"{dapperEntrypoint.Name}[{string.Join(", ", dapperEntrypoint.GetGenericArguments().Select(t => t.Name))}]"
-                : dapperEntrypoint.Name;
+            var key = dapperMethod.IsGenericMethod
+                ? $"{dapperMethod.Name}[{string.Join(", ", dapperMethod.GetGenericArguments().Select(t => t.Name))}]"
+                : dapperMethod.Name;
 
             var method = Methods[key];
             if (dataType == null)

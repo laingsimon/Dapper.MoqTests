@@ -1,5 +1,6 @@
 ﻿namespace Dapper.MoqTests.Samples
 {
+    // ReSharper disable UnusedAutoPropertyAccessor.Global
     public class Car
     {
         public string Registration { get; set; }

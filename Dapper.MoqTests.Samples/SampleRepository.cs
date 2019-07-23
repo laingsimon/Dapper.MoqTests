@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 
@@ -34,6 +33,7 @@ where Registration = @registration", new { registration });
             }
         }
 
+        // ReSharper disable once UnusedMethodReturnValue.Global
         public async Task<Car> GetCarAsync(string registration)
         {
             using (var connection = _connectionFactory.OpenConnection())
@@ -54,6 +54,7 @@ where Registration = @registration", new { registration });
             }
         }
 
+        // ReSharper disable once UnusedMethodReturnValue.Global
         public IEnumerable<string> GetModels(string make)
         {
             using (var connection = _connectionFactory.OpenConnection())
@@ -74,6 +75,7 @@ where Registration = @registration", new { registration });
             }
         }
 
+        // ReSharper disable once UnusedMethodReturnValue.Global
         internal async Task<IEnumerable<Car>> GetCarsAsync()
         {
             using (var connection = _connectionFactory.OpenConnection())

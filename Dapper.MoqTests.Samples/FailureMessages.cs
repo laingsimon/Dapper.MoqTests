@@ -32,7 +32,7 @@ No setups configured.
 Performed invocations:
 MockDatabase.Query<Car>(""select * 
 from [Cars] 
-order by Make, Model"", <No command parameters>, null, True, null, null)"));
+order by Make, Model"", { }, null, True, null, null)"));
             }
         }
 
