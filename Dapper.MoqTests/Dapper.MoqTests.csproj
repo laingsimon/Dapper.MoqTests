@@ -48,15 +48,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DapperCacheInfo.cs" />
-    <Compile Include="DapperMethodCallComparer.cs" />
     <Compile Include="DapperMethods.cs" />
-    <Compile Include="DapperSetupComparer.cs" />
     <Compile Include="ExpressionHelper.cs" />
-    <Compile Include="ExpressionMatch.cs" />
-    <Compile Include="GenericMethodCaller.cs" />
-    <Compile Include="IMatch.cs" />
     <Compile Include="MatchAnonymousObjectExpressionVisitor.cs" />
-    <Compile Include="MatchProxy.cs" />
     <Compile Include="MockDatabase.cs" />
     <Compile Include="MockDbCommand.cs" />
     <Compile Include="MockDbConnection.cs" />

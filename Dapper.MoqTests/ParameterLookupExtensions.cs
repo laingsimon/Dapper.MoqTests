@@ -7,7 +7,7 @@ namespace Dapper.MoqTests
 {
     internal static class ParameterLookupExtensions
     {
-        public static object GetValue(this IReadOnlyDictionary<ParameterType, object> parametersLookup, ParameterInfo parameter, object defaultValue = null)
+        private static object GetValue(this IReadOnlyDictionary<ParameterType, object> parametersLookup, ParameterInfo parameter, object defaultValue = null)
         {
             var paramType = parameter.GetCustomAttributeFromSelfOrInterface<ParameterTypeAttribute>();
 
