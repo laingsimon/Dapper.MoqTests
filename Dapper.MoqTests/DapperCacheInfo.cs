@@ -34,8 +34,8 @@ namespace Dapper.MoqTests
                     ?? throw GetIdentityNotFoundException(mockDbCommand);
             }
 
-            var ambiguous =
-                identities.Select(id => $"`{id.type?.FullName ?? "<untyped>"}`")
+            var ambiguous = identities.Select(id => $"`{id.type?.FullName ?? "<untyped>"}`")
+                .OrderBy(id => id)
                 .ToArray();
 
             throw GetIdentityAmbiguousException(mockDbCommand, ambiguous);
