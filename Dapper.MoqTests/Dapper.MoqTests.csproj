@@ -52,6 +52,13 @@
     <Compile Include="ExpressionHelper.cs" />
     <Compile Include="MatchAnonymousObjectExpressionVisitor.cs" />
     <Compile Include="MockDatabase.cs" />
+    <Compile Include="MockDatabase.Dapper.Query.cs" />
+    <Compile Include="MockDatabase.Dapper.QueryFirst.cs" />
+    <Compile Include="MockDatabase.Dapper.QueryFirstOrDefault.cs" />
+    <Compile Include="MockDatabase.Dapper.QueryMultiple.cs" />
+    <Compile Include="MockDatabase.Dapper.QuerySingle.cs" />
+    <Compile Include="MockDatabase.Dapper.QuerySingleOrDefault.cs" />
+    <Compile Include="MockDatabase.Dapper.Execute.cs" />
     <Compile Include="MockDbCommand.cs" />
     <Compile Include="MockDbConnection.cs" />
     <Compile Include="MockDbDataReader.cs" />
@@ -69,6 +76,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Dapper.MoqTests.nuspec" />
+    <Compile Include="MockDatabase.Dapper.QueryAsync.cs" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

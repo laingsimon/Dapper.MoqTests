@@ -30,6 +30,10 @@
         /// <summary>
         /// Whether the command should be buffered
         /// </summary>
-        Buffered
+        Buffered,
+        Map,
+        SplitOn,
+        Type,
+        Types
     }
 }
