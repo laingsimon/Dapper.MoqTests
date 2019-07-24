@@ -10,12 +10,33 @@ namespace Dapper.MoqTests
     {
         private static readonly IReadOnlyDictionary<string, MethodInfo> Methods = new Dictionary<string, MethodInfo>
         {
+            { "Query", GetMethod<object>(db => db.Query(typeof(object), "some sql", null, null, true, null, null)) },
             { "Query[T]", GetMethod<object>(db => db.Query<object>("some sql", null, null, true, null, null)) },
-            { "Execute", GetMethod<object>(db => db.Execute("some sql", null, null, null, null)) },
+            { "QueryAsync", GetMethod<object>(db => db.QueryAsync(typeof(object), "some sql", null, null, null, null))},
             { "QueryAsync[T]", GetMethod<object>(db => db.QueryAsync<object>("some sql", null, null, null, null))},
+
+            { "Execute", GetMethod<object>(db => db.Execute("some sql", null, null, null, null)) },
             { "ExecuteAsync", GetMethod<object>(db => db.ExecuteAsync("some sql", null, null, null, null))},
+
+            { "QuerySingle", GetMethod(db => db.QuerySingle(typeof(object), "some sql", null, null, null, null))},
+            { "QuerySingle[T]", GetMethod(db => db.QuerySingle<object>("some sql", null, null, null, null))},
+            { "QuerySingleAsync", GetMethod<object>(db => db.QuerySingleAsync(typeof(object), "some sql", null, null, null, null))},
             { "QuerySingleAsync[T]", GetMethod<object>(db => db.QuerySingleAsync<object>("some sql", null, null, null, null))},
-            { "QuerySingle[T]", GetMethod(db => db.QuerySingle<object>("some sql", null, null, null, null))}
+
+            { "QuerySingleOrDefault", GetMethod(db => db.QuerySingleOrDefault(typeof(object), "some sql", null, null, null, null))},
+            { "QuerySingleOrDefault[T]", GetMethod(db => db.QuerySingleOrDefault<object>("some sql", null, null, null, null))},
+            { "QuerySingleOrDefaultAsync", GetMethod<object>(db => db.QuerySingleOrDefaultAsync(typeof(object), "some sql", null, null, null, null))},
+            { "QuerySingleOrDefaultAsync[T]", GetMethod<object>(db => db.QuerySingleOrDefaultAsync<object>("some sql", null, null, null, null))},
+
+            { "QueryFirst", GetMethod(db => db.QueryFirst(typeof(object), "some sql", null, null, null, null))},
+            { "QueryFirst[T]", GetMethod(db => db.QueryFirst<object>("some sql", null, null, null, null))},
+            { "QueryFirstAsync", GetMethod(db => db.QueryFirstAsync(typeof(object), "some sql", null, null, null, null))},
+            { "QueryFirstAsync[T]", GetMethod(db => db.QueryFirstAsync<object>("some sql", null, null, null, null))},
+
+            { "QueryFirstOrDefault", GetMethod(db => db.QueryFirstOrDefault(typeof(object), "some sql", null, null, null, null))},
+            { "QueryFirstOrDefault[T]", GetMethod(db => db.QueryFirstOrDefault<object>("some sql", null, null, null, null))},
+            { "QueryFirstOrDefaultAsync", GetMethod(db => db.QueryFirstOrDefaultAsync(typeof(object), "some sql", null, null, null, null))},
+            { "QueryFirstOrDefaultAsync[T]", GetMethod(db => db.QueryFirstOrDefaultAsync<object>("some sql", null, null, null, null))},
         };
 
         private static MethodInfo GetMethod<TOut>(Expression<Func<MockDatabase, TOut>> expression)

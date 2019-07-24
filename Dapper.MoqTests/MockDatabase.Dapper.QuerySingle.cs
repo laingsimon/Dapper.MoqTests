@@ -9,7 +9,6 @@ namespace Dapper.MoqTests
         /// <summary>
         /// Executes a single-row query, returning the data typed as type.
         /// </summary>
-        [Obsolete(NotSupported)]
         public abstract object QuerySingle(
             [ParameterType(ParameterType.Type)] Type type,
             [ParameterType(ParameterType.SqlText)] string sql,
@@ -42,7 +41,6 @@ namespace Dapper.MoqTests
         /// <summary>
         /// Execute a single-row query asynchronously using .NET 4.5 Task.
         /// </summary>
-        [Obsolete(NotSupported)]
         public abstract Task<object> QuerySingleAsync(
             [ParameterType(ParameterType.Type)] Type type,
             [ParameterType(ParameterType.SqlText)] string sql,

@@ -62,12 +62,16 @@ namespace Dapper.MoqTests
         {
             return new Dictionary<ParameterType, object>
             {
-                { ParameterType.SqlText, CommandText },
-                { ParameterType.SqlParameters, ParametersObjectBuilder.FromParameters(_parameters) },
-                { ParameterType.SqlTransaction, DbTransaction },
-                { ParameterType.CommandType, CommandType == 0 ? default(CommandType?) : CommandType },
+                { ParameterType.Buffered, true }, //TODO: Work out this value
                 { ParameterType.CommandTimeout, CommandTimeout == 0 ? default(int?) : CommandTimeout },
-                { ParameterType.Buffered, true } //TODO: Work out this value
+                { ParameterType.CommandType, CommandType == 0 ? default(CommandType?) : CommandType },
+                { ParameterType.Map, null }, //TODO: Probably cannot access this value
+                { ParameterType.SplitOn, null }, //TODO: Probably cannot access this value
+                { ParameterType.SqlParameters, ParametersObjectBuilder.FromParameters(_parameters) },
+                { ParameterType.SqlText, CommandText },
+                { ParameterType.SqlTransaction, DbTransaction },
+                { ParameterType.Type, _identity.Value.type },
+                { ParameterType.Types, null } //TODO: Probably cannot access this value
             };
         }
 

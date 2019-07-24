@@ -80,7 +80,6 @@ namespace Dapper.MoqTests
         /// <summary>
         /// Execute a query asynchronously using .NET 4.5 Task.
         /// </summary>
-        [Obsolete(NotSupported)]
         public abstract Task<IEnumerable<object>> QueryAsync(Type type,
             [ParameterType(ParameterType.SqlText)] string sql,
             [ParameterType(ParameterType.SqlParameters)] object param = null,

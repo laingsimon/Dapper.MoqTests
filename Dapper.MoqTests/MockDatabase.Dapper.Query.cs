@@ -123,7 +123,6 @@ namespace Dapper.MoqTests
         /// <summary>
         /// Executes a single-row query, returning the data typed as type.
         /// </summary>
-        [Obsolete(NotSupported)]
         public abstract IEnumerable<object> Query(
             [ParameterType(ParameterType.Type)] Type type,
             [ParameterType(ParameterType.SqlText)] string sql,

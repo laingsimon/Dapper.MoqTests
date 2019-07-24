@@ -20,7 +20,6 @@ namespace Dapper.MoqTests
         /// <summary>
         /// Executes a single-row query, returning the data typed as T.
         /// </summary>
-        [Obsolete(NotSupported)]
         public abstract T QueryFirstOrDefault<T>(
             [ParameterType(ParameterType.SqlText)] string sql,
             [ParameterType(ParameterType.SqlParameters)] object param = null,
@@ -31,7 +30,6 @@ namespace Dapper.MoqTests
         /// <summary>
         /// Executes a single-row query, returning the data typed as type.
         /// </summary>
-        [Obsolete(NotSupported)]
         public abstract object QueryFirstOrDefault(
             [ParameterType(ParameterType.Type)] Type type,
             [ParameterType(ParameterType.SqlText)] string sql,
@@ -43,7 +41,6 @@ namespace Dapper.MoqTests
         /// <summary>
         /// Execute a single-row query asynchronously using .NET 4.5 Task.
         /// </summary>
-        [Obsolete(NotSupported)]
         public abstract Task<object> QueryFirstOrDefaultAsync(
             [ParameterType(ParameterType.Type)] Type type,
             [ParameterType(ParameterType.SqlText)] string sql,
@@ -55,7 +52,6 @@ namespace Dapper.MoqTests
         /// <summary>
         /// Execute a single-row query asynchronously using .NET 4.5 Task.
         /// </summary>
-        [Obsolete(NotSupported)]
         public abstract Task<T> QueryFirstOrDefaultAsync<T>(
             [ParameterType(ParameterType.SqlText)] string sql,
             [ParameterType(ParameterType.SqlParameters)] object param = null,

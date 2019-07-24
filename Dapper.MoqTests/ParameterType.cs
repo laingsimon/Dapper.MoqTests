@@ -31,9 +31,25 @@
         /// Whether the command should be buffered
         /// </summary>
         Buffered,
+
+        /// <summary>
+        /// The function to map row types to the return type.
+        /// </summary>
         Map,
+
+        /// <summary>
+        /// The field we should split and read the second object from (default: "Id").
+        /// </summary>
         SplitOn,
+
+        /// <summary>
+        /// The type to return.
+        /// </summary>
         Type,
+
+        /// <summary>
+        /// Array of types in the recordset.
+        /// </summary>
         Types
     }
 }
