@@ -17,22 +17,6 @@ namespace Dapper.MoqTests
         public MockDbParameterCollection()
         { }
 
-        public MockDbParameterCollection(object parameters)
-        {
-            if (ReferenceEquals(parameters, Any) || parameters is MockDbParameterCollection)
-                throw new ArgumentException("Should not create this type in this way");
-
-            if (parameters == null)
-                throw new ArgumentNullException(nameof(parameters));
-
-            var dbParameters = from property in parameters.GetType().GetProperties()
-                             let value = property.GetValue(parameters, null)
-                             select new MockDbParameter { ParameterName = property.Name, Value = value };
-
-            foreach (var dbParameter in dbParameters)
-                _parameters.Add(dbParameter);
-        }
-
         public override int Count => _parameters.Count;
         public override object SyncRoot => _parameters;
 
@@ -102,16 +86,6 @@ namespace Dapper.MoqTests
         public override string ToString()
         {
             return string.Join(", ", _parameters.Select(p => $"{p.ParameterName} = {p.Value}"));
-        }
-
-        public override int GetHashCode()
-        {
-            return 1;
-        }
-
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as MockDbParameterCollection ?? new MockDbParameterCollection(obj));
         }
 
         IEnumerator<MockDbParameter> IEnumerable<MockDbParameter>.GetEnumerator()

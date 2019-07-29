@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -6,6 +7,13 @@ namespace Dapper.MoqTests
 {
     internal class MatchAnonymousObjectExpressionVisitor : ExpressionVisitor
     {
+        private readonly IEqualityComparer<object> parametersComparer;
+
+        public MatchAnonymousObjectExpressionVisitor(IEqualityComparer<object> parametersComparer = null)
+        {
+            this.parametersComparer = parametersComparer ?? new ParametersComparer();
+        }
+
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
             var argumentLookup = node.Arguments
@@ -17,7 +25,7 @@ namespace Dapper.MoqTests
             return Expression.Call(node.Object, node.Method, newArguments);
         }
 
-        private static Expression GetExpression(ParameterInfo parameter, Expression argumentExpression)
+        private Expression GetExpression(ParameterInfo parameter, Expression argumentExpression)
         {
             var propertyType = parameter.GetCustomAttribute<ParameterTypeAttribute>()?.Type;
 
@@ -44,7 +52,7 @@ namespace Dapper.MoqTests
             return actualSql.Equals(expectedSql);
         }
 
-        private static bool ParametersMatch(object actual, object expected)
+        private bool ParametersMatch(object actual, object expected)
         {
             if (ReferenceEquals(expected, MockDbParameterCollection.Any))
                 return true;
@@ -52,8 +60,7 @@ namespace Dapper.MoqTests
             if (actual == null)
                 return expected == null;
 
-            var actualParams = new MockDbParameterCollection(actual);
-            return actualParams.Equals(expected);
+            return parametersComparer.Equals(actual, expected);
         }
     }
 }
