@@ -15,6 +15,7 @@ namespace Dapper.MoqTests
             { "QueryAsync", GetMethod<object>(db => db.QueryAsync(typeof(object), "some sql", null, null, null, null))},
             { "QueryAsync[T]", GetMethod<object>(db => db.QueryAsync<object>("some sql", null, null, null, null))},
 
+            { "ExecuteImpl", GetMethod<object>(db => db.Execute("some sql", null, null, null, null)) },
             { "Execute", GetMethod<object>(db => db.Execute("some sql", null, null, null, null)) },
             { "ExecuteAsync", GetMethod<object>(db => db.ExecuteAsync("some sql", null, null, null, null))},
 
@@ -53,7 +54,9 @@ namespace Dapper.MoqTests
 
         public static MethodInfo GetExecuteMethod(MethodBase dapperMethod, Type dataType)
         {
-            var method = Methods[dapperMethod.Name];
+            var method = Methods.ContainsKey(dapperMethod.Name) 
+                ? Methods[dapperMethod.Name]
+                : throw new ArgumentOutOfRangeException(nameof(dapperMethod), $"Unable to find method with name `{dapperMethod.Name}`");
             if (dataType == null)
                 return method;
 
