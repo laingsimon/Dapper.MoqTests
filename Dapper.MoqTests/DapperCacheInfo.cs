@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Linq;
 using System.Reflection;
 
@@ -59,10 +60,16 @@ namespace Dapper.MoqTests
                 $@"Unable to detect the identity for the command, it could have been one of {QueryCache.Keys.Count} possible options.
 
 command: '{mockDbCommand.CommandText}'
-Parameters: `{mockDbCommand.Parameters}`
+Parameters: `{GetParametersRepresentation(mockDbCommand)}`
 CommandType: {mockDbCommand.CommandType}
 
 To be able to Verify the Dapper call accurately the Command and Parameters (and return type) must be unique for every invocation of a Dapper method.");
+        }
+
+        private static string GetParametersRepresentation(MockDbCommand mockDbCommand)
+        {
+            var parameters = mockDbCommand.Parameters.Cast<DbParameter>();
+            return string.Join(", ", parameters.Select(p => $"{p.ParameterName} = {p.Value}"));
         }
 
         private static InvalidOperationException GetIdentityAmbiguousException(MockDbCommand mockDbCommand, IReadOnlyCollection<string> ambiguous)
@@ -75,7 +82,7 @@ To be able to Verify the Dapper call accurately the Command and Parameters (and 
                 $@"Unable to detect the required response type for the command, it could be one of {ambiguous.Count} possible options.
 
 Command: '{mockDbCommand.CommandText}'
-Parameters: `{mockDbCommand.Parameters}`
+Parameters: `{GetParametersRepresentation(mockDbCommand)}`
 CommandType: {commandType}
 
 To be able to Verify the Dapper call accurately the Command and Parameters (and return type) must be unique for every invocation of a Dapper method.

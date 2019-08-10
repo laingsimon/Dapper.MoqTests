@@ -8,7 +8,7 @@ using System.Linq;
 namespace Dapper.MoqTests
 {
     [DebuggerDisplay("{" + nameof(ToString) + "(),nq}")]
-    internal class MockDbParameterCollection : DbParameterCollection, IEquatable<MockDbParameterCollection>, IEnumerable<MockDbParameter>
+    internal class MockDbParameterCollection : DbParameterCollection
     {
         public static readonly object Any = new object();
 
@@ -36,61 +36,6 @@ namespace Dapper.MoqTests
         public override void RemoveAt(string parameterName)
         {
             _parameters.RemoveAll(p => p.ParameterName.Equals(parameterName, StringComparison.OrdinalIgnoreCase));
-        }
-
-        public bool Equals(MockDbParameterCollection executedParameters)
-        {
-            if (executedParameters == null)
-                return false;
-
-            foreach (var parameter in _parameters)
-            {
-                var executedParameter = (MockDbParameter)executedParameters.GetParameter(parameter.ParameterName);
-                if (executedParameter == null)
-                {
-                    Trace.TraceWarning($"Parameter {parameter.ParameterName} could not be found");
-                    return false;
-                }
-
-                if (!ValuesMatch(executedParameter, parameter))
-                {
-                    Trace.TraceWarning($"Parameter {parameter.ParameterName} has a different value, expected {parameter.Value} was {executedParameter.Value}");
-                    return false;
-                }
-            }
-
-            foreach (MockDbParameter executedParameter in executedParameters)
-            {
-                var parameter = (MockDbParameter)GetParameter(executedParameter.ParameterName);
-                if (parameter == null)
-                {
-                    Trace.TraceWarning($"Parameter {executedParameter.ParameterName} was not expected");
-                    return false;
-                }
-
-                if (!ValuesMatch(executedParameter, parameter))
-                {
-                    Trace.TraceWarning($"Parameter {executedParameter.ParameterName} has a different value, expected {parameter.Value} was {executedParameter.Value}");
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        private bool ValuesMatch(MockDbParameter param1, MockDbParameter param2)
-        {
-            return param1.Value.Equals(param2.Value);
-        }
-
-        public override string ToString()
-        {
-            return string.Join(", ", _parameters.Select(p => $"{p.ParameterName} = {p.Value}"));
-        }
-
-        IEnumerator<MockDbParameter> IEnumerable<MockDbParameter>.GetEnumerator()
-        {
-            throw new NotSupportedException();
         }
 
         public override int Add(object value)

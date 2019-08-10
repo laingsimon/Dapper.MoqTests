@@ -13,12 +13,12 @@ namespace Dapper.MoqTests
     internal class MockDbCommand : DbCommand
     {
         private readonly MockDatabase _database;
-        private readonly MockDbParameterCollection _parameters = new MockDbParameterCollection();
         private readonly Lazy<SqlMapper.Identity> _identity;
 
         public MockDbCommand(MockDatabase database)
         {
             _database = database;
+            DbParameterCollection = new MockDbParameterCollection();
             _identity = new Lazy<SqlMapper.Identity>(() => DapperCacheInfo.GetIdentity(this));
         }
 
@@ -28,8 +28,7 @@ namespace Dapper.MoqTests
         public override bool DesignTimeVisible { get; set; }
         public override UpdateRowSource UpdatedRowSource { get; set; }
         protected override DbConnection DbConnection { get; set; }
-
-        protected override DbParameterCollection DbParameterCollection => _parameters;
+        protected override DbParameterCollection DbParameterCollection { get; }
 
         protected override DbTransaction DbTransaction { get; set; }
 
@@ -60,6 +59,8 @@ namespace Dapper.MoqTests
 
         public IReadOnlyDictionary<ParameterType, object> GetParameterLookup()
         {
+            var parameters = DbParameterCollection.Cast<DbParameter>().ToArray();
+
             return new Dictionary<ParameterType, object>
             {
                 { ParameterType.Buffered, true }, //TODO: Work out this value
@@ -67,7 +68,7 @@ namespace Dapper.MoqTests
                 { ParameterType.CommandType, CommandType == 0 ? default(CommandType?) : CommandType },
                 { ParameterType.Map, null }, //TODO: Probably cannot access this value
                 { ParameterType.SplitOn, null }, //TODO: Probably cannot access this value
-                { ParameterType.SqlParameters, ParametersObjectBuilder.FromParameters(_parameters) },
+                { ParameterType.SqlParameters, ParametersObjectBuilder.FromParameters(parameters) },
                 { ParameterType.SqlText, CommandText },
                 { ParameterType.SqlTransaction, DbTransaction },
                 { ParameterType.Type, _identity.Value.type },
