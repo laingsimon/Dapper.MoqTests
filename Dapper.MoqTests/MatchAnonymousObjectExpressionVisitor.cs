@@ -7,11 +7,13 @@ namespace Dapper.MoqTests
 {
     internal class MatchAnonymousObjectExpressionVisitor : ExpressionVisitor
     {
-        private readonly IEqualityComparer<object> parametersComparer;
+        private readonly Settings _settings;
+        private readonly IEqualityComparer<object> _parametersComparer;
 
-        public MatchAnonymousObjectExpressionVisitor(IEqualityComparer<object> parametersComparer = null)
+        public MatchAnonymousObjectExpressionVisitor(Settings settings, IEqualityComparer<object> parametersComparer = null)
         {
-            this.parametersComparer = parametersComparer ?? new ParametersComparer();
+            _settings = settings;
+            _parametersComparer = parametersComparer ?? new ParametersComparer();
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
@@ -41,12 +43,12 @@ namespace Dapper.MoqTests
             return argumentExpression;
         }
 
-        private static bool SqlCommandsMatch(string actual, string expected)
+        private bool SqlCommandsMatch(string actual, string expected)
         {
             if (expected == SqlText.Any)
                 return true;
 
-            return Settings.SqlTextComparer.Equals(actual, expected);
+            return _settings.SqlTextComparer.Equals(actual, expected);
         }
 
         private bool ParametersMatch(object actual, object expected)
@@ -57,7 +59,7 @@ namespace Dapper.MoqTests
             if (actual == null)
                 return expected == null;
 
-            return parametersComparer.Equals(actual, expected);
+            return _parametersComparer.Equals(actual, expected);
         }
     }
 }

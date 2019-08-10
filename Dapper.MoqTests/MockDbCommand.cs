@@ -13,13 +13,16 @@ namespace Dapper.MoqTests
     internal class MockDbCommand : DbCommand
     {
         private readonly MockDatabase _database;
+        private readonly Settings _settings;
         private readonly Lazy<SqlMapper.Identity> _identity;
 
-        public MockDbCommand(MockDatabase database)
+        public MockDbCommand(MockDatabase database, Settings settings)
         {
             _database = database;
-            DbParameterCollection = new MockDbParameterCollection();
+            _settings = settings;
             _identity = new Lazy<SqlMapper.Identity>(() => DapperCacheInfo.GetIdentity(this));
+
+            DbParameterCollection = new MockDbParameterCollection();
         }
 
         public override string CommandText { get; set; }
@@ -68,7 +71,7 @@ namespace Dapper.MoqTests
                 { ParameterType.CommandType, CommandType == 0 ? default(CommandType?) : CommandType },
                 { ParameterType.Map, null }, //TODO: Probably cannot access this value
                 { ParameterType.SplitOn, null }, //TODO: Probably cannot access this value
-                { ParameterType.SqlParameters, Settings.SqlParametersBuilder.FromParameters(parameters) },
+                { ParameterType.SqlParameters, _settings.SqlParametersBuilder.FromParameters(parameters) },
                 { ParameterType.SqlText, CommandText },
                 { ParameterType.SqlTransaction, DbTransaction },
                 { ParameterType.Type, _identity.Value.type },
@@ -108,7 +111,7 @@ namespace Dapper.MoqTests
 
         protected override void Dispose(bool disposing)
         {
-            if (Settings.ResetDapperCachePerCommand)
+            if (_settings.ResetDapperCachePerCommand)
                 DapperCacheInfo.PurgeQueriedIdentities();
 
             base.Dispose(disposing);

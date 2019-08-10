@@ -269,32 +269,28 @@ order by Make, Model", It.IsAny<object>(), It.IsAny<IDbTransaction>(), true, nul
         [Test]
         public async Task VerifyTwoDifferentGenericCallsWithSameSqlWhenSettingEnabled()
         {
-            try
+            var settings = new Settings
             {
-                Settings.ResetDapperCachePerCommand = true;
+                ResetDapperCachePerCommand = true
+            };
 
-                var connectionFactory = new Mock<IDbConnectionFactory>();
-                var connection = new MockDbConnection();
-                var repository = new SampleRepository(connectionFactory.Object);
-                connectionFactory
-                    .Setup(f => f.OpenConnection())
-                    .Returns(connection);
+            var connectionFactory = new Mock<IDbConnectionFactory>();
+            var connection = new MockDbConnection(settings);
+            var repository = new SampleRepository(connectionFactory.Object);
+            connectionFactory
+                .Setup(f => f.OpenConnection())
+                .Returns(connection);
 
-                await repository.GetCarAsync("reg");
-                await repository.GetCarCountAsync("reg");
+            await repository.GetCarAsync("reg");
+            await repository.GetCarCountAsync("reg");
 
-                connection.Verify(c => c.QuerySingleAsync<Car>(@"select *
+            connection.Verify(c => c.QuerySingleAsync<Car>(@"select *
 from [Cars] 
 where Registration = @registration", It.IsAny<object>(), It.IsAny<IDbTransaction>(), null, null));
 
-                connection.Verify(c => c.QuerySingleAsync<int>(@"select *
+            connection.Verify(c => c.QuerySingleAsync<int>(@"select *
 from [Cars] 
 where Registration = @registration", It.IsAny<object>(), It.IsAny<IDbTransaction>(), null, null));
-            }
-            finally
-            {
-                Settings.ResetDapperCachePerCommand = false;
-            }
         }
 
         [Test]
