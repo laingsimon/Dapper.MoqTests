@@ -43,17 +43,11 @@ namespace Dapper.MoqTests
 
         private bool SqlCommandsMatch(string actual, string expected)
         {
-            if (expected == SqlText.Any)
-                return true;
-
             return _settings.SqlTextComparer.Equals(actual, expected);
         }
 
         private bool ParametersMatch(object actual, object expected)
         {
-            if (ReferenceEquals(expected, MockDbParameterCollection.Any))
-                return true;
-
             if (actual == null)
                 return expected == null;
 

@@ -10,9 +10,7 @@ namespace Dapper.MoqTests
     [DebuggerDisplay("{" + nameof(ToString) + "(),nq}")]
     internal class MockDbParameterCollection : DbParameterCollection
     {
-        public static readonly object Any = new object();
-
-        private readonly List<MockDbParameter> _parameters = new List<MockDbParameter>();
+        private readonly List<DbParameter> _parameters = new List<DbParameter>();
         private readonly Settings _settings;
 
         public MockDbParameterCollection(Settings settings)
@@ -45,7 +43,7 @@ namespace Dapper.MoqTests
 
         public override int Add(object value)
         {
-            var parameter = (MockDbParameter)value;
+            var parameter = (DbParameter)value;
             _parameters.Add(parameter);
             return _parameters.IndexOf(parameter);
         }
@@ -89,17 +87,17 @@ namespace Dapper.MoqTests
 
         public override int IndexOf(object value)
         {
-            return _parameters.IndexOf((MockDbParameter)value);
+            return _parameters.IndexOf((DbParameter)value);
         }
 
         public override void Insert(int index, object value)
         {
-            _parameters.Insert(index, (MockDbParameter)value);
+            _parameters.Insert(index, (DbParameter)value);
         }
 
         public override void Remove(object value)
         {
-            _parameters.Remove((MockDbParameter)value);
+            _parameters.Remove((DbParameter)value);
         }
 
         public override void RemoveAt(int index)
@@ -109,19 +107,18 @@ namespace Dapper.MoqTests
 
         protected override void SetParameter(int index, DbParameter value)
         {
-            _parameters[index] = (MockDbParameter)value;
+            _parameters[index] = value;
         }
 
         protected override void SetParameter(string parameterName, DbParameter value)
         {
             var comparer = _settings.SqlParametersComparer;
             var index = _parameters.FindIndex(p => comparer.Equals(p.ParameterName, parameterName));
-            var parameter = (MockDbParameter)value;
 
             if (index == -1)
-                _parameters.Add(parameter);
+                _parameters.Add(value);
             else
-                _parameters[index] = parameter;
+                _parameters[index] = value;
         }
     }
 }
