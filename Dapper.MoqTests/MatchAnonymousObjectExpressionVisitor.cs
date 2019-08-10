@@ -46,10 +46,7 @@ namespace Dapper.MoqTests
             if (expected == SqlText.Any)
                 return true;
 
-            var actualSql = new SqlText(actual);
-            var expectedSql = new SqlText(expected);
-
-            return actualSql.Equals(expectedSql);
+            return Settings.SqlTextComparer.Equals(actual, expected);
         }
 
         private bool ParametersMatch(object actual, object expected)

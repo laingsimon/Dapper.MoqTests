@@ -12,11 +12,11 @@ namespace Dapper.MoqTests
     /// <summary>
     /// An anonymous object builder from a MockDbParameterCollection
     /// </summary>
-    internal static class ParametersObjectBuilder
+    internal class ParametersObjectBuilder : ISqlParametersBuilder
     {
         private static readonly Lazy<ModuleBuilder> ModuleBuilder = new Lazy<ModuleBuilder>(GetModuleBuilder);
 
-        public static object FromParameters(IReadOnlyCollection<DbParameter> parameters)
+        public object FromParameters(IReadOnlyCollection<DbParameter> parameters)
         {
             var builder = GetTypeBuilder();
 

@@ -1,4 +1,8 @@
-﻿namespace Dapper.MoqTests
+﻿using System;
+using System.Collections.Generic;
+using System.Data.Common;
+
+namespace Dapper.MoqTests
 {
     public static class Settings
     {
@@ -7,5 +11,8 @@
         /// of different return types for the same text, parameters and command-type
         /// </summary>
         public static bool ResetDapperCachePerCommand { get; set; }
+
+        public static ISqlParametersBuilder SqlParametersBuilder { get; set; } = new ParametersObjectBuilder();
+        public static IEqualityComparer<string> SqlTextComparer { get; set; } = new SqlTextComparer();
     }
 }

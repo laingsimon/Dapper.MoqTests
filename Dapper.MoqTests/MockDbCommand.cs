@@ -68,7 +68,7 @@ namespace Dapper.MoqTests
                 { ParameterType.CommandType, CommandType == 0 ? default(CommandType?) : CommandType },
                 { ParameterType.Map, null }, //TODO: Probably cannot access this value
                 { ParameterType.SplitOn, null }, //TODO: Probably cannot access this value
-                { ParameterType.SqlParameters, ParametersObjectBuilder.FromParameters(parameters) },
+                { ParameterType.SqlParameters, Settings.SqlParametersBuilder.FromParameters(parameters) },
                 { ParameterType.SqlText, CommandText },
                 { ParameterType.SqlTransaction, DbTransaction },
                 { ParameterType.Type, _identity.Value.type },
