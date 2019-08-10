@@ -1,11 +1,23 @@
-﻿namespace Dapper.MoqTests
+﻿using System;
+using System.Collections.Generic;
+using System.Data.Common;
+
+namespace Dapper.MoqTests
 {
-    public static class Settings
+    public class Settings
     {
         /// <summary>
         /// Reset the cache of Dapper commands after each command has executed, thus permitting identification
         /// of different return types for the same text, parameters and command-type
         /// </summary>
-        public static bool ResetDapperCachePerCommand { get; set; }
+        public bool ResetDapperCachePerCommand { get; set; }
+
+        public ISqlParametersBuilder SqlParametersBuilder { get; set; } = new ParametersObjectBuilder();
+        public IEqualityComparer<string> SqlTextComparer { get; set; } = new SqlTextComparer();
+        public IParametersComparer SqlParametersComparer { get; set; } = new ParametersComparer(StringComparer.OrdinalIgnoreCase);
+
+        public IIdentityComparer IdentityComparer = new DapperIdentityComparer();
+
+        public static Settings Default = new Settings();
     }
 }

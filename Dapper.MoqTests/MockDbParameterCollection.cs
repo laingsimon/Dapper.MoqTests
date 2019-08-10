@@ -8,29 +8,14 @@ using System.Linq;
 namespace Dapper.MoqTests
 {
     [DebuggerDisplay("{" + nameof(ToString) + "(),nq}")]
-    internal class MockDbParameterCollection : DbParameterCollection, IEquatable<MockDbParameterCollection>, IEnumerable<MockDbParameter>
+    internal class MockDbParameterCollection : DbParameterCollection
     {
-        public static readonly object Any = new object();
+        private readonly List<DbParameter> _parameters = new List<DbParameter>();
+        private readonly Settings _settings;
 
-        private readonly List<MockDbParameter> _parameters = new List<MockDbParameter>();
-
-        public MockDbParameterCollection()
-        { }
-
-        public MockDbParameterCollection(object parameters)
+        public MockDbParameterCollection(Settings settings)
         {
-            if (ReferenceEquals(parameters, Any) || parameters is MockDbParameterCollection)
-                throw new ArgumentException("Should not create this type in this way");
-
-            if (parameters == null)
-                throw new ArgumentNullException(nameof(parameters));
-
-            var dbParameters = from property in parameters.GetType().GetProperties()
-                             let value = property.GetValue(parameters, null)
-                             select new MockDbParameter { ParameterName = property.Name, Value = value };
-
-            foreach (var dbParameter in dbParameters)
-                _parameters.Add(dbParameter);
+            _settings = settings;
         }
 
         public override int Count => _parameters.Count;
@@ -38,7 +23,8 @@ namespace Dapper.MoqTests
 
         public override bool Contains(string parameterName)
         {
-            return _parameters.Any(p => p.ParameterName.Equals(parameterName, StringComparison.OrdinalIgnoreCase));
+            var comparer = _settings.SqlParametersComparer;
+            return _parameters.Any(p => comparer.Equals(p.ParameterName, parameterName));
         }
 
         public override int IndexOf(string parameterName)
@@ -51,77 +37,13 @@ namespace Dapper.MoqTests
 
         public override void RemoveAt(string parameterName)
         {
-            _parameters.RemoveAll(p => p.ParameterName.Equals(parameterName, StringComparison.OrdinalIgnoreCase));
-        }
-
-        public bool Equals(MockDbParameterCollection executedParameters)
-        {
-            if (executedParameters == null)
-                return false;
-
-            foreach (var parameter in _parameters)
-            {
-                var executedParameter = (MockDbParameter)executedParameters.GetParameter(parameter.ParameterName);
-                if (executedParameter == null)
-                {
-                    Trace.TraceWarning($"Parameter {parameter.ParameterName} could not be found");
-                    return false;
-                }
-
-                if (!ValuesMatch(executedParameter, parameter))
-                {
-                    Trace.TraceWarning($"Parameter {parameter.ParameterName} has a different value, expected {parameter.Value} was {executedParameter.Value}");
-                    return false;
-                }
-            }
-
-            foreach (MockDbParameter executedParameter in executedParameters)
-            {
-                var parameter = (MockDbParameter)GetParameter(executedParameter.ParameterName);
-                if (parameter == null)
-                {
-                    Trace.TraceWarning($"Parameter {executedParameter.ParameterName} was not expected");
-                    return false;
-                }
-
-                if (!ValuesMatch(executedParameter, parameter))
-                {
-                    Trace.TraceWarning($"Parameter {executedParameter.ParameterName} has a different value, expected {parameter.Value} was {executedParameter.Value}");
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        private bool ValuesMatch(MockDbParameter param1, MockDbParameter param2)
-        {
-            return param1.Value.Equals(param2.Value);
-        }
-
-        public override string ToString()
-        {
-            return string.Join(", ", _parameters.Select(p => $"{p.ParameterName} = {p.Value}"));
-        }
-
-        public override int GetHashCode()
-        {
-            return 1;
-        }
-
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as MockDbParameterCollection ?? new MockDbParameterCollection(obj));
-        }
-
-        IEnumerator<MockDbParameter> IEnumerable<MockDbParameter>.GetEnumerator()
-        {
-            throw new NotSupportedException();
+            var comparer = _settings.SqlParametersComparer;
+            _parameters.RemoveAll(p => comparer.Equals(p.ParameterName, parameterName));
         }
 
         public override int Add(object value)
         {
-            var parameter = (MockDbParameter)value;
+            var parameter = (DbParameter)value;
             _parameters.Add(parameter);
             return _parameters.IndexOf(parameter);
         }
@@ -159,22 +81,23 @@ namespace Dapper.MoqTests
 
         protected override DbParameter GetParameter(string parameterName)
         {
-            return _parameters.SingleOrDefault(p => p.ParameterName == parameterName); //TODO: Throw here if not found?
+            var comparer = _settings.SqlParametersComparer;
+            return _parameters.SingleOrDefault(p => comparer.Equals(p.ParameterName, parameterName)); //TODO: Throw here if not found?
         }
 
         public override int IndexOf(object value)
         {
-            return _parameters.IndexOf((MockDbParameter)value);
+            return _parameters.IndexOf((DbParameter)value);
         }
 
         public override void Insert(int index, object value)
         {
-            _parameters.Insert(index, (MockDbParameter)value);
+            _parameters.Insert(index, (DbParameter)value);
         }
 
         public override void Remove(object value)
         {
-            _parameters.Remove((MockDbParameter)value);
+            _parameters.Remove((DbParameter)value);
         }
 
         public override void RemoveAt(int index)
@@ -184,18 +107,18 @@ namespace Dapper.MoqTests
 
         protected override void SetParameter(int index, DbParameter value)
         {
-            _parameters[index] = (MockDbParameter)value;
+            _parameters[index] = value;
         }
 
         protected override void SetParameter(string parameterName, DbParameter value)
         {
-            var index = _parameters.FindIndex(p => p.ParameterName == parameterName);
-            var parameter = (MockDbParameter)value;
+            var comparer = _settings.SqlParametersComparer;
+            var index = _parameters.FindIndex(p => comparer.Equals(p.ParameterName, parameterName));
 
             if (index == -1)
-                _parameters.Add(parameter);
+                _parameters.Add(value);
             else
-                _parameters[index] = parameter;
+                _parameters[index] = value;
         }
     }
 }

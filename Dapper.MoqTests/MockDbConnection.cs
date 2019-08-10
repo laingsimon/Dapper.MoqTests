@@ -12,16 +12,18 @@ namespace Dapper.MoqTests
     /// </summary>
     public class MockDbConnection : DbConnection, IDbConnection
     {
+        private readonly Settings _settings;
         private readonly Mock<MockDatabase> _database;
 
-        public MockDbConnection(MockBehavior behaviour = MockBehavior.Default)
+        public MockDbConnection(Settings settings = null, MockBehavior behaviour = MockBehavior.Default)
         {
+            _settings = settings ?? Settings.Default;
             _database = new Mock<MockDatabase>(new object[] { behaviour });
         }
 
         protected override DbCommand CreateDbCommand()
         {
-            return new MockDbCommand(_database.Object);
+            return new MockDbCommand(_database.Object, _settings);
         }
 
         protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel)
@@ -184,9 +186,9 @@ namespace Dapper.MoqTests
             _database.Verify(ModifySqlParametersArgumentInExpression(expression), times, failMessage);
         }
 
-        private static Expression<Func<MockDatabase, TReturn>> ModifySqlParametersArgumentInExpression<TReturn>(Expression<Func<MockDatabase, TReturn>> expression)
+        private Expression<Func<MockDatabase, TReturn>> ModifySqlParametersArgumentInExpression<TReturn>(Expression<Func<MockDatabase, TReturn>> expression)
         {
-            var visitor = new MatchAnonymousObjectExpressionVisitor();
+            var visitor = new MatchAnonymousObjectExpressionVisitor(_settings);
             var newExpression = (Expression<Func<MockDatabase, TReturn>>)visitor.Visit(expression);
             return newExpression;
         }

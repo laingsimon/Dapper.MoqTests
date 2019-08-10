@@ -48,10 +48,21 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DapperCacheInfo.cs" />
+    <Compile Include="DapperIdentityComparer.cs" />
     <Compile Include="DapperMethods.cs" />
     <Compile Include="ExpressionHelper.cs" />
+    <Compile Include="IIdentityComparer.cs" />
+    <Compile Include="IParametersComparer.cs" />
+    <Compile Include="IParametersObjectBuilder.cs" />
     <Compile Include="MatchAnonymousObjectExpressionVisitor.cs" />
     <Compile Include="MockDatabase.cs" />
+    <Compile Include="MockDatabase.Dapper.Query.cs" />
+    <Compile Include="MockDatabase.Dapper.QueryFirst.cs" />
+    <Compile Include="MockDatabase.Dapper.QueryFirstOrDefault.cs" />
+    <Compile Include="MockDatabase.Dapper.QueryMultiple.cs" />
+    <Compile Include="MockDatabase.Dapper.QuerySingle.cs" />
+    <Compile Include="MockDatabase.Dapper.QuerySingleOrDefault.cs" />
+    <Compile Include="MockDatabase.Dapper.Execute.cs" />
     <Compile Include="MockDbCommand.cs" />
     <Compile Include="MockDbConnection.cs" />
     <Compile Include="MockDbDataReader.cs" />
@@ -60,15 +71,17 @@
     <Compile Include="MockDbTransaction.cs" />
     <Compile Include="ObjectExtensions.cs" />
     <Compile Include="ParameterLookupExtensions.cs" />
+    <Compile Include="ParametersComparer.cs" />
     <Compile Include="ParametersObjectBuilder.cs" />
     <Compile Include="ParameterType.cs" />
     <Compile Include="ParameterTypeAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs" />
-    <Compile Include="SqlText.cs" />
+    <Compile Include="SqlTextComparer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Dapper.MoqTests.nuspec" />
+    <Compile Include="MockDatabase.Dapper.QueryAsync.cs" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

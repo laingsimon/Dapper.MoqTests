@@ -13,13 +13,16 @@ namespace Dapper.MoqTests
     internal class MockDbCommand : DbCommand
     {
         private readonly MockDatabase _database;
-        private readonly MockDbParameterCollection _parameters = new MockDbParameterCollection();
+        private readonly Settings _settings;
         private readonly Lazy<SqlMapper.Identity> _identity;
 
-        public MockDbCommand(MockDatabase database)
+        public MockDbCommand(MockDatabase database, Settings settings)
         {
             _database = database;
-            _identity = new Lazy<SqlMapper.Identity>(() => DapperCacheInfo.GetIdentity(this));
+            _settings = settings;
+            _identity = new Lazy<SqlMapper.Identity>(() => DapperCacheInfo.GetIdentity(this, settings.IdentityComparer));
+
+            DbParameterCollection = new MockDbParameterCollection(settings);
         }
 
         public override string CommandText { get; set; }
@@ -28,8 +31,7 @@ namespace Dapper.MoqTests
         public override bool DesignTimeVisible { get; set; }
         public override UpdateRowSource UpdatedRowSource { get; set; }
         protected override DbConnection DbConnection { get; set; }
-
-        protected override DbParameterCollection DbParameterCollection => _parameters;
+        protected override DbParameterCollection DbParameterCollection { get; }
 
         protected override DbTransaction DbTransaction { get; set; }
 
@@ -60,14 +62,20 @@ namespace Dapper.MoqTests
 
         public IReadOnlyDictionary<ParameterType, object> GetParameterLookup()
         {
+            var parameters = DbParameterCollection.Cast<DbParameter>().ToArray();
+
             return new Dictionary<ParameterType, object>
             {
-                { ParameterType.SqlText, CommandText },
-                { ParameterType.SqlParameters, ParametersObjectBuilder.FromParameters(_parameters) },
-                { ParameterType.SqlTransaction, DbTransaction },
-                { ParameterType.CommandType, CommandType == 0 ? default(CommandType?) : CommandType },
+                { ParameterType.Buffered, true }, //TODO: Work out this value
                 { ParameterType.CommandTimeout, CommandTimeout == 0 ? default(int?) : CommandTimeout },
-                { ParameterType.Buffered, true } //TODO: Work out this value
+                { ParameterType.CommandType, CommandType == 0 ? default(CommandType?) : CommandType },
+                { ParameterType.Map, null }, //TODO: Probably cannot access this value
+                { ParameterType.SplitOn, null }, //TODO: Probably cannot access this value
+                { ParameterType.SqlParameters, _settings.SqlParametersBuilder.FromParameters(parameters) },
+                { ParameterType.SqlText, CommandText },
+                { ParameterType.SqlTransaction, DbTransaction },
+                { ParameterType.Type, _identity.Value.type },
+                { ParameterType.Types, null } //TODO: Probably cannot access this value
             };
         }
 
@@ -103,7 +111,7 @@ namespace Dapper.MoqTests
 
         protected override void Dispose(bool disposing)
         {
-            if (Settings.ResetDapperCachePerCommand)
+            if (_settings.ResetDapperCachePerCommand)
                 DapperCacheInfo.PurgeQueriedIdentities();
 
             base.Dispose(disposing);

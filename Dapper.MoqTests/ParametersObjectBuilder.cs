@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using PropertyAttributes = System.Reflection.PropertyAttributes;
@@ -10,22 +12,26 @@ namespace Dapper.MoqTests
     /// <summary>
     /// An anonymous object builder from a MockDbParameterCollection
     /// </summary>
-    internal static class ParametersObjectBuilder
+    internal class ParametersObjectBuilder : ISqlParametersBuilder
     {
         private static readonly Lazy<ModuleBuilder> ModuleBuilder = new Lazy<ModuleBuilder>(GetModuleBuilder);
 
-        public static object FromParameters(DbParameterCollection parameters)
+        public object FromParameters(IReadOnlyCollection<DbParameter> parameters)
         {
             var builder = GetTypeBuilder();
 
+            var count = 0;
             foreach (DbParameter parameter in parameters)
+            {
+                count++;
                 AddProperty(builder, parameter);
+            }
 
             AddToStringOverride(
                 builder, 
-                parameters.Count == 0 
+                count == 0 
                     ? " "
-                    : $" {parameters} ");
+                    : $" {string.Join(", ", parameters.Select(ParameterToString))} ");
 
             var type = builder.CreateType();
             var instance = Activator.CreateInstance(type);
@@ -39,6 +45,11 @@ namespace Dapper.MoqTests
             }
 
             return instance;
+        }
+
+        private static string ParameterToString(DbParameter parameter)
+        {
+            return $"{parameter.ParameterName} = {parameter.Value}";
         }
 
         private static void AddToStringOverride(TypeBuilder builder, string stringRepresentation)
