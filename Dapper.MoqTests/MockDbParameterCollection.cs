@@ -13,16 +13,20 @@ namespace Dapper.MoqTests
         public static readonly object Any = new object();
 
         private readonly List<MockDbParameter> _parameters = new List<MockDbParameter>();
+        private readonly Settings _settings;
 
-        public MockDbParameterCollection()
-        { }
+        public MockDbParameterCollection(Settings settings)
+        {
+            _settings = settings;
+        }
 
         public override int Count => _parameters.Count;
         public override object SyncRoot => _parameters;
 
         public override bool Contains(string parameterName)
         {
-            return _parameters.Any(p => p.ParameterName.Equals(parameterName, StringComparison.OrdinalIgnoreCase));
+            var comparer = _settings.SqlParameterNameComparer;
+            return _parameters.Any(p => comparer.Equals(p.ParameterName, parameterName));
         }
 
         public override int IndexOf(string parameterName)
@@ -35,7 +39,8 @@ namespace Dapper.MoqTests
 
         public override void RemoveAt(string parameterName)
         {
-            _parameters.RemoveAll(p => p.ParameterName.Equals(parameterName, StringComparison.OrdinalIgnoreCase));
+            var comparer = _settings.SqlParameterNameComparer;
+            _parameters.RemoveAll(p => comparer.Equals(p.ParameterName, parameterName));
         }
 
         public override int Add(object value)
@@ -78,7 +83,8 @@ namespace Dapper.MoqTests
 
         protected override DbParameter GetParameter(string parameterName)
         {
-            return _parameters.SingleOrDefault(p => p.ParameterName == parameterName); //TODO: Throw here if not found?
+            var comparer = _settings.SqlParameterNameComparer;
+            return _parameters.SingleOrDefault(p => comparer.Equals(p.ParameterName, parameterName)); //TODO: Throw here if not found?
         }
 
         public override int IndexOf(object value)
@@ -108,7 +114,8 @@ namespace Dapper.MoqTests
 
         protected override void SetParameter(string parameterName, DbParameter value)
         {
-            var index = _parameters.FindIndex(p => p.ParameterName == parameterName);
+            var comparer = _settings.SqlParameterNameComparer;
+            var index = _parameters.FindIndex(p => comparer.Equals(p.ParameterName, parameterName));
             var parameter = (MockDbParameter)value;
 
             if (index == -1)

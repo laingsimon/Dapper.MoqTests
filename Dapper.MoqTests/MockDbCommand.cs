@@ -22,7 +22,7 @@ namespace Dapper.MoqTests
             _settings = settings;
             _identity = new Lazy<SqlMapper.Identity>(() => DapperCacheInfo.GetIdentity(this, settings.IdentityComparer));
 
-            DbParameterCollection = new MockDbParameterCollection();
+            DbParameterCollection = new MockDbParameterCollection(settings);
         }
 
         public override string CommandText { get; set; }
