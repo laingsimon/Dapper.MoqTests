@@ -14,6 +14,7 @@ namespace Dapper.MoqTests
 
         public ISqlParametersBuilder SqlParametersBuilder { get; set; } = new ParametersObjectBuilder();
         public IEqualityComparer<string> SqlTextComparer { get; set; } = new SqlTextComparer();
+        public IIdentityComparer IdentityComparer = new DapperIdentityComparer();
 
         public static Settings Default = new Settings();
     }

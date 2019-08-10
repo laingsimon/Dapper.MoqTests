@@ -20,18 +20,17 @@ namespace Dapper.MoqTests
             QueryCache.Clear();
         }
 
-        internal static SqlMapper.Identity GetIdentity(MockDbCommand mockDbCommand)
+        internal static SqlMapper.Identity GetIdentity(MockDbCommand mockDbCommand, IIdentityComparer identityComparer)
         {
-            var identities = (from identity in QueryCache.Keys.Cast<SqlMapper.Identity>()
-                where identity.sql == mockDbCommand.CommandText
-                      && ParametersMatch(identity, mockDbCommand)
-                      && CommandTypeMatches(identity, mockDbCommand)
-                select identity).ToArray();
+            var identities = QueryCache.Keys
+                .Cast<SqlMapper.Identity>()
+                .Where(id => identityComparer.Matches(mockDbCommand, id))
+                .ToArray();
 
             if (identities.Length <= 1)
             {
-                return identities.SingleOrDefault() 
-                    ?? SingleIdentityIfTextMatches(mockDbCommand) 
+                return identities.SingleOrDefault()
+                    ?? SingleIdentityIfTextMatches(mockDbCommand, identityComparer) 
                     ?? throw GetIdentityNotFoundException(mockDbCommand);
             }
 
@@ -42,16 +41,16 @@ namespace Dapper.MoqTests
             throw GetIdentityAmbiguousException(mockDbCommand, ambiguous);
         }
 
-        private static SqlMapper.Identity SingleIdentityIfTextMatches(MockDbCommand mockDbCommand)
+        private static SqlMapper.Identity SingleIdentityIfTextMatches(MockDbCommand mockDbCommand, IIdentityComparer identityComparer)
         {
             if (QueryCache.Keys.Count != 1)
             {
                 return null;
             }
 
-            return (from identity in QueryCache.Keys.Cast<SqlMapper.Identity>()
-                    where identity.sql == mockDbCommand.CommandText
-                    select identity).SingleOrDefault();
+            return QueryCache.Keys.Cast<SqlMapper.Identity>()
+                .Where(id => identityComparer.TextMatches(mockDbCommand, id))
+                .SingleOrDefault();
         }
 
         private static InvalidOperationException GetIdentityNotFoundException(MockDbCommand mockDbCommand)
@@ -90,21 +89,6 @@ To be able to Verify the Dapper call accurately the Command and Parameters (and 
 Possible options: {string.Join(", ", ambiguous)}
 
 If this issue cannot be resolved, consider setting `Dapper.MoqTests.Settings.ResetDapperCachePerCommand` to `true`, note this is not a thread-safe approach");
-        }
-
-        private static bool ParametersMatch(SqlMapper.Identity identity, MockDbCommand mockDbCommand)
-        {
-            var properties = identity.parametersType?.GetProperties() ?? new PropertyInfo[0];
-            return properties.All(p => mockDbCommand.Parameters.Contains(p.Name))
-                && properties.Length == mockDbCommand.Parameters.Count;
-        }
-
-        private static bool CommandTypeMatches(SqlMapper.Identity identity, MockDbCommand mockDbCommand)
-        {
-            if (identity.commandType == 0 || identity.commandType == null)
-                return true;
-
-            return mockDbCommand.CommandType == identity.commandType.Value;
         }
     }
 }

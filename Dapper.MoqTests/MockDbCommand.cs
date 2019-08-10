@@ -20,7 +20,7 @@ namespace Dapper.MoqTests
         {
             _database = database;
             _settings = settings;
-            _identity = new Lazy<SqlMapper.Identity>(() => DapperCacheInfo.GetIdentity(this));
+            _identity = new Lazy<SqlMapper.Identity>(() => DapperCacheInfo.GetIdentity(this, settings.IdentityComparer));
 
             DbParameterCollection = new MockDbParameterCollection();
         }

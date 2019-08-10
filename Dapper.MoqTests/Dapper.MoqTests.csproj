@@ -48,8 +48,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DapperCacheInfo.cs" />
+    <Compile Include="DapperIdentityComparer.cs" />
     <Compile Include="DapperMethods.cs" />
     <Compile Include="ExpressionHelper.cs" />
+    <Compile Include="IIdentityComparer.cs" />
     <Compile Include="IParametersObjectBuilder.cs" />
     <Compile Include="MatchAnonymousObjectExpressionVisitor.cs" />
     <Compile Include="MockDatabase.cs" />
