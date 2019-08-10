@@ -3,14 +3,31 @@ using System.Linq;
 
 namespace Dapper.MoqTests
 {
-    internal class ParametersComparer : IEqualityComparer<object>
+    internal class ParametersComparer : IParametersComparer
     {
+        private readonly IEqualityComparer<string> _nameComparer;
+
+        public ParametersComparer(IEqualityComparer<string> nameComparer)
+        {
+            _nameComparer = nameComparer;
+        }
+
         public new bool Equals(object x, object y)
         {
             var xDict = GetDict(x);
             var yDict = GetDict(y);
 
             return Equals(xDict, yDict);
+        }
+
+        public bool Equals(string x, string y)
+        {
+            return _nameComparer.Equals(x, y);
+        }
+
+        public int GetHashCode(string obj)
+        {
+            return _nameComparer.GetHashCode(obj);
         }
 
         private bool Equals(IDictionary<string, object> xDict, IDictionary<string, object> yDict)

@@ -25,7 +25,7 @@ namespace Dapper.MoqTests
 
         public override bool Contains(string parameterName)
         {
-            var comparer = _settings.SqlParameterNameComparer;
+            var comparer = _settings.SqlParametersComparer;
             return _parameters.Any(p => comparer.Equals(p.ParameterName, parameterName));
         }
 
@@ -39,7 +39,7 @@ namespace Dapper.MoqTests
 
         public override void RemoveAt(string parameterName)
         {
-            var comparer = _settings.SqlParameterNameComparer;
+            var comparer = _settings.SqlParametersComparer;
             _parameters.RemoveAll(p => comparer.Equals(p.ParameterName, parameterName));
         }
 
@@ -83,7 +83,7 @@ namespace Dapper.MoqTests
 
         protected override DbParameter GetParameter(string parameterName)
         {
-            var comparer = _settings.SqlParameterNameComparer;
+            var comparer = _settings.SqlParametersComparer;
             return _parameters.SingleOrDefault(p => comparer.Equals(p.ParameterName, parameterName)); //TODO: Throw here if not found?
         }
 
@@ -114,7 +114,7 @@ namespace Dapper.MoqTests
 
         protected override void SetParameter(string parameterName, DbParameter value)
         {
-            var comparer = _settings.SqlParameterNameComparer;
+            var comparer = _settings.SqlParametersComparer;
             var index = _parameters.FindIndex(p => comparer.Equals(p.ParameterName, parameterName));
             var parameter = (MockDbParameter)value;
 

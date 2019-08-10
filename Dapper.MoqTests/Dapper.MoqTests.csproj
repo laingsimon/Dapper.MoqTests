@@ -52,6 +52,7 @@
     <Compile Include="DapperMethods.cs" />
     <Compile Include="ExpressionHelper.cs" />
     <Compile Include="IIdentityComparer.cs" />
+    <Compile Include="IParametersComparer.cs" />
     <Compile Include="IParametersObjectBuilder.cs" />
     <Compile Include="MatchAnonymousObjectExpressionVisitor.cs" />
     <Compile Include="MockDatabase.cs" />
