@@ -82,6 +82,7 @@
   <ItemGroup>
     <None Include="Dapper.MoqTests.nuspec" />
     <Compile Include="MockDatabase.Dapper.QueryAsync.cs" />
+    <Compile Include="MockDatabase.Dapper.ExecuteScalar.cs" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

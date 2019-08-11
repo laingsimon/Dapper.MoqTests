@@ -33,6 +33,17 @@ namespace Dapper.MoqTests
                 : (int)method.Invoke(this, parametersArray);
         }
 
+        internal object ExecuteScalar(MockDbCommand command, bool isAsync, MethodBase dapperMethod, Type dataType)
+        {
+            var method = DapperMethods.GetScalar(dapperMethod, dataType);
+            var parametersLookup = command.GetParameterLookup();
+            var parametersArray = method.GetValues(parametersLookup);
+
+            return isAsync
+                ? ((Task<object>)method.Invoke(this, parametersArray)).Result
+                : method.Invoke(this, parametersArray);
+        }
+
         internal IDataReader ExecuteReader(MockDbCommand command, MethodBase dapperMethod, Type dataType)
         {
             var method = DapperMethods.GetQueryMethod(dapperMethod, dataType);

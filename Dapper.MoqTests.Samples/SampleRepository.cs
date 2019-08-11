@@ -108,5 +108,25 @@ where Registration = @registration", new { registration }, transaction: transact
                     commandTimeout: 100);
             }
         }
+
+        public async Task<int> GetModelsCountAsync(string make)
+        {
+            using (var connection = _connectionFactory.OpenConnection())
+            {
+                return await connection.ExecuteScalarAsync<int>(
+                    @"select count(distinct Model) from [Cars] where Make = @make",
+                    new { make });
+            }
+        }
+
+        public int GetModelsCount(string make)
+        {
+            using (var connection = _connectionFactory.OpenConnection())
+            {
+                return connection.ExecuteScalar<int>(
+                    @"select count(distinct Model) from [Cars] where Make = @make",
+                    new { make });
+            }
+        }
     }
 }

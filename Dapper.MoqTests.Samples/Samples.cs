@@ -322,7 +322,39 @@ where Registration = @registration", It.IsAny<object>(), It.IsAny<IDbTransaction
 
             await repository.GetModelsSinceAsync("Vauxhall", 2018);
 
-            connection.Verify(c => c.QueryAsync<Car>(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbTransaction>(), 100, It.IsAny<CommandType>()));
+            connection.Verify(c => c.QueryAsync<Car>(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbTransaction>(), 100, It.IsAny<CommandType?>()));
+        }
+
+        [Test]
+        public async Task ExecuteScalarAsync()
+        {
+            var connectionFactory = new Mock<IDbConnectionFactory>();
+            var connection = new MockDbConnection();
+            var repository = new SampleRepository(connectionFactory.Object);
+
+            connectionFactory
+                .Setup(f => f.OpenConnection())
+                .Returns(connection);
+
+            await repository.GetModelsCountAsync("Vauxhall");
+
+            connection.Verify(c => c.ExecuteScalarAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), It.IsAny<CommandType?>()));
+        }
+
+        [Test]
+        public void ExecuteScalar()
+        {
+            var connectionFactory = new Mock<IDbConnectionFactory>();
+            var connection = new MockDbConnection();
+            var repository = new SampleRepository(connectionFactory.Object);
+
+            connectionFactory
+                .Setup(f => f.OpenConnection())
+                .Returns(connection);
+
+            repository.GetModelsCount("Vauxhall");
+
+            connection.Verify(c => c.ExecuteScalar(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), It.IsAny<CommandType?>()));
         }
     }
 }
