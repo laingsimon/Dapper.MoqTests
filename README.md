@@ -28,7 +28,7 @@ public void Test()
 	
 	connection.Verify(c => c.Query<int>(@"select count(*)
 	from Table
-	where Name = @name", new { name = "anything" }));
+	where Name = @name", new { name = "anything" }, It.IsAny<IDbTransaction>(), true, null, null));
 }
 ```
 ### It doesn't have to return anything:
@@ -44,7 +44,7 @@ public void Test()
 	
 	connection.Verify(c => c.Execute(@"delete 
 	from Table 
-	where Name = @name", new { name = "to-be-deleted" }));
+	where Name = @name", new { name = "to-be-deleted" }, It.IsAny<IDbTransaction>(), true, null, null));
 }
 ```
 ### You can also setup return values, like this:
@@ -71,16 +71,18 @@ public void Test()
 	connection
 		.Setup(c => c.Query<string>(@"select name 
 		from Table
-		where Enabled = 1"))
+		where Enabled = 1", It.IsAny<object>(), It.IsAny<IDbTransaction>(), true, null, null))
 		.Return(new DataTableReader(data))
 	
 	repository.ReadNames();
 	
 	connection.Verify(c => c.Query<string>(@"select name
 	from Table
-	where Enabled = 1", It.IsAny<object>()));
+	where Enabled = 1", It.IsAny<object>(), It.IsAny<IDbTransaction>(), true, null, null));
 }
 ```
+
+See more examples here: [Samples.cs](https://github.com/laingsimon/Dapper.MoqTests/blob/master/Dapper.MoqTests.Samples/Samples.cs)
 
 ## Features
 * [x] MockDbConnection implements `IDbConnection`
