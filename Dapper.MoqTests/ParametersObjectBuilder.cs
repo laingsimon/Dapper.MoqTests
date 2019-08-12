@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -18,25 +19,22 @@ namespace Dapper.MoqTests
 
         public object FromParameters(IReadOnlyCollection<DbParameter> parameters)
         {
+            if (parameters.Count == 0)
+                return null;
+
             var builder = GetTypeBuilder();
 
-            var count = 0;
-            foreach (DbParameter parameter in parameters)
-            {
-                count++;
+            foreach (var parameter in parameters)
                 AddProperty(builder, parameter);
-            }
 
             AddToStringOverride(
                 builder, 
-                count == 0 
-                    ? " "
-                    : $" {string.Join(", ", parameters.Select(ParameterToString))} ");
+                string.Join(", ", parameters.Select(ParameterToString)));
 
             var type = builder.CreateType();
             var instance = Activator.CreateInstance(type);
 
-            foreach (DbParameter parameter in parameters)
+            foreach (var parameter in parameters)
             {
                 var propertyInfo = type.GetProperty(parameter.ParameterName);
                 if (propertyInfo == null)
@@ -62,12 +60,26 @@ namespace Dapper.MoqTests
             methodBuilder.SetReturnType(typeof(string));
 
             var il = methodBuilder.GetILGenerator();
-            il.Emit(OpCodes.Ldstr, $"{{{stringRepresentation}}}");
+            il.Emit(OpCodes.Ldstr, "{ " + stringRepresentation + " }");
             il.Emit(OpCodes.Ret);
 
             var toStringMethod = typeof(object).GetMethod(nameof(ToString));
             if (toStringMethod != null)
                 builder.DefineMethodOverride(methodBuilder, toStringMethod);
+
+            AddDebuggerDisplayAttribute(builder, stringRepresentation);
+        }
+
+        private static void AddDebuggerDisplayAttribute(TypeBuilder builder, string stringRepresentation)
+        {
+            var attributeType = typeof(DebuggerDisplayAttribute);
+            var constructor = attributeType.GetConstructors().SingleOrDefault();
+
+            if (constructor == null)
+                return;
+
+            var attributeBuilder = new CustomAttributeBuilder(constructor, new object[] { stringRepresentation });
+            builder.SetCustomAttribute(attributeBuilder);
         }
 
         private static void AddProperty(TypeBuilder builder, IDataParameter parameter)
