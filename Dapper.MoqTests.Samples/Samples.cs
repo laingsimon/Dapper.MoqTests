@@ -356,5 +356,21 @@ where Registration = @registration", It.IsAny<object>(), It.IsAny<IDbTransaction
 
             connection.Verify(c => c.ExecuteScalar(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), It.IsAny<CommandType?>()));
         }
+
+        [Test, Explicit]
+        public void ExecuteScalarTyped()
+        {
+            var connectionFactory = new Mock<IDbConnectionFactory>();
+            var connection = new MockDbConnection();
+            var repository = new SampleRepository(connectionFactory.Object);
+
+            connectionFactory
+                .Setup(f => f.OpenConnection())
+                .Returns(connection);
+
+            repository.GetModelsCount("Vauxhall");
+
+            connection.Verify(c => c.ExecuteScalar<int>(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), It.IsAny<CommandType?>()));
+        }
     }
 }

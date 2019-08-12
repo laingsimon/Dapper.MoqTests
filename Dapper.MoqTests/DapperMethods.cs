@@ -50,6 +50,14 @@ namespace Dapper.MoqTests
             var method = Methods.ContainsKey(dapperMethod.Name)
                 ? Methods[dapperMethod.Name]
                 : throw new ArgumentOutOfRangeException(nameof(dapperMethod), $"Unable to find method with name `{dapperMethod.Name}`");
+
+#if DEBUG
+            if (dapperMethod.GetGenericArguments().Any() && dataType == null)
+            {
+                throw new InvalidOperationException($"Dapper method is generic, but no dataType has been identified: {dapperMethod}");
+            }
+#endif
+
             if (dataType == null)
                 return method;
 

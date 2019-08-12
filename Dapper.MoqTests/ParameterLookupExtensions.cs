@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
@@ -18,7 +19,10 @@ namespace Dapper.MoqTests
             var paramType = parameter.GetCustomAttributeFromSelfOrInterface<ParameterTypeAttribute>();
 
             if (paramType == null || !parametersLookup.ContainsKey(paramType.Type))
+            {
+                Debug.WriteLine($"Unable to find value for parameter {parameter.Name} ({parameter.ParameterType})");
                 return defaultValue;
+            }
 
             return parametersLookup[paramType.Type];
         }
