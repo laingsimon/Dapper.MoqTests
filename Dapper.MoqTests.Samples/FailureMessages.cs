@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System.Collections.Generic;
+using System.Data;
 using Moq;
 using NUnit.Framework;
 using System.Threading.Tasks;
@@ -8,6 +9,8 @@ namespace Dapper.MoqTests.Samples
     [TestFixture]
     public class FailureMessages
     {
+        private readonly IEqualityComparer<string> _comparer = new EolAgnosticStringEqualityComparer();
+
         [Test]
         public void IncorrectSqlText()
         {
@@ -32,7 +35,7 @@ No setups configured.
 Performed invocations:
 MockDatabase.Query<Car>(""select * 
 from [Cars] 
-order by Make, Model"", null, null, True, null, null)"));
+order by Make, Model"", null, null, True, null, null)").Using(_comparer));
             }
         }
 
@@ -64,7 +67,7 @@ No setups configured.
 Performed invocations:
 MockDatabase.QuerySingleAsync<Car>(""select * 
 from [Cars] 
-where Registration = @registration"", { registration = reg }, null, null, null)"));
+where Registration = @registration"", { registration = reg }, null, null, null)").Using(_comparer));
             }
         }
 
@@ -96,7 +99,7 @@ No setups configured.
 Performed invocations:
 MockDatabase.QuerySingleAsync<Car>(""select * 
 from [Cars] 
-where Registration = @registration"", { registration = reg }, null, null, null)"));
+where Registration = @registration"", { registration = reg }, null, null, null)").Using(_comparer));
             }
         }
 
@@ -128,7 +131,7 @@ No setups configured.
 Performed invocations:
 MockDatabase.QuerySingleAsync<Car>(""select * 
 from [Cars] 
-where Registration = @registration"", { registration = reg }, null, null, null)"));
+where Registration = @registration"", { registration = reg }, null, null, null)").Using(_comparer));
             }
         }
 
@@ -160,7 +163,7 @@ No setups configured.
 Performed invocations:
 MockDatabase.QuerySingleAsync<Car>(""select * 
 from [Cars] 
-where Registration = @registration"", { registration = reg }, null)"));
+where Registration = @registration"", { registration = reg }, null)").Using(_comparer));
             }
         }
 
@@ -189,7 +192,7 @@ To be able to Verify the Dapper call accurately the Command and Parameters (and 
 
 Possible options: `Dapper.MoqTests.Samples.Car`, `System.Int32`
 
-If this issue cannot be resolved, consider setting `Dapper.MoqTests.Settings.ResetDapperCachePerCommand` to `true`, note this is not a thread-safe approach"));
+If this issue cannot be resolved, consider setting `Dapper.MoqTests.Settings.ResetDapperCachePerCommand` to `true`, note this is not a thread-safe approach").Using(_comparer));
 
            connection.Verify(c => c.QuerySingleAsync<Car>(@"select *
 from [Cars] 
@@ -211,7 +214,7 @@ No setups configured.
 Performed invocations:
 MockDatabase.QuerySingleAsync<Car>(""select * 
 from [Cars] 
-where Registration = @registration"", { registration = reg }, null, null, null)"));
+where Registration = @registration"", { registration = reg }, null, null, null)").Using(_comparer));
             }
         }
     }

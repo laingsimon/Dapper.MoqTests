@@ -59,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Car.cs" />
+    <Compile Include="EolAgnosticStringEqualityComparer.cs" />
     <Compile Include="FailureMessages.cs" />
     <Compile Include="IDbConnectionFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
