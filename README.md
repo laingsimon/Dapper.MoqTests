@@ -1,4 +1,4 @@
-# Dapper.MoqTests
+# Dapper.MoqTests [![Build status](https://ci.appveyor.com/api/projects/status/rgufiqwhiliw83d6/branch/master?svg=true)](https://ci.appveyor.com/project/laingsimon/dapper-moqtests/branch/master)
 Assemblies to assist testing Dapper database invocations
 
 ### Usage
