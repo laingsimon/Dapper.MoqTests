@@ -38,7 +38,31 @@ namespace Dapper.MoqTests
             { "QueryFirstOrDefault[T]", GetMethod(db => db.QueryFirstOrDefault<object>("some sql", null, null, null, null))},
             { "QueryFirstOrDefaultAsync", GetMethod(db => db.QueryFirstOrDefaultAsync(typeof(object), "some sql", null, null, null, null))},
             { "QueryFirstOrDefaultAsync[T]", GetMethod(db => db.QueryFirstOrDefaultAsync<object>("some sql", null, null, null, null))},
+
+            { "ExecuteScalar", GetMethod(db => db.ExecuteScalar("some sql", null, null, null, null))},
+            { "ExecuteScalar[T]", GetMethod(db => db.ExecuteScalar<object>("some sql", null, null, null, null))},
+            { "ExecuteScalarAsync", GetMethod(db => db.ExecuteScalarAsync("some sql", null, null, null, null))},
+            { "ExecuteScalarAsync[T]", GetMethod(db => db.ExecuteScalarAsync<object>("some sql", null, null, null, null))},
         };
+
+        internal static MethodInfo GetScalar(MethodBase dapperMethod, Type dataType)
+        {
+            var method = Methods.ContainsKey(dapperMethod.Name)
+                ? Methods[dapperMethod.Name]
+                : throw new ArgumentOutOfRangeException(nameof(dapperMethod), $"Unable to find method with name `{dapperMethod.Name}`");
+
+#if DEBUG
+            if (dapperMethod.GetGenericArguments().Any() && dataType == null)
+            {
+                throw new InvalidOperationException($"Dapper method is generic, but no dataType has been identified: {dapperMethod}");
+            }
+#endif
+
+            if (dataType == null)
+                return method;
+
+            return method.GetGenericMethodDefinition().MakeGenericMethod(dataType);
+        }
 
         private static MethodInfo GetMethod<TOut>(Expression<Func<MockDatabase, TOut>> expression)
         {
