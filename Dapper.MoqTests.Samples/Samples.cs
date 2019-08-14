@@ -357,7 +357,7 @@ where Registration = @registration", It.IsAny<object>(), It.IsAny<IDbTransaction
             connection.Verify(c => c.ExecuteScalar(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), It.IsAny<CommandType?>()));
         }
 
-        [Test, Explicit]
+        [Test]
         public void ExecuteScalarTyped()
         {
             var connectionFactory = new Mock<IDbConnectionFactory>();
