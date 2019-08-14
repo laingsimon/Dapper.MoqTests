@@ -102,6 +102,6 @@ See more examples here: [Samples.cs](https://github.com/laingsimon/Dapper.MoqTes
 
 
 ## Suggestions / improvements
-Raise an issue and I'll see what I can do
+If you have ideas for improvements or new functionality, etc. Please contribute those ideas by way of raising an issue or creating a pull request with those changes.
 
-Happy testing, let me know if you see any issues and I'll do what I can to resolve them.
+I want this library to be the easiest to use by being simple and familiar. I've chosen Moq as the primary source of design at present; by no means do I think it should be tied to this.
