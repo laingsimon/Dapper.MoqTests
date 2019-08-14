@@ -119,11 +119,11 @@ where Registration = @registration", new { registration }, transaction: transact
             }
         }
 
-        public int GetModelsCount(string make)
+        public object GetModelsCount(string make)
         {
             using (var connection = _connectionFactory.OpenConnection())
             {
-                return connection.ExecuteScalar<int>(
+                return connection.ExecuteScalar(
                     @"select count(distinct Model) from [Cars] where Make = @make",
                     new { make });
             }

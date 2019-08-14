@@ -45,23 +45,17 @@ namespace Dapper.MoqTests
             { "ExecuteScalarAsync[T]", GetMethod(db => db.ExecuteScalarAsync<object>("some sql", null, null, null, null))},
         };
 
-        internal static MethodInfo GetScalar(MethodBase dapperMethod, Type dataType)
+        internal static MethodInfo GetScalar(MethodBase dapperMethod)
         {
-            var method = Methods.ContainsKey(dapperMethod.Name)
-                ? Methods[dapperMethod.Name]
+            var methodName = dapperMethod.IsGenericMethod 
+                ? $"{dapperMethod.Name}[{string.Join(", ", dapperMethod.GetGenericArguments().Select(t => t.Name))}]"
+                : dapperMethod.Name;
+            
+            var method = Methods.ContainsKey(methodName)
+                ? Methods[methodName]
                 : throw new ArgumentOutOfRangeException(nameof(dapperMethod), $"Unable to find method with name `{dapperMethod.Name}`");
 
-#if DEBUG
-            if (dapperMethod.GetGenericArguments().Any() && dataType == null)
-            {
-                throw new InvalidOperationException($"Dapper method is generic, but no dataType has been identified: {dapperMethod}");
-            }
-#endif
-
-            if (dataType == null)
-                return method;
-
-            return method.GetGenericMethodDefinition().MakeGenericMethod(dataType);
+            return method;
         }
 
         private static MethodInfo GetMethod<TOut>(Expression<Func<MockDatabase, TOut>> expression)

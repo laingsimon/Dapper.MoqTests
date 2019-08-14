@@ -47,7 +47,7 @@ namespace Dapper.MoqTests
         public override object ExecuteScalar()
         {
             var dapperMethod = FirstDapperCallInStack();
-            return _database.ExecuteScalar(this, false, dapperMethod, _identity.Value.type);
+            return _database.ExecuteScalar(this, false, dapperMethod);
         }
 
         public override Task<int> ExecuteNonQueryAsync(CancellationToken cancellationToken)
@@ -59,7 +59,7 @@ namespace Dapper.MoqTests
         public override Task<object> ExecuteScalarAsync(CancellationToken cancellationToken)
         {
             var dapperMethod = FirstDapperCallInStack();
-            return Task.FromResult(_database.ExecuteScalar(this, true, dapperMethod, _identity.Value.type));
+            return Task.FromResult(_database.ExecuteScalar(this, true, dapperMethod));
         }
 
         public IReadOnlyDictionary<ParameterType, object> GetParameterLookup()
