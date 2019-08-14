@@ -100,7 +100,6 @@ See more examples here: [Samples.cs](https://github.com/laingsimon/Dapper.MoqTes
 * [x] Supports ExecuteScalar and ExecuteScalarAsync from version 1.9.0
 
 
-There is a gap in the version numbers due to an issue with the setup of AppVeyor as the chosen CI option, which meant the version number increased during some failing builds. There is no package with version number 1.6.0, 1.7.0 or 1.8.0 
 
 ## Suggestions / improvements
 Raise an issue and I'll see what I can do
