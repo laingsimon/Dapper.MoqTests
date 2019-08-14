@@ -21,17 +21,24 @@ namespace Dapper.MoqTests
 
         private object Invoke()
         {
-            return _isAsync
-                ? ((Task<object>)_method.Invoke(_mockDatabase, _parametersArray)).Result
-                : _method.Invoke(_mockDatabase, _parametersArray);
+            if (_isAsync)
+            {
+                return TaskHelper.GetResultOfTask(_method.Invoke(_mockDatabase, _parametersArray));
+            }
+
+            return _method.Invoke(_mockDatabase, _parametersArray);
         }
 
         private object Invoke(Type dataType)
         {
             var method = _method.GetGenericMethodDefinition().MakeGenericMethod(dataType);
-            return _isAsync
-                ? ((Task<object>)method.Invoke(_mockDatabase, _parametersArray)).Result
-                : method.Invoke(_mockDatabase, _parametersArray);
+
+            if (_isAsync)
+            {
+                return TaskHelper.GetResultOfTask(method.Invoke(_mockDatabase, _parametersArray));
+            }
+
+            return method.Invoke(_mockDatabase, _parametersArray);
         }
 
         string IConvertible.ToString(IFormatProvider provider)

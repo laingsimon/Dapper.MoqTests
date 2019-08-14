@@ -79,6 +79,7 @@
     <Compile Include="ScalarValue.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="SqlTextComparer.cs" />
+    <Compile Include="TaskHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Dapper.MoqTests.nuspec" />
