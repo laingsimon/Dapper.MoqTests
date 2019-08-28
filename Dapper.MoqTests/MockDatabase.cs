@@ -25,7 +25,7 @@ namespace Dapper.MoqTests
         internal int ExecuteNonQuery(MockDbCommand command, bool isAsync, MethodBase dapperMethod, Type dataType)
         {
             var method = DapperMethods.GetExecuteMethod(dapperMethod, dataType);
-            var parametersLookup = command.GetParameterLookup();
+            var parametersLookup = command.GetParameterLookup(isAsync);
             var parametersArray = method.GetValues(parametersLookup);
 
             return isAsync 
@@ -36,7 +36,7 @@ namespace Dapper.MoqTests
         internal object ExecuteScalar(MockDbCommand command, bool isAsync, MethodBase dapperMethod)
         {
             var method = DapperMethods.GetScalar(dapperMethod);
-            var parametersLookup = command.GetParameterLookup();
+            var parametersLookup = command.GetParameterLookup(isAsync);
             var parametersArray = method.GetValues(parametersLookup);
 
             var value = new ScalarValue(isAsync, method, parametersArray, this);
@@ -46,10 +46,10 @@ namespace Dapper.MoqTests
                 : value.ToType(typeof(object), null);
         }
 
-        internal IDataReader ExecuteReader(MockDbCommand command, MethodBase dapperMethod, Type dataType)
+        internal IDataReader ExecuteReader(MockDbCommand command, MethodBase dapperMethod, Type dataType, bool isAsync)
         {
             var method = DapperMethods.GetQueryMethod(dapperMethod, dataType);
-            var parametersLookup = command.GetParameterLookup();
+            var parametersLookup = command.GetParameterLookup(isAsync);
             var parametersArray = method.GetValues(parametersLookup);
 
             var result = method.Invoke(this, parametersArray);

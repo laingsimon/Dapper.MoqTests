@@ -18,6 +18,8 @@ namespace Dapper.MoqTests
 
         public IIdentityComparer IdentityComparer = new DapperIdentityComparer();
 
+        public Unresolved Unresolved { get; } = new Unresolved();
+
         public static Settings Default = new Settings();
     }
 }

@@ -80,6 +80,7 @@
     <Compile Include="Settings.cs" />
     <Compile Include="SqlTextComparer.cs" />
     <Compile Include="TaskHelper.cs" />
+    <Compile Include="Unresolved.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Dapper.MoqTests.nuspec" />

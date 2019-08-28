@@ -62,13 +62,13 @@ namespace Dapper.MoqTests
             return Task.FromResult(_database.ExecuteScalar(this, true, dapperMethod));
         }
 
-        public IReadOnlyDictionary<ParameterType, object> GetParameterLookup()
+        public IReadOnlyDictionary<ParameterType, object> GetParameterLookup(bool async)
         {
             var parameters = DbParameterCollection.Cast<DbParameter>().ToArray();
 
             return new Dictionary<ParameterType, object>
             {
-                { ParameterType.Buffered, true }, //TODO: Work out this value
+                { ParameterType.Buffered, GetBufferedParameter(async) },
                 { ParameterType.CommandTimeout, CommandTimeout == 0 ? default(int?) : CommandTimeout },
                 { ParameterType.CommandType, CommandType == 0 ? default(CommandType?) : CommandType },
                 { ParameterType.Map, null }, //TODO: Probably cannot access this value
@@ -79,6 +79,14 @@ namespace Dapper.MoqTests
                 { ParameterType.Type, _identity.Value.type },
                 { ParameterType.Types, null } //TODO: Probably cannot access this value
             };
+        }
+
+        private bool GetBufferedParameter(bool isAsync)
+        {
+            if (isAsync)
+                return true;
+
+            return _settings.Unresolved.Buffered;
         }
 
         public override void Prepare()
@@ -92,13 +100,13 @@ namespace Dapper.MoqTests
         protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
         {
             var dapperMethod = FirstDapperCallInStack();
-            return new MockDbDataReader(_database.ExecuteReader(this, dapperMethod, _identity.Value.type));
+            return new MockDbDataReader(_database.ExecuteReader(this, dapperMethod, _identity.Value.type, false));
         }
 
         protected override Task<DbDataReader> ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
         {
             var dapperMethod = FirstDapperCallInStack();
-            return Task.FromResult<DbDataReader>(new MockDbDataReader(_database.ExecuteReader(this, dapperMethod, _identity.Value.type)));
+            return Task.FromResult<DbDataReader>(new MockDbDataReader(_database.ExecuteReader(this, dapperMethod, _identity.Value.type, true)));
         }
 
         private MethodBase FirstDapperCallInStack()
