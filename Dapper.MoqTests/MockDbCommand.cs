@@ -72,7 +72,7 @@ namespace Dapper.MoqTests
                 { ParameterType.CommandTimeout, CommandTimeout == 0 ? default(int?) : CommandTimeout },
                 { ParameterType.CommandType, CommandType == 0 ? default(CommandType?) : CommandType },
                 { ParameterType.Map, null }, //TODO: Probably cannot access this value
-                { ParameterType.SplitOn, null }, //TODO: Probably cannot access this value
+                { ParameterType.SplitOn, "Id" },
                 { ParameterType.SqlParameters, _settings.SqlParametersBuilder.FromParameters(parameters) },
                 { ParameterType.SqlText, CommandText },
                 { ParameterType.SqlTransaction, DbTransaction },
