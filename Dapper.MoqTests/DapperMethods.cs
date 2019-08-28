@@ -15,6 +15,8 @@ namespace Dapper.MoqTests
             { "QueryAsync", GetMethod<object>(db => db.QueryAsync(typeof(object), "some sql", null, null, null, null))},
             { "QueryAsync[T]", GetMethod<object>(db => db.QueryAsync<object>("some sql", null, null, null, null))},
 
+            { "Query[TFirst, TSecond, TReturn]", GetMethod<object>(db => db.Query<object, object, object>("some sql", null, null, null, true, "Id", null, null)) },
+
             { "ExecuteImpl", GetMethod<object>(db => db.Execute("some sql", null, null, null, null)) },
             { "Execute", GetMethod<object>(db => db.Execute("some sql", null, null, null, null)) },
             { "ExecuteAsync", GetMethod<object>(db => db.ExecuteAsync("some sql", null, null, null, null))},
@@ -81,17 +83,21 @@ namespace Dapper.MoqTests
             return method.GetGenericMethodDefinition().MakeGenericMethod(dataType);
         }
 
-        public static MethodInfo GetQueryMethod(MethodBase dapperMethod, Type dataType)
+        public static MethodInfo GetQueryMethod(MethodBase dapperMethod, params Type[] dataTypes)
         {
             var key = dapperMethod.IsGenericMethod
                 ? $"{dapperMethod.Name}[{string.Join(", ", dapperMethod.GetGenericArguments().Select(t => t.Name))}]"
                 : dapperMethod.Name;
 
             var method = Methods[key];
-            if (dataType == null)
+            if (dataTypes.Length == 0)
                 return method;
 
-            return method.GetGenericMethodDefinition().MakeGenericMethod(dataType);
+            var genericMethodDefinition = method.GetGenericMethodDefinition();
+            if (genericMethodDefinition.GetGenericArguments().Length != dataTypes.Length)
+                throw new InvalidOperationException($"Generic method requires {genericMethodDefinition.GetGenericArguments().Length} types, only {dataTypes.Length} were provided");
+
+            return genericMethodDefinition.MakeGenericMethod(dataTypes);
         }
 
         internal static bool IsSingleResultMethod(MethodInfo method)

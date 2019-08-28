@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Dapper.MoqTests.Samples
@@ -126,6 +127,17 @@ where Registration = @registration", new { registration }, transaction: transact
                 return connection.ExecuteScalar(
                     @"select count(distinct Model) from [Cars] where Make = @make",
                     new { make });
+            }
+        }
+
+        public IEnumerable<object> GetCarsAndMakes()
+        {
+            using (var connection = _connectionFactory.OpenConnection())
+            {
+                return connection.Query<int, int, object>(
+                    @"select count(*) from [Cars]
+                      select count(distinct Make) from [Cars]",
+                    (cars, makes) => new { cars, makes }).ToList();
             }
         }
     }

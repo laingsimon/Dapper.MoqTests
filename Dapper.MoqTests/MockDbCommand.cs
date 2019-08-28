@@ -77,8 +77,19 @@ namespace Dapper.MoqTests
                 { ParameterType.SqlText, CommandText },
                 { ParameterType.SqlTransaction, DbTransaction },
                 { ParameterType.Type, _identity.Value.type },
-                { ParameterType.Types, null } //TODO: Probably cannot access this value
+                { ParameterType.Types, GetDataTypes() }
             };
+        }
+
+        private Type[] GetDataTypes()
+        {
+            var identityInstance = _identity.Value;
+            var genericTypes = identityInstance.GetType().GetGenericArguments();
+
+            if (genericTypes.Any())
+                return genericTypes;
+
+            return null;
         }
 
         private bool GetBufferedParameter(bool isAsync)
@@ -100,13 +111,13 @@ namespace Dapper.MoqTests
         protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
         {
             var dapperMethod = FirstDapperCallInStack();
-            return new MockDbDataReader(_database.ExecuteReader(this, dapperMethod, _identity.Value.type, false));
+            return new MockDbDataReader(_database.ExecuteReader(this, false, dapperMethod, GetDataTypes() ?? new[] { _identity.Value.type }));
         }
 
         protected override Task<DbDataReader> ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
         {
             var dapperMethod = FirstDapperCallInStack();
-            return Task.FromResult<DbDataReader>(new MockDbDataReader(_database.ExecuteReader(this, dapperMethod, _identity.Value.type, true)));
+            return Task.FromResult<DbDataReader>(new MockDbDataReader(_database.ExecuteReader(this, true, dapperMethod, GetDataTypes() ?? new[] { _identity.Value.type })));
         }
 
         private MethodBase FirstDapperCallInStack()

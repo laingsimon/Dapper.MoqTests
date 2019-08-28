@@ -46,9 +46,9 @@ namespace Dapper.MoqTests
                 : value.ToType(typeof(object), null);
         }
 
-        internal IDataReader ExecuteReader(MockDbCommand command, MethodBase dapperMethod, Type dataType, bool isAsync)
+        internal IDataReader ExecuteReader(MockDbCommand command, bool isAsync, MethodBase dapperMethod, params Type[] dataTypes)
         {
-            var method = DapperMethods.GetQueryMethod(dapperMethod, dataType);
+            var method = DapperMethods.GetQueryMethod(dapperMethod, dataTypes);
             var parametersLookup = command.GetParameterLookup(isAsync);
             var parametersArray = method.GetValues(parametersLookup);
 
