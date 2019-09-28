@@ -71,14 +71,24 @@ namespace Dapper.MoqTests
                 { ParameterType.Buffered, GetBufferedParameter(async) },
                 { ParameterType.CommandTimeout, CommandTimeout == 0 ? default(int?) : CommandTimeout },
                 { ParameterType.CommandType, CommandType == 0 ? default(CommandType?) : CommandType },
-                { ParameterType.Map, null }, //TODO: Probably cannot access this value
-                { ParameterType.SplitOn, "Id" },
+                { ParameterType.Map, GetMap() },
+                { ParameterType.SplitOn, GetSplitOn() },
                 { ParameterType.SqlParameters, _settings.SqlParametersBuilder.FromParameters(parameters) },
                 { ParameterType.SqlText, CommandText },
                 { ParameterType.SqlTransaction, DbTransaction },
                 { ParameterType.Type, _identity.Value.type },
                 { ParameterType.Types, GetDataTypes() }
             };
+        }
+
+        private string GetSplitOn()
+        {
+            return _settings.Unresolved.SplitOn;
+        }
+
+        private object GetMap()
+        {
+            return null;
         }
 
         private Type[] GetDataTypes()

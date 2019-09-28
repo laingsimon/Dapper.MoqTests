@@ -95,7 +95,7 @@ namespace Dapper.MoqTests
 
             var genericMethodDefinition = method.GetGenericMethodDefinition();
             if (genericMethodDefinition.GetGenericArguments().Length != dataTypes.Length)
-                throw new InvalidOperationException($"Generic method requires {genericMethodDefinition.GetGenericArguments().Length} types, only {dataTypes.Length} were provided");
+                throw new InvalidOperationException($"Generic method requires {genericMethodDefinition.GetGenericArguments().Length} types, {dataTypes.Length} was provided");
 
             return genericMethodDefinition.MakeGenericMethod(dataTypes);
         }
