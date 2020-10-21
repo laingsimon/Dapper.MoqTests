@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Dapper.MoqTests\Dapper.MoqTests.csproj" />
+    <ProjectReference Include="..\Dapper.MoqTests\Dapper.MoqTests.Core.csproj" />
   </ItemGroup>
 
 </Project>

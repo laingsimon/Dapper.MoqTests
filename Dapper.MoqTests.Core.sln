@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29326.143
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dapper.MoqTests", "Dapper.MoqTests\Dapper.MoqTests.csproj", "{E6AEC168-AC4F-4215-ABFE-0953005B7CF6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dapper.MoqTests", "Dapper.MoqTests\Dapper.MoqTests.Core.csproj", "{E6AEC168-AC4F-4215-ABFE-0953005B7CF6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dapper.MoqTests.Samples", "Dapper.MoqTests.Samples\Dapper.MoqTests.Samples.csproj", "{49A33881-26B4-4640-AF80-2F1A978A6753}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dapper.MoqTests.Samples", "Dapper.MoqTests.Samples\Dapper.MoqTests.Core.Samples.csproj", "{49A33881-26B4-4640-AF80-2F1A978A6753}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
