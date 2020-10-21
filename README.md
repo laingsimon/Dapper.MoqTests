@@ -1,4 +1,7 @@
-# Dapper.MoqTests [![Build status](https://ci.appveyor.com/api/projects/status/rgufiqwhiliw83d6/branch/master?svg=true)](https://ci.appveyor.com/project/laingsimon/dapper-moqtests/branch/master)
+# Dapper.MoqTests 
+- (.net framework) [![Build status](https://ci.appveyor.com/api/projects/status/rgufiqwhiliw83d6/branch/master?svg=true)](https://ci.appveyor.com/project/laingsimon/dapper-moqtests-netfx/branch/master)
+- (dotnet Core) [![Build status](https://ci.appveyor.com/api/projects/status/7lus4258ta8r2g2e/branch/master?svg=true)](https://ci.appveyor.com/project/laingsimon/dapper-moqtests-core/branch/master)
+
 Assemblies to assist testing Dapper database invocations
 
 ### Usage
