@@ -29,11 +29,13 @@ namespace Dapper.MoqTests.Samples
             }
             catch (MockException exc)
             {
-                Assert.That(exc.Message.Trim(), Is.EqualTo(@"Expected invocation on the mock at least once, but was never performed: c => c.Query<Car>(Match.Create<String>(, () => ""incorrect sql""), It.IsAny<Object>(), It.IsAny<IDbTransaction>(), True, null, null)
-No setups configured.
+                Assert.That(exc.Message.Trim(), Is.EqualTo(@"Expected invocation on the mock at least once, but was never performed: c => c.Query<Car>(Match.Create<string>(Predicate<string>, () => ""incorrect sql""), It.IsAny<object>(), It.IsAny<IDbTransaction>(), True, null, null)
 
 Performed invocations:
-MockDatabase.Query<Car>(""select * 
+
+   Mock<MockDatabase:4> (c):
+
+      MockDatabase.Query<Car>(""select * 
 from [Cars] 
 order by Make, Model"", null, null, True, null, null)").Using(_comparer));
             }
@@ -59,13 +61,15 @@ where Registration = @registration", new { registration = "incorrect value" }, I
             }
             catch (MockException exc)
             {
-                Assert.That(exc.Message.Trim(), Is.EqualTo(@"Expected invocation on the mock at least once, but was never performed: c => c.QuerySingleAsync<Car>(Match.Create<String>(, () => ""select * 
+                Assert.That(exc.Message.Trim(), Is.EqualTo(@"Expected invocation on the mock at least once, but was never performed: c => c.QuerySingleAsync<Car>(Match.Create<string>(Predicate<string>, () => ""select * 
 from [Cars] 
-where Registration = @registration""), Match.Create<Object>(, () => { registration = incorrect value }), It.IsAny<IDbTransaction>(), null, null)
-No setups configured.
+where Registration = @registration""), Match.Create<object>(Predicate<object>, () => { registration = incorrect value }), It.IsAny<IDbTransaction>(), null, null)
 
 Performed invocations:
-MockDatabase.QuerySingleAsync<Car>(""select * 
+
+   Mock<MockDatabase:3> (c):
+
+      MockDatabase.QuerySingleAsync<Car>(""select * 
 from [Cars] 
 where Registration = @registration"", { registration = reg }, null, null, null)").Using(_comparer));
             }
@@ -91,13 +95,15 @@ where Registration = @registration", new { registration = 1 }, It.IsAny<IDbTrans
             }
             catch (MockException exc)
             {
-                Assert.That(exc.Message.Trim(), Is.EqualTo(@"Expected invocation on the mock at least once, but was never performed: c => c.QuerySingleAsync<Car>(Match.Create<String>(, () => ""select * 
+                Assert.That(exc.Message.Trim(), Is.EqualTo(@"Expected invocation on the mock at least once, but was never performed: c => c.QuerySingleAsync<Car>(Match.Create<string>(Predicate<string>, () => ""select * 
 from [Cars] 
-where Registration = @registration""), Match.Create<Object>(, () => { registration = 1 }), It.IsAny<IDbTransaction>(), null, null)
-No setups configured.
+where Registration = @registration""), Match.Create<object>(Predicate<object>, () => { registration = 1 }), It.IsAny<IDbTransaction>(), null, null)
 
 Performed invocations:
-MockDatabase.QuerySingleAsync<Car>(""select * 
+
+   Mock<MockDatabase:2> (c):
+
+      MockDatabase.QuerySingleAsync<Car>(""select * 
 from [Cars] 
 where Registration = @registration"", { registration = reg }, null, null, null)").Using(_comparer));
             }
@@ -123,13 +129,15 @@ where Registration = @registration", new { foo = "bar" }, It.IsAny<IDbTransactio
             }
             catch (MockException exc)
             {
-                Assert.That(exc.Message.Trim(), Is.EqualTo(@"Expected invocation on the mock at least once, but was never performed: c => c.QuerySingleAsync<Car>(Match.Create<String>(, () => ""select * 
+                Assert.That(exc.Message.Trim(), Is.EqualTo(@"Expected invocation on the mock at least once, but was never performed: c => c.QuerySingleAsync<Car>(Match.Create<string>(Predicate<string>, () => ""select * 
 from [Cars] 
-where Registration = @registration""), Match.Create<Object>(, () => { foo = bar }), It.IsAny<IDbTransaction>(), null, null)
-No setups configured.
+where Registration = @registration""), Match.Create<object>(Predicate<object>, () => { foo = bar }), It.IsAny<IDbTransaction>(), null, null)
 
 Performed invocations:
-MockDatabase.QuerySingleAsync<Car>(""select * 
+
+   Mock<MockDatabase:1> (c):
+
+      MockDatabase.QuerySingleAsync<Car>(""select * 
 from [Cars] 
 where Registration = @registration"", { registration = reg }, null, null, null)").Using(_comparer));
             }
@@ -155,13 +163,16 @@ where Registration = @registration", It.IsAny<object>(), It.IsAny<IDbTransaction
             }
             catch (MockException exc)
             {
-                Assert.That(exc.Message.Trim(), Is.EqualTo(@"Expected invocation on the mock at least once, but was never performed: c => c.QuerySingleAsync<Car>(Match.Create<String>(, () => ""select * 
+                Assert.That(exc.Message.Trim(), Is.EqualTo(@"Expected invocation on the mock at least once, but was never performed: c => c.QuerySingleAsync<Car>(Match.Create<string>(, () => ""select * 
 from [Cars] 
-where Registration = @registration""), It.IsAny<Object>(), It.IsAny<IDbTransaction>())
+where Registration = @registration""), It.IsAny<object>(), It.IsAny<IDbTransaction>())
 No setups configured.
 
 Performed invocations:
-MockDatabase.QuerySingleAsync<Car>(""select * 
+
+   Mock<MockDatabase:1> (c):
+
+      MockDatabase.QuerySingleAsync<Car>(""select * 
 from [Cars] 
 where Registration = @registration"", { registration = reg }, null)").Using(_comparer));
             }
@@ -206,13 +217,15 @@ where Registration = @registration", It.IsAny<object>(), It.IsAny<IDbTransaction
             }
             catch (System.Exception exc)
             {
-                Assert.That(exc.Message.Trim(), Is.EqualTo(@"Expected invocation on the mock at least once, but was never performed: c => c.QuerySingleAsync<Int32>(Match.Create<String>(, () => ""select *
+                Assert.That(exc.Message.Trim(), Is.EqualTo(@"Expected invocation on the mock at least once, but was never performed: c => c.QuerySingleAsync<int>(Match.Create<string>(Predicate<string>, () => ""select *
 from [Cars] 
-where Registration = @registration""), It.IsAny<Object>(), It.IsAny<IDbTransaction>(), null, null)
-No setups configured.
+where Registration = @registration""), It.IsAny<object>(), It.IsAny<IDbTransaction>(), null, null)
 
 Performed invocations:
-MockDatabase.QuerySingleAsync<Car>(""select * 
+
+   Mock<MockDatabase:6> (c):
+
+      MockDatabase.QuerySingleAsync<Car>(""select * 
 from [Cars] 
 where Registration = @registration"", { registration = reg }, null, null, null)").Using(_comparer));
             }

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>Dapper.MoqTests</id>
+    <id>Dapper.MoqTests.Core</id>
     <version>$version$</version>
     <authors>Simon Laing</authors>
     <owners>Simon Laing</owners>
@@ -11,7 +11,7 @@
 	<repository type="git" url="https://github.com/laingsimon/Dapper.MoqTests" />
     <description>Assembly that provides assistance in testing Dapper methods, allows for Verify and Setup with sql and parameters</description>
     <dependencies>
-      <dependency id="Moq" version="4.5.3" />
+      <dependency id="Moq" version="4.14.7" />
     </dependencies>
   </metadata>
 </package>
