@@ -12,6 +12,7 @@
   <PropertyGroup>
 	<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
 	<RepositoryUrl>https://github.com/laingsimon/Dapper.MoqTests</RepositoryUrl>
+	<PackageProjectUrl>https://github.com/laingsimon/Dapper.MoqTests</PackageProjectUrl>
 	<PackageDescription>Assembly that provides assistance in testing Dapper methods, allows for Verify and Setup with sql and parameters</PackageDescription>
 	<Authors>Simon Laing</Authors>
   </PropertyGroup>
