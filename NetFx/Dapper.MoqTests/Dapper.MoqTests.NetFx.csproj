@@ -13,6 +13,8 @@
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
     <DefineConstants>DOTNETFRAMEWORK</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -20,16 +22,12 @@
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>TRACE;DEBUG;DOTNETFRAMEWORK</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE;DOTNETFRAMEWORK</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Castle.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
@@ -58,45 +56,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\Dapper.MoqTests\DapperCacheInfo.cs" />
-    <Compile Include="..\..\Dapper.MoqTests\DapperIdentityComparer.cs" />
-    <Compile Include="..\..\Dapper.MoqTests\DapperMethods.cs" />
-    <Compile Include="..\..\Dapper.MoqTests\ExpressionHelper.cs" />
-    <Compile Include="..\..\Dapper.MoqTests\IIdentityComparer.cs" />
-    <Compile Include="..\..\Dapper.MoqTests\IParametersComparer.cs" />
-    <Compile Include="..\..\Dapper.MoqTests\IParametersObjectBuilder.cs" />
-    <Compile Include="..\..\Dapper.MoqTests\MatchAnonymousObjectExpressionVisitor.cs" />
-    <Compile Include="..\..\Dapper.MoqTests\MockDatabase.cs" />
-    <Compile Include="..\..\Dapper.MoqTests\MockDatabase.Dapper.Execute.cs" />
-    <Compile Include="..\..\Dapper.MoqTests\MockDatabase.Dapper.ExecuteScalar.cs" />
-    <Compile Include="..\..\Dapper.MoqTests\MockDatabase.Dapper.Query.cs" />
-    <Compile Include="..\..\Dapper.MoqTests\MockDatabase.Dapper.QueryAsync.cs" />
-    <Compile Include="..\..\Dapper.MoqTests\MockDatabase.Dapper.QueryFirst.cs" />
-    <Compile Include="..\..\Dapper.MoqTests\MockDatabase.Dapper.QueryFirstOrDefault.cs" />
-    <Compile Include="..\..\Dapper.MoqTests\MockDatabase.Dapper.QueryMultiple.cs" />
-    <Compile Include="..\..\Dapper.MoqTests\MockDatabase.Dapper.QuerySingle.cs" />
-    <Compile Include="..\..\Dapper.MoqTests\MockDatabase.Dapper.QuerySingleOrDefault.cs" />
-    <Compile Include="..\..\Dapper.MoqTests\MockDbCommand.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="..\..\Dapper.MoqTests\MockDbConnection.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="..\..\Dapper.MoqTests\MockDbDataReader.cs" />
-    <Compile Include="..\..\Dapper.MoqTests\MockDbParameter.cs" />
-    <Compile Include="..\..\Dapper.MoqTests\MockDbParameterCollection.cs" />
-    <Compile Include="..\..\Dapper.MoqTests\MockDbTransaction.cs" />
-    <Compile Include="..\..\Dapper.MoqTests\ObjectExtensions.cs" />
-    <Compile Include="..\..\Dapper.MoqTests\ParameterLookupExtensions.cs" />
-    <Compile Include="..\..\Dapper.MoqTests\ParametersComparer.cs" />
-    <Compile Include="..\..\Dapper.MoqTests\ParametersObjectBuilder.cs" />
-    <Compile Include="..\..\Dapper.MoqTests\ParameterType.cs" />
-    <Compile Include="..\..\Dapper.MoqTests\ParameterTypeAttribute.cs" />
-    <Compile Include="..\..\Dapper.MoqTests\Properties\AssemblyInfo.cs" />
-    <Compile Include="..\..\Dapper.MoqTests\ScalarValue.cs" />
-    <Compile Include="..\..\Dapper.MoqTests\Settings.cs" />
-    <Compile Include="..\..\Dapper.MoqTests\SqlTextComparer.cs" />
-    <Compile Include="..\..\Dapper.MoqTests\TaskHelper.cs" />
+    <Compile Include="..\..\Dapper.MoqTests\*.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Dapper.MoqTests.NetFx.nuspec" />

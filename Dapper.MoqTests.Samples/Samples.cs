@@ -3,6 +3,7 @@ using Moq;
 using NUnit.Framework;
 using System.Linq;
 using System.Threading.Tasks;
+using System;
 
 namespace Dapper.MoqTests.Samples
 {
@@ -355,6 +356,31 @@ where Registration = @registration", It.IsAny<object>(), It.IsAny<IDbTransaction
             repository.GetModelsCount("Vauxhall");
 
             connection.Verify(c => c.ExecuteScalar(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbTransaction>(), It.IsAny<int?>(), It.IsAny<CommandType?>()));
+        }
+
+        [Test, Explicit]
+        public void QueryMultiple()
+        {
+            var connectionFactory = new Mock<IDbConnectionFactory>();
+            var connection = new MockDbConnection();
+            var repository = new SampleRepository(connectionFactory.Object);
+
+            connectionFactory
+                .Setup(f => f.OpenConnection())
+                .Returns(connection);
+
+            repository.GetCarsAndMakes();
+
+            connection.Verify(c => c.Query(
+                @"select count(*) from [Cars]
+                  select count(distinct Make) from [Cars]",
+                It.IsAny<Func<int, int, object>>(),
+                It.IsAny<object>(),
+                It.IsAny<IDbTransaction>(),
+                It.IsAny<bool>(),
+                It.IsAny<string>(),
+                It.IsAny<int?>(),
+                It.IsAny<CommandType>()));
         }
     }
 }
