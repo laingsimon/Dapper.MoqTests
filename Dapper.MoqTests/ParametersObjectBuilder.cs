@@ -124,7 +124,12 @@ namespace Dapper.MoqTests
         private static AssemblyBuilder GetAssemblyBuilder()
         {
             var assembly = new AssemblyName("Dapper.MoqTests.AnonymousParameterTypes");
+#if DOTNETCORE
+            return AssemblyBuilder.DefineDynamicAssembly(assembly, AssemblyBuilderAccess.Run);
+#endif
+#if DOTNETFRAMEWORK
             return AppDomain.CurrentDomain.DefineDynamicAssembly(assembly, AssemblyBuilderAccess.Run);
+#endif
         }
 
         private static ModuleBuilder GetModuleBuilder()
