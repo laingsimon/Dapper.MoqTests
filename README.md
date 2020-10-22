@@ -7,10 +7,14 @@ Assemblies to assist testing Dapper database invocations
 ### Usage
 ```
 Install-Package Dapper.MoqTests
+
+Or
+
+Install-Package Dapper.MoqTests.Core
 ```
 Note: With version 1.0.0+ the library is compiled against .net 4.6.1 therefore is now compatible with .net standard projects.
 
-Tested and confirmed to work with Dapper v1.60.0 and Moq v4.5.3
+Tested and confirmed to work with Dapper v1.60.0 and Moq v4.14.7
 
 ### For example if you want to test this call:
 ```csharp
