@@ -69,5 +69,14 @@ namespace Dapper.MoqTests
             [ParameterType(ParameterType.SqlTransaction)] IDbTransaction transaction = null,
             [ParameterType(ParameterType.CommandTimeout)] int? commandTimeout = null,
             [ParameterType(ParameterType.CommandType)] CommandType? commandType = null);
+
+        /// <summary>
+        /// Execute a single-row query asynchronously using Task.
+        /// </summary>
+        /// <param name="cnn">The connection to query on.</param>
+        /// <param name="command">The command used to query on this connection.</param>
+        /// <remarks>Note: the row can be accessed via "dynamic", or by casting to an IDictionary&lt;string,object&gt;</remarks>
+        public abstract Task<T> QuerySingleAsync<T>(
+            [ParameterType(ParameterType.CommandDefinition)] CommandDefinition command);
     }
 }

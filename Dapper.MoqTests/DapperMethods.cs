@@ -16,7 +16,6 @@ namespace Dapper.MoqTests
             new GenericDapperMethodInfo(GetMethod<object>(db => db.Query<object>("some sql", null, null, true, null, null))),
             new SimpleDapperMethodInfo(GetMethod<object>(db => db.QueryAsync(typeof(object), "some sql", null, null, null, null))),
             new GenericDapperMethodInfo(GetMethod<object>(db => db.QueryAsync<object>("some sql", null, null, null, null))),
-
             new GenericDapperMethodInfo(GetMethod<object>(db => db.QueryAsync<object>(commandDefinition))),
 
             new GenericDapperMethodInfo(GetMethod<object>(db => db.Query<object, object, object>("some sql", null, null, null, true, "Id", null, null))),
@@ -29,21 +28,25 @@ namespace Dapper.MoqTests
             new GenericDapperMethodInfo(GetMethod(db => db.QuerySingle<object>("some sql", null, null, null, null))),
             new SimpleDapperMethodInfo(GetMethod<object>(db => db.QuerySingleAsync(typeof(object), "some sql", null, null, null, null))),
             new GenericDapperMethodInfo(GetMethod<object>(db => db.QuerySingleAsync<object>("some sql", null, null, null, null))),
+            new GenericDapperMethodInfo(GetMethod<object>(db => db.QuerySingleAsync<object>(commandDefinition))),
 
             new SimpleDapperMethodInfo(GetMethod(db => db.QuerySingleOrDefault(typeof(object), "some sql", null, null, null, null))),
             new GenericDapperMethodInfo(GetMethod(db => db.QuerySingleOrDefault<object>("some sql", null, null, null, null))),
             new SimpleDapperMethodInfo(GetMethod<object>(db => db.QuerySingleOrDefaultAsync(typeof(object), "some sql", null, null, null, null))),
             new GenericDapperMethodInfo(GetMethod<object>(db => db.QuerySingleOrDefaultAsync<object>("some sql", null, null, null, null))),
+            new GenericDapperMethodInfo(GetMethod<object>(db => db.QuerySingleOrDefaultAsync<object>(commandDefinition))),
 
             new SimpleDapperMethodInfo(GetMethod(db => db.QueryFirst(typeof(object), "some sql", null, null, null, null))),
             new GenericDapperMethodInfo(GetMethod(db => db.QueryFirst<object>("some sql", null, null, null, null))),
             new SimpleDapperMethodInfo(GetMethod(db => db.QueryFirstAsync(typeof(object), "some sql", null, null, null, null))),
             new GenericDapperMethodInfo(GetMethod(db => db.QueryFirstAsync<object>("some sql", null, null, null, null))),
+            new GenericDapperMethodInfo(GetMethod<object>(db => db.QueryFirstAsync<object>(commandDefinition))),
 
             new SimpleDapperMethodInfo(GetMethod(db => db.QueryFirstOrDefault(typeof(object), "some sql", null, null, null, null))),
             new GenericDapperMethodInfo(GetMethod(db => db.QueryFirstOrDefault<object>("some sql", null, null, null, null))),
             new SimpleDapperMethodInfo(GetMethod(db => db.QueryFirstOrDefaultAsync(typeof(object), "some sql", null, null, null, null))),
             new GenericDapperMethodInfo(GetMethod(db => db.QueryFirstOrDefaultAsync<object>("some sql", null, null, null, null))),
+            new GenericDapperMethodInfo(GetMethod<object>(db => db.QueryFirstOrDefaultAsync<object>(commandDefinition))),
 
             new SimpleDapperMethodInfo(GetMethod(db => db.ExecuteScalar("some sql", null, null, null, null))),
             new GenericDapperMethodInfo(GetMethod(db => db.ExecuteScalar<object>("some sql", null, null, null, null))),
