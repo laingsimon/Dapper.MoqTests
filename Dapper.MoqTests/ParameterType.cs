@@ -50,6 +50,11 @@
         /// <summary>
         /// Array of types in the recordset.
         /// </summary>
-        Types
+        Types,
+
+        /// <summary>
+        /// The command definition that describes this invocation
+        /// </summary>
+        CommandDefinition
     }
 }

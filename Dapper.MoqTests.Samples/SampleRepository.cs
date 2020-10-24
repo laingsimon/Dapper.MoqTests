@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Dapper.MoqTests.Samples
@@ -138,6 +139,17 @@ where Registration = @registration", new { registration }, transaction: transact
                     @"select count(*) from [Cars]
                       select count(distinct Make) from [Cars]",
                     (cars, makes) => new { cars, makes }).ToList();
+            }
+        }
+
+        public async Task<bool> AnyCarsAsync(CancellationToken cancellation)
+        {
+            using (var connection = _connectionFactory.OpenConnection())
+            {
+                return (await connection.QueryAsync<int>(new CommandDefinition(
+                    "select count(*) from [Cars]",
+                    cancellationToken: cancellation
+                    ))).Any();
             }
         }
     }
