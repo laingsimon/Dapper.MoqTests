@@ -4,6 +4,7 @@ using NUnit.Framework;
 using System.Linq;
 using System.Threading.Tasks;
 using System;
+using System.Threading;
 
 namespace Dapper.MoqTests.Samples
 {
@@ -381,6 +382,31 @@ where Registration = @registration", It.IsAny<object>(), It.IsAny<IDbTransaction
                 It.IsAny<string>(),
                 It.IsAny<int?>(),
                 It.IsAny<CommandType>()));
+        }
+        
+        [Test]
+        public async Task CommandDefinition()
+        {
+            var connectionFactory = new Mock<IDbConnectionFactory>();
+            var connection = new MockDbConnection();
+            var repository = new SampleRepository(connectionFactory.Object);
+            var cancellationTokenSource = new CancellationTokenSource();
+            var cancel = cancellationTokenSource.Token;
+
+            connectionFactory
+                .Setup(f => f.OpenConnection())
+                .Returns(connection);
+
+            await repository.AnyCarsAsync(cancel);
+
+            connection.Verify(c => c.QueryAsync<int>(new CommandDefinition(
+                "select count(*) from [Cars]",
+                /*parameters*/ null,
+                /*transaction*/ null,
+                /*commandTimeout*/ null,
+                /*commandType*/ null,
+                /*flags*/ CommandFlags.Buffered,
+                /*cancellationToken*/ cancel)));
         }
     }
 }
