@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace Dapper.MoqTests
 {
+    [System.ComponentModel.DesignerCategory("Code")]
     internal class MockDbCommand : DbCommand
     {
         private readonly MockDatabase _database;
