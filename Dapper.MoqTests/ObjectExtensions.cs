@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Data;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Dapper.MoqTests
 {
@@ -16,6 +17,13 @@ namespace Dapper.MoqTests
 
         public static IDataReader GetDataReader(this object value)
         {
+            //if value == Task<>
+            var taskResult = GetTaskResult(value);
+            if (taskResult != null)
+            {
+                return taskResult.GetDataReader();
+            }
+
             if (value == null || IsPrimitiveType(value.GetType()))
                 return new DataTableReader(GetPrimitiveTypeDataTable(new[] { value }, value?.GetType() ?? typeof(object)));
 
@@ -34,6 +42,18 @@ namespace Dapper.MoqTests
             dataTable.Rows.Add(rowValues);
 
             return new DataTableReader(dataTable);
+        }
+
+        private static object GetTaskResult(object value)
+        {
+            if (value is Task task && task.GetType().GetGenericArguments().Length == 1)
+            {
+                var resultProperty = task.GetType().GetProperty(nameof(Task<object>.Result));
+
+                return resultProperty.GetValue(value);
+            }
+
+            return null;
         }
 
         private static DataTable GetDataTableForArray(IEnumerable value)

@@ -8,12 +8,16 @@ namespace Dapper.MoqTests
 {
     internal static class DapperMethods
     {
+        private static readonly CommandDefinition commandDefinition = new CommandDefinition();
+
         private static readonly IReadOnlyList<IDapperMethodInfo> Methods = new List<IDapperMethodInfo>
         {
             new SimpleDapperMethodInfo(GetMethod<object>(db => db.Query(typeof(object), "some sql", null, null, true, null, null))),
             new GenericDapperMethodInfo(GetMethod<object>(db => db.Query<object>("some sql", null, null, true, null, null))),
             new SimpleDapperMethodInfo(GetMethod<object>(db => db.QueryAsync(typeof(object), "some sql", null, null, null, null))),
             new GenericDapperMethodInfo(GetMethod<object>(db => db.QueryAsync<object>("some sql", null, null, null, null))),
+
+            new GenericDapperMethodInfo(GetMethod<object>(db => db.QueryAsync<object>(commandDefinition))),
 
             new GenericDapperMethodInfo(GetMethod<object>(db => db.Query<object, object, object>("some sql", null, null, null, true, "Id", null, null))),
 

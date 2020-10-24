@@ -4,6 +4,7 @@ using Moq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Data.Common;
+using System.Threading;
 
 namespace Dapper.MoqTests
 {
@@ -22,10 +23,10 @@ namespace Dapper.MoqTests
 
         public abstract DbTransaction BeginTransaction(IsolationLevel il);
 
-        internal int ExecuteNonQuery(MockDbCommand command, bool isAsync, MethodBase dapperMethod, Type dataType)
+        internal int ExecuteNonQuery(MockDbCommand command, bool isAsync, CancellationToken cancellationToken, MethodBase dapperMethod, Type dataType)
         {
             var method = DapperMethods.GetExecuteMethod(dapperMethod, dataType);
-            var parametersLookup = command.GetParameterLookup(isAsync);
+            var parametersLookup = command.GetParameterLookup(isAsync, cancellationToken);
             var parametersArray = method.GetValues(parametersLookup);
 
             return isAsync 
@@ -33,10 +34,10 @@ namespace Dapper.MoqTests
                 : (int)method.Invoke(this, parametersArray);
         }
 
-        internal object ExecuteScalar(MockDbCommand command, bool isAsync, MethodBase dapperMethod)
+        internal object ExecuteScalar(MockDbCommand command, bool isAsync, CancellationToken cancellationToken, MethodBase dapperMethod)
         {
             var method = DapperMethods.GetScalar(dapperMethod);
-            var parametersLookup = command.GetParameterLookup(isAsync);
+            var parametersLookup = command.GetParameterLookup(isAsync, cancellationToken);
             var parametersArray = method.GetValues(parametersLookup);
 
             var value = new ScalarValue(isAsync, method, parametersArray, this);
@@ -46,10 +47,10 @@ namespace Dapper.MoqTests
                 : value.ToType(typeof(object), null);
         }
 
-        internal IDataReader ExecuteReader(MockDbCommand command, bool isAsync, MethodBase dapperMethod, params Type[] dataTypes)
+        internal IDataReader ExecuteReader(MockDbCommand command, bool isAsync, CancellationToken cancellationToken, MethodBase dapperMethod, params Type[] dataTypes)
         {
             var method = DapperMethods.GetQueryMethod(dapperMethod, dataTypes);
-            var parametersLookup = command.GetParameterLookup(isAsync);
+            var parametersLookup = command.GetParameterLookup(isAsync, cancellationToken);
             var parametersArray = method.GetValues(parametersLookup);
 
             var result = method.Invoke(this, parametersArray);

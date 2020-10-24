@@ -42,32 +42,32 @@ namespace Dapper.MoqTests
         public override int ExecuteNonQuery()
         {
             var dapperMethod = FirstDapperCallInStack();
-            return _database.ExecuteNonQuery(this, false, dapperMethod, _identity.Value.type);
+            return _database.ExecuteNonQuery(this, false, CancellationToken.None, dapperMethod, _identity.Value.type);
         }
 
         public override object ExecuteScalar()
         {
             var dapperMethod = FirstDapperCallInStack();
-            return _database.ExecuteScalar(this, false, dapperMethod);
+            return _database.ExecuteScalar(this, false, CancellationToken.None, dapperMethod);
         }
 
         public override Task<int> ExecuteNonQueryAsync(CancellationToken cancellationToken)
         {
             var dapperMethod = FirstDapperCallInStack();
-            return Task.FromResult(_database.ExecuteNonQuery(this, true, dapperMethod, _identity.Value.type));
+            return Task.FromResult(_database.ExecuteNonQuery(this, true, cancellationToken, dapperMethod, _identity.Value.type));
         }
 
         public override Task<object> ExecuteScalarAsync(CancellationToken cancellationToken)
         {
             var dapperMethod = FirstDapperCallInStack();
-            return Task.FromResult(_database.ExecuteScalar(this, true, dapperMethod));
+            return Task.FromResult(_database.ExecuteScalar(this, true, cancellationToken, dapperMethod));
         }
 
-        public IReadOnlyDictionary<ParameterType, object> GetParameterLookup(bool async)
+        public IReadOnlyDictionary<ParameterType, object> GetParameterLookup(bool async, CancellationToken cancellationToken)
         {
             var parameters = DbParameterCollection.Cast<DbParameter>().ToArray();
 
-            return new Dictionary<ParameterType, object>
+            var lookup = new Dictionary<ParameterType, object>
             {
                 { ParameterType.Buffered, GetBufferedParameter(async) },
                 { ParameterType.CommandTimeout, CommandTimeout == 0 ? default(int?) : CommandTimeout },
@@ -80,6 +80,20 @@ namespace Dapper.MoqTests
                 { ParameterType.Type, _identity.Value.type },
                 { ParameterType.Types, GetDataTypes() }
             };
+
+            lookup[ParameterType.CommandDefinition] = new CommandDefinition(
+                (string)lookup[ParameterType.SqlText],
+                lookup[ParameterType.SqlParameters],
+                (IDbTransaction)lookup[ParameterType.SqlTransaction],
+                (int?)lookup[ParameterType.CommandTimeout],
+                (CommandType?)lookup[ParameterType.CommandType],
+                GetBufferedParameter(async)
+                    ? CommandFlags.Buffered
+                    : CommandFlags.None,
+                cancellationToken
+            );
+
+            return lookup;
         }
 
         private string GetSplitOn()
@@ -122,13 +136,26 @@ namespace Dapper.MoqTests
         protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
         {
             var dapperMethod = FirstDapperCallInStack();
-            return new MockDbDataReader(_database.ExecuteReader(this, false, dapperMethod, GetDataTypes() ?? new[] { _identity.Value.type }));
+            return new MockDbDataReader(
+                _database.ExecuteReader(
+                    this,
+                    false,
+                    CancellationToken.None,
+                    dapperMethod,
+                    GetDataTypes() ?? new[] { _identity.Value.type }));
         }
 
         protected override Task<DbDataReader> ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
         {
             var dapperMethod = FirstDapperCallInStack();
-            return Task.FromResult<DbDataReader>(new MockDbDataReader(_database.ExecuteReader(this, true, dapperMethod, GetDataTypes() ?? new[] { _identity.Value.type })));
+            return Task.FromResult<DbDataReader>(
+                new MockDbDataReader(
+                    _database.ExecuteReader(
+                        this,
+                        true,
+                        cancellationToken,
+                        dapperMethod,
+                        GetDataTypes() ?? new[] { _identity.Value.type })));
         }
 
         private MethodBase FirstDapperCallInStack()
