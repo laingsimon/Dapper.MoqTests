@@ -10,6 +10,7 @@ namespace Dapper.MoqTests
     /// <summary>
     /// A DbConnection that supports Setup and Verify of Dapper calls.
     /// </summary>
+    [System.ComponentModel.DesignerCategory("Code")]
     public class MockDbConnection : DbConnection, IDbConnection
     {
         private readonly Settings _settings;
