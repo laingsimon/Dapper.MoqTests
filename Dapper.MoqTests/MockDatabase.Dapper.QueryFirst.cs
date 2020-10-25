@@ -78,5 +78,15 @@ namespace Dapper.MoqTests
         /// <param name="command">The command used to query on this connection.</param>
         public abstract Task<T> QueryFirstAsync<T>(
             [ParameterType(ParameterType.CommandDefinition)] CommandDefinition command);
+
+        /// <summary>
+        /// Execute a single-row query asynchronously using Task.
+        /// </summary>
+        /// <param name="cnn">The connection to query on.</param>
+        /// <param name="type">The type to return.</param>
+        /// <param name="command">The command used to query on this connection.</param>
+        public abstract Task<T> QueryFirstAsync<T>(
+            [ParameterType(ParameterType.Type)] Type type,
+            [ParameterType(ParameterType.CommandDefinition)] CommandDefinition command);
     }
 }
