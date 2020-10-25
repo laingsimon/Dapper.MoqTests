@@ -11,7 +11,9 @@ namespace Dapper.MoqTests
             new SimpleDapperMethodInfo(GetMethod<object>(db => db.QueryAsync(typeof(object), "some sql", null, null, null, null))),
             new GenericDapperMethodInfo(GetMethod<object>(db => db.QueryAsync<object>("some sql", null, null, null, null))),
 
+#pragma warning disable CS0618 // Type or member is obsolete
             new GenericDapperMethodInfo(GetMethod<object>(db => db.Query<object, object, object>("some sql", null, null, null, true, "Id", null, null))),
+#pragma warning restore CS0618 // Type or member is obsolete
 
 #if DOTNETFRAMEWORK && !DEBUG
             new SimpleDapperMethodInfo("ExecuteImpl", GetMethod<object>(db => db.Execute(new CommandDefinition())), GetMethod<object>(db => db.Execute("some sql", null, null, null, null))),

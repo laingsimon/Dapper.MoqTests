@@ -372,6 +372,7 @@ where Registration = @registration", It.IsAny<object>(), It.IsAny<IDbTransaction
 
             repository.GetCarsAndMakes();
 
+#pragma warning disable CS0618 // Type or member is obsolete
             connection.Verify(c => c.Query(
                 @"select count(*) from [Cars]
                   select count(distinct Make) from [Cars]",
@@ -382,6 +383,7 @@ where Registration = @registration", It.IsAny<object>(), It.IsAny<IDbTransaction
                 It.IsAny<string>(),
                 It.IsAny<int?>(),
                 It.IsAny<CommandType>()));
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
 #if !DOTNETFRAMEWORK
