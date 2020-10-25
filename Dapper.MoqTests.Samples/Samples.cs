@@ -384,11 +384,15 @@ where Registration = @registration", It.IsAny<object>(), It.IsAny<IDbTransaction
                 It.IsAny<CommandType>()));
         }
 
+#if !DOTNETFRAMEWORK
         [Test]
         public async Task CommandDefinition()
         {
             var connectionFactory = new Mock<IDbConnectionFactory>();
-            var connection = new MockDbConnection();
+            var connection = new MockDbConnection(new Settings
+            {
+                CommandDefinitionSupport = true
+            });
             var repository = new SampleRepository(connectionFactory.Object);
             var cancellationTokenSource = new CancellationTokenSource();
             var cancel = cancellationTokenSource.Token;
@@ -408,5 +412,6 @@ where Registration = @registration", It.IsAny<object>(), It.IsAny<IDbTransaction
                 /*flags*/ CommandFlags.Buffered,
                 /*cancellationToken*/ cancel)));
         }
+#endif
     }
 }

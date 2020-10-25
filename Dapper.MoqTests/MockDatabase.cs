@@ -2,7 +2,6 @@
 using System.Data;
 using Moq;
 using System.Reflection;
-using System.Threading.Tasks;
 using System.Data.Common;
 using System.Threading;
 
@@ -15,17 +14,19 @@ namespace Dapper.MoqTests
     {
         private const string NotSupported = "This method has not been proven to work with Dapper.MoqTests";
         private readonly MockBehavior _behaviour;
+        private readonly DapperMethods dapperMethods;
 
-        protected MockDatabase(MockBehavior behaviour)
+        protected MockDatabase(MockBehavior behaviour, DapperMethods dapperMethods)
         {
             _behaviour = behaviour;
+            this.dapperMethods = dapperMethods;
         }
 
         public abstract DbTransaction BeginTransaction(IsolationLevel il);
 
         internal int ExecuteNonQuery(MockDbCommand command, bool isAsync, CancellationToken cancellationToken, MethodBase dapperMethod, Type dataType)
         {
-            var method = DapperMethods.GetExecuteMethod(dapperMethod, dataType);
+            var method = dapperMethods.GetExecuteMethod(dapperMethod, dataType);
             var parametersLookup = command.GetParameterLookup(isAsync, cancellationToken);
             var parametersArray = method.GetValues(parametersLookup);
 
@@ -36,7 +37,7 @@ namespace Dapper.MoqTests
 
         internal object ExecuteScalar(MockDbCommand command, bool isAsync, CancellationToken cancellationToken, MethodBase dapperMethod)
         {
-            var method = DapperMethods.GetScalar(dapperMethod);
+            var method = dapperMethods.GetScalar(dapperMethod);
             var parametersLookup = command.GetParameterLookup(isAsync, cancellationToken);
             var parametersArray = method.GetValues(parametersLookup);
 
@@ -49,7 +50,7 @@ namespace Dapper.MoqTests
 
         internal IDataReader ExecuteReader(MockDbCommand command, bool isAsync, CancellationToken cancellationToken, MethodBase dapperMethod, params Type[] dataTypes)
         {
-            var method = DapperMethods.GetQueryMethod(dapperMethod, dataTypes);
+            var method = dapperMethods.GetQueryMethod(dapperMethod, dataTypes);
             var parametersLookup = command.GetParameterLookup(isAsync, cancellationToken);
             var parametersArray = method.GetValues(parametersLookup);
 
@@ -57,7 +58,7 @@ namespace Dapper.MoqTests
             var reader = result as IDataReader;
             if (result == null)
             {
-                if (DapperMethods.IsSingleResultMethod(method))
+                if (dapperMethods.IsSingleResultMethod(method))
                     return GetQuerySingleDataReader(method.GetGenericArguments()[0]);
 
                 return GetEmptyDataReader(command);

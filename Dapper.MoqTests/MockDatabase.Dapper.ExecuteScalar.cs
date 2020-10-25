@@ -70,5 +70,33 @@ namespace Dapper.MoqTests
             [ParameterType(ParameterType.SqlTransaction)] IDbTransaction transaction = null,
             [ParameterType(ParameterType.CommandTimeout)] int? commandTimeout = null,
             [ParameterType(ParameterType.CommandType)] CommandType? commandType = null);
+
+        /// <summary>
+        /// Execute parameterized SQL that selects a single value.
+        /// </summary>
+        /// <param name="cnn">The connection to execute on.</param>
+        /// <param name="command">The command to execute.</param>
+        /// <returns>The first cell selected as <see cref="object"/>.</returns>
+        public abstract Task<object> ExecuteScalarAsync(
+            [ParameterType(ParameterType.CommandDefinition)] CommandDefinition command);
+
+        /// <summary>
+        /// Execute parameterized SQL that selects a single value.
+        /// </summary>
+        /// <param name="cnn">The connection to execute on.</param>
+        /// <param name="command">The command to execute.</param>
+        /// <returns>The first cell selected as <see cref="object"/>.</returns>
+        public abstract object ExecuteScalar(
+            [ParameterType(ParameterType.CommandDefinition)] CommandDefinition command);
+
+        /// <summary>
+        /// Execute parameterized SQL that selects a single value.
+        /// </summary>
+        /// <typeparam name="T">The type to return.</typeparam>
+        /// <param name="cnn">The connection to execute on.</param>
+        /// <param name="command">The command to execute.</param>
+        /// <returns>The first cell selected as <typeparamref name="T"/>.</returns>
+        public abstract T ExecuteScalar<T>(
+            [ParameterType(ParameterType.CommandDefinition)] CommandDefinition command);
     }
 }

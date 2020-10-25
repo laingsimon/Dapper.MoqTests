@@ -19,7 +19,18 @@ namespace Dapper.MoqTests
         public MockDbConnection(Settings settings = null, MockBehavior behaviour = MockBehavior.Default)
         {
             _settings = settings ?? Settings.Default;
-            _database = new Mock<MockDatabase>(new object[] { behaviour });
+            _database = new Mock<MockDatabase>(new object[] { behaviour, GetDapperMethods(_settings) });
+        }
+
+        private DapperMethods GetDapperMethods(Settings settings)
+        {
+#if DOTNETFRAMEWORK
+            return new DapperMethods(new ClassicDapperMethodCollection());
+#else
+            return settings.CommandDefinitionSupport
+                ? new DapperMethods(new CommandDefinitionMethodCollection())
+                : new DapperMethods(new ClassicDapperMethodCollection());
+#endif
         }
 
         protected override DbCommand CreateDbCommand()
@@ -32,7 +43,7 @@ namespace Dapper.MoqTests
             return _database.Object.BeginTransaction(isolationLevel) ?? new MockDbTransaction(this, isolationLevel);
         }
 
-        #region non-implemented members
+#region non-implemented members
         void IDisposable.Dispose()
         { }
 
@@ -52,7 +63,7 @@ namespace Dapper.MoqTests
         public override string DataSource { get; } = "";
         public override string ServerVersion { get; } = "";
 
-        #endregion
+#endregion
 
         public ISetup<MockDatabase, TReturn> Setup<TReturn>(Expression<Func<MockDatabase, TReturn>> expression)
         {

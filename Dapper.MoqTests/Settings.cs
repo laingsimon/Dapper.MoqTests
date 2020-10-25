@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Common;
 
 namespace Dapper.MoqTests
 {
@@ -19,6 +18,9 @@ namespace Dapper.MoqTests
         public IIdentityComparer IdentityComparer = new DapperIdentityComparer();
 
         public Unresolved Unresolved { get; } = new Unresolved();
+#if !DOTNETFRAMEWORK
+        public bool CommandDefinitionSupport { get; set; }
+#endif
 
         public static Settings Default = new Settings();
     }

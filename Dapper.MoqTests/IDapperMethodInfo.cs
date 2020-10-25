@@ -2,9 +2,10 @@
 
 namespace Dapper.MoqTests
 {
-    internal interface IDapperMethodInfo
+    public interface IDapperMethodInfo
     {
         MethodInfo GetDapperMethod(params System.Type[] types);
         bool MatchesDapperMethod(System.Reflection.MethodBase dapperMethod);
+        string GetMatchesDapperMethodReasons(MethodBase dapperMethod);
     }
 }

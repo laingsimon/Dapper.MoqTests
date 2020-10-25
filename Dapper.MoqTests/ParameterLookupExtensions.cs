@@ -10,6 +10,11 @@ namespace Dapper.MoqTests
     {
         public static object[] GetValues(this MethodInfo method, IReadOnlyDictionary<ParameterType, object> lookup, object defaultValue = null)
         {
+            if (method == null)
+            {
+                throw new ArgumentNullException(nameof(method));
+            }
+
             return (from param in method.GetParameters()
                 select lookup.GetValue(param, defaultValue ?? param.DefaultValue)).ToArray();
         }
