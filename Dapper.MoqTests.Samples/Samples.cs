@@ -383,12 +383,15 @@ where Registration = @registration", It.IsAny<object>(), It.IsAny<IDbTransaction
                 It.IsAny<int?>(),
                 It.IsAny<CommandType>()));
         }
-        
+
         [Test]
         public async Task CommandDefinition()
         {
             var connectionFactory = new Mock<IDbConnectionFactory>();
-            var connection = new MockDbConnection();
+            var connection = new MockDbConnection(new Settings 
+            { 
+                PreferCommandDefinitions = true
+            });
             var repository = new SampleRepository(connectionFactory.Object);
             var cancellationTokenSource = new CancellationTokenSource();
             var cancel = cancellationTokenSource.Token;

@@ -56,7 +56,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\Dapper.MoqTests\*.cs" />
+	<Compile Include="..\..\Dapper.MoqTests\*.cs">
+	  <Link>%(Filename)%(Extension)</Link>
+	</Compile>
+	<Compile Include="..\..\Dapper.MoqTests\MockDatabase\*.cs">
+	  <Link>MockDatabase\%(Filename)%(Extension)</Link>
+	</Compile>
+	<Compile Include="..\..\Dapper.MoqTests\DapperProxy\*.cs">
+	  <Link>DapperProxy\%(Filename)%(Extension)</Link>
+	</Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Dapper.MoqTests.NetFx.nuspec" />

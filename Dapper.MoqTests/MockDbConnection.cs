@@ -19,7 +19,7 @@ namespace Dapper.MoqTests
         public MockDbConnection(Settings settings = null, MockBehavior behaviour = MockBehavior.Default)
         {
             _settings = settings ?? Settings.Default;
-            _database = new Mock<MockDatabase>(new object[] { behaviour });
+            _database = new Mock<MockDatabase>(new object[] { behaviour, _settings });
         }
 
         protected override DbCommand CreateDbCommand()

@@ -2,8 +2,8 @@
 using System.Data;
 using Moq;
 using System.Reflection;
-using System.Threading.Tasks;
 using System.Data.Common;
+using System.Threading;
 
 namespace Dapper.MoqTests
 {
@@ -14,18 +14,26 @@ namespace Dapper.MoqTests
     {
         private const string NotSupported = "This method has not been proven to work with Dapper.MoqTests";
         private readonly MockBehavior _behaviour;
+        private readonly DapperMethodFinder _methodFinder;
 
-        protected MockDatabase(MockBehavior behaviour)
+        protected MockDatabase(MockBehavior behaviour, Settings settings)
         {
+            if (settings == null)
+                throw new ArgumentNullException(nameof(settings));
+
             _behaviour = behaviour;
+            _methodFinder = new DapperMethodFinder(settings);
         }
 
         public abstract DbTransaction BeginTransaction(IsolationLevel il);
 
-        internal int ExecuteNonQuery(MockDbCommand command, bool isAsync, MethodBase dapperMethod, Type dataType)
+        internal int ExecuteNonQuery(MockDbCommand command, bool isAsync, CancellationToken cancellationToken, MethodBase dapperMethod, Type dataType)
         {
-            var method = DapperMethods.GetExecuteMethod(dapperMethod, dataType);
-            var parametersLookup = command.GetParameterLookup(isAsync);
+            var genericArguments = dataType == null
+                ? new Type[0]
+                : new[] { dataType };
+            var method = _methodFinder.FindUserMethodFromMethodInCallStack(dapperMethod, genericArguments);
+            var parametersLookup = command.GetParameterLookup(isAsync, cancellationToken);
             var parametersArray = method.GetValues(parametersLookup);
 
             return isAsync 
@@ -33,10 +41,10 @@ namespace Dapper.MoqTests
                 : (int)method.Invoke(this, parametersArray);
         }
 
-        internal object ExecuteScalar(MockDbCommand command, bool isAsync, MethodBase dapperMethod)
+        internal object ExecuteScalar(MockDbCommand command, bool isAsync, CancellationToken cancellationToken, MethodBase dapperMethod)
         {
-            var method = DapperMethods.GetScalar(dapperMethod);
-            var parametersLookup = command.GetParameterLookup(isAsync);
+            var method = _methodFinder.FindUserMethodFromMethodInCallStack(dapperMethod, new Type[0]);
+            var parametersLookup = command.GetParameterLookup(isAsync, cancellationToken);
             var parametersArray = method.GetValues(parametersLookup);
 
             var value = new ScalarValue(isAsync, method, parametersArray, this);
@@ -46,17 +54,17 @@ namespace Dapper.MoqTests
                 : value.ToType(typeof(object), null);
         }
 
-        internal IDataReader ExecuteReader(MockDbCommand command, bool isAsync, MethodBase dapperMethod, params Type[] dataTypes)
+        internal IDataReader ExecuteReader(MockDbCommand command, bool isAsync, CancellationToken cancellationToken, MethodBase dapperMethod, params Type[] dataTypes)
         {
-            var method = DapperMethods.GetQueryMethod(dapperMethod, dataTypes);
-            var parametersLookup = command.GetParameterLookup(isAsync);
+            var method = _methodFinder.FindUserMethodFromMethodInCallStack(dapperMethod, dataTypes);
+            var parametersLookup = command.GetParameterLookup(isAsync, cancellationToken);
             var parametersArray = method.GetValues(parametersLookup);
 
             var result = method.Invoke(this, parametersArray);
             var reader = result as IDataReader;
             if (result == null)
             {
-                if (DapperMethods.IsSingleResultMethod(method))
+                if (IsSingleResultMethod(method))
                     return GetQuerySingleDataReader(method.GetGenericArguments()[0]);
 
                 return GetEmptyDataReader(command);
@@ -65,7 +73,12 @@ namespace Dapper.MoqTests
             return reader ?? result.GetDataReader();
         }
 
-        private IDataReader GetQuerySingleDataReader(Type rowType)
+        private static bool IsSingleResultMethod(MethodInfo method)
+        {
+            return method.Name.StartsWith("QuerySingle");
+        }
+
+    private IDataReader GetQuerySingleDataReader(Type rowType)
         {
             if (Nullable.GetUnderlyingType(rowType) != null)
                 rowType = typeof(object); //because DataTable doesn't support Nullable<T> as a column-type

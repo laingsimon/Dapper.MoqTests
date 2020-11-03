@@ -10,20 +10,20 @@ namespace Dapper.MoqTests
 {
     internal static class DapperCacheInfo
     {
-        private static readonly FieldInfo QueryCacheField = typeof(SqlMapper).GetField("_queryCache", BindingFlags.Static | BindingFlags.NonPublic);
+        private static readonly FieldInfo QueryCacheField = typeof(Dapper.SqlMapper).GetField("_queryCache", BindingFlags.Static | BindingFlags.NonPublic);
 
         private static IDictionary QueryCache => (IDictionary)QueryCacheField.GetValue(null);
 
         public static void PurgeQueriedIdentities()
         {
-            SqlMapper.PurgeQueryCache();
+            Dapper.SqlMapper.PurgeQueryCache();
             QueryCache.Clear();
         }
 
-        internal static SqlMapper.Identity GetIdentity(MockDbCommand mockDbCommand, IIdentityComparer identityComparer)
+        internal static Dapper.SqlMapper.Identity GetIdentity(MockDbCommand mockDbCommand, IIdentityComparer identityComparer)
         {
             var identities = QueryCache.Keys
-                .Cast<SqlMapper.Identity>()
+                .Cast<Dapper.SqlMapper.Identity>()
                 .Where(id => identityComparer.Matches(mockDbCommand, id))
                 .ToArray();
 
@@ -41,14 +41,14 @@ namespace Dapper.MoqTests
             throw GetIdentityAmbiguousException(mockDbCommand, ambiguous);
         }
 
-        private static SqlMapper.Identity SingleIdentityIfTextMatches(MockDbCommand mockDbCommand, IIdentityComparer identityComparer)
+        private static Dapper.SqlMapper.Identity SingleIdentityIfTextMatches(MockDbCommand mockDbCommand, IIdentityComparer identityComparer)
         {
             if (QueryCache.Keys.Count != 1)
             {
                 return null;
             }
 
-            return QueryCache.Keys.Cast<SqlMapper.Identity>()
+            return QueryCache.Keys.Cast<Dapper.SqlMapper.Identity>()
                 .Where(id => identityComparer.TextMatches(mockDbCommand, id))
                 .SingleOrDefault();
         }
