@@ -104,6 +104,7 @@ See more examples here: [Samples.cs](https://github.com/laingsimon/Dapper.MoqTes
 * [x] Supports verification of stored procedures & sql text, from version 1.4.0
 * [x] Supports verification of command timeout, from version 1.4.0
 * [x] Supports customisation of comparisons, from version 1.5.0
+* [x] Supports verification of CommandDefinition methods, from version 1.7.0
 
 
 ## Suggestions / improvements
