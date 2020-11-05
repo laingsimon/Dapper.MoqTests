@@ -63,23 +63,52 @@ namespace Dapper.MoqTests
             return Task.FromResult(_database.ExecuteScalar(this, true, dapperMethod));
         }
 
-        public IReadOnlyDictionary<ParameterType, object> GetParameterLookup()
+        public IReadOnlyDictionary<ParameterType, object> GetParameterLookup(bool async)
         {
             var parameters = DbParameterCollection.Cast<DbParameter>().ToArray();
 
             return new Dictionary<ParameterType, object>
             {
-                { ParameterType.Buffered, true }, //TODO: Work out this value
+                { ParameterType.Buffered, GetBufferedParameter(async) },
                 { ParameterType.CommandTimeout, CommandTimeout == 0 ? default(int?) : CommandTimeout },
                 { ParameterType.CommandType, CommandType == 0 ? default(CommandType?) : CommandType },
-                { ParameterType.Map, null }, //TODO: Probably cannot access this value
-                { ParameterType.SplitOn, null }, //TODO: Probably cannot access this value
+                { ParameterType.Map, GetMap() },
+                { ParameterType.SplitOn, GetSplitOn() },
                 { ParameterType.SqlParameters, _settings.SqlParametersBuilder.FromParameters(parameters) },
                 { ParameterType.SqlText, CommandText },
                 { ParameterType.SqlTransaction, DbTransaction },
                 { ParameterType.Type, _identity.Value.type },
-                { ParameterType.Types, null } //TODO: Probably cannot access this value
+                { ParameterType.Types, GetDataTypes() }
             };
+        }
+
+        private string GetSplitOn()
+        {
+            return _settings.Unresolved.SplitOn;
+        }
+
+        private object GetMap()
+        {
+            return null;
+        }
+
+        private Type[] GetDataTypes()
+        {
+            var identityInstance = _identity.Value;
+            var genericTypes = identityInstance.GetType().GetGenericArguments();
+
+            if (genericTypes.Any())
+                return genericTypes;
+
+            return null;
+        }
+
+        private bool GetBufferedParameter(bool isAsync)
+        {
+            if (isAsync)
+                return true;
+
+            return _settings.Unresolved.Buffered;
         }
 
         public override void Prepare()
@@ -93,13 +122,13 @@ namespace Dapper.MoqTests
         protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
         {
             var dapperMethod = FirstDapperCallInStack();
-            return new MockDbDataReader(_database.ExecuteReader(this, dapperMethod, _identity.Value.type));
+            return new MockDbDataReader(_database.ExecuteReader(this, false, dapperMethod, GetDataTypes() ?? new[] { _identity.Value.type }));
         }
 
         protected override Task<DbDataReader> ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
         {
             var dapperMethod = FirstDapperCallInStack();
-            return Task.FromResult<DbDataReader>(new MockDbDataReader(_database.ExecuteReader(this, dapperMethod, _identity.Value.type)));
+            return Task.FromResult<DbDataReader>(new MockDbDataReader(_database.ExecuteReader(this, true, dapperMethod, GetDataTypes() ?? new[] { _identity.Value.type })));
         }
 
         private MethodBase FirstDapperCallInStack()
