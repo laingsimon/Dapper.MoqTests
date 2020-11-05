@@ -32,6 +32,9 @@ namespace Dapper.MoqTests
             {
                 log.WriteLine($"Found dapper chain method {dapperMethodChainMethod} that represents {dapperMethod}");
 
+                if (dapperMethodChainMethod.ContainsGenericParameters)
+                    dapperMethodChainMethod = dapperMethodChainMethod.GetBaseDefinition().MakeGenericMethod(dapperMethodChainMethod.GetGenericArguments().Select(ga => typeof(object)).ToArray());
+
                 var dapperMethodChain = (DapperMethodChain)dapperMethodChainMethod.Invoke(methodMap, new object[0]);
 
                 return dapperMethodChain.FindMethod(
