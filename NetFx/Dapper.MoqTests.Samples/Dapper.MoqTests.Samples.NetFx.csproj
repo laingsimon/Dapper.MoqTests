@@ -67,7 +67,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\Dapper.MoqTests.Samples\*.cs" />
+	<Compile Include="..\..\Dapper.MoqTests.Samples\*.cs">
+	  <Link>%(Filename)%(Extension)</Link>
+	</Compile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Dapper.MoqTests\Dapper.MoqTests.NetFx.csproj">

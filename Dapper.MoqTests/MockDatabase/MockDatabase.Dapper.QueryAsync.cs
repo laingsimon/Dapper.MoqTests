@@ -144,5 +144,27 @@ namespace Dapper.MoqTests
             [ParameterType(ParameterType.CommandTimeout)] int? commandTimeout = null,
             [ParameterType(ParameterType.CommandType)] CommandType? commandType = null);
 
+        /// <summary>
+        /// Execute a query asynchronously using Task.
+        /// </summary>
+        /// <typeparam name="T">The type to return.</typeparam>
+        /// <param name="cnn">The connection to query on.</param>
+        /// <param name="command">The command used to query on this connection.</param>
+        /// <returns>
+        /// A sequence of data of <typeparamref name="T"/>; if a basic type (int, string, etc) is queried then the data from the first column in assumed, otherwise an instance is
+        /// created per row, and a direct column-name===member-name mapping is assumed (case insensitive).
+        /// </returns>
+        public abstract Task<IEnumerable<T>> QueryAsync<T>(
+            [ParameterType(ParameterType.CommandDefinition)] CommandDefinition command);
+
+        /// <summary>
+        /// Execute a query asynchronously using Task.
+        /// </summary>
+        /// <param name="cnn">The connection to query on.</param>
+        /// <param name="type">The type to return.</param>
+        /// <param name="command">The command used to query on this connection.</param>
+        public abstract Task<IEnumerable<T>> QueryAsync<T>(
+            [ParameterType(ParameterType.Type)] Type type,
+            [ParameterType(ParameterType.CommandDefinition)] CommandDefinition command);
     }
 }
