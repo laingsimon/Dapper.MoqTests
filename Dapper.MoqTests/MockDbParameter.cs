@@ -16,5 +16,10 @@
 
         public override void ResetDbType()
         { }
+
+        public override string ToString()
+        {
+            return $"{ParameterName} = {Value}";
+        }
     }
 }
