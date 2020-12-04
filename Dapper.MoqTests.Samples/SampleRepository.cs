@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading;
@@ -150,6 +151,16 @@ where Registration = @registration", new { registration }, transaction: transact
                     "select count(*) from [Cars]",
                     cancellationToken: cancellation
                     ))).Any();
+            }
+        }
+
+        public async Task DeleteCarsAsync(int[] ids)
+        {
+            using (var connection = _connectionFactory.OpenConnection())
+            {
+                await connection.ExecuteAsync(
+                    "delete from [Cars] where Id = @ids",
+                    new { ids });
             }
         }
     }
