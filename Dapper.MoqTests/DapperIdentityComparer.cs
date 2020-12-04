@@ -1,21 +1,36 @@
-﻿using System.Data.Common;
+﻿using System;
+using System.Data.Common;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace Dapper.MoqTests
 {
     public class DapperIdentityComparer : IIdentityComparer
     {
-        public bool Matches(DbCommand command, Dapper.SqlMapper.Identity identity)
+        private readonly IDapperCommandTextHelper commandTextHelper;
+
+        public DapperIdentityComparer(IDapperCommandTextHelper commandTextHelper)
         {
-            return identity.sql == command.CommandText
+            this.commandTextHelper = commandTextHelper;
+        }
+
+        public bool Matches(DbCommand command, Dapper.SqlMapper.Identity identity, CacheInfoProxy cacheInfo = null)
+        {
+            return TextMatches(command, identity, cacheInfo)
                       && ParametersMatch(identity, command)
                       && CommandTypeMatches(identity, command);
         }
 
-        public bool TextMatches(DbCommand command, Dapper.SqlMapper.Identity identity)
+        public bool TextMatches(DbCommand command, Dapper.SqlMapper.Identity identity, CacheInfoProxy cacheInfo = null)
         {
-            return identity.sql == command.CommandText;
+            var commandText = command.CommandText;
+            if (commandText.Contains("@") && identity.sql.Contains("@"))
+            {
+                commandText = commandTextHelper.ConvertDapperParametersToUserParameters(commandText);
+            }
+
+            return identity.sql == commandText;
         }
 
         private static bool ParametersMatch(Dapper.SqlMapper.Identity identity, DbCommand mockDbCommand)

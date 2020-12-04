@@ -30,7 +30,7 @@ namespace Dapper.MoqTests
         /// <summary>
         /// The dapper identity comparer
         /// </summary>
-        public IIdentityComparer IdentityComparer = new DapperIdentityComparer();
+        public IIdentityComparer IdentityComparer = new DapperIdentityComparer(new DapperCommandTextHelper());
 
         /// <summary>
         /// Settings for where details haven't been resolved
@@ -41,6 +41,8 @@ namespace Dapper.MoqTests
         /// Where Dapper method calls are ambiguous between CommandDefinition vs other implementations, prefer CommandDefinition overloads
         /// </summary>
         public bool PreferCommandDefinitions { get; set; }
+
+        public IDapperCommandTextHelper CommandTextHelper { get; set; } = new DapperCommandTextHelper();
 
         /// <summary>
         /// The default set of settings
