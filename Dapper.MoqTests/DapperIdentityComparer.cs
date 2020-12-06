@@ -1,8 +1,6 @@
-﻿using System;
-using System.Data.Common;
+﻿using System.Data.Common;
 using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
 
 namespace Dapper.MoqTests
 {
@@ -15,14 +13,14 @@ namespace Dapper.MoqTests
             this.commandTextHelper = commandTextHelper;
         }
 
-        public bool Matches(DbCommand command, Dapper.SqlMapper.Identity identity, CacheInfoProxy cacheInfo = null)
+        public bool Matches(DbCommand command, Dapper.SqlMapper.Identity identity)
         {
-            return TextMatches(command, identity, cacheInfo)
+            return TextMatches(command, identity)
                       && ParametersMatch(identity, command)
                       && CommandTypeMatches(identity, command);
         }
 
-        public bool TextMatches(DbCommand command, Dapper.SqlMapper.Identity identity, CacheInfoProxy cacheInfo = null)
+        public bool TextMatches(DbCommand command, Dapper.SqlMapper.Identity identity)
         {
             var commandText = command.CommandText;
             if (commandText.Contains("@") && identity.sql.Contains("@"))

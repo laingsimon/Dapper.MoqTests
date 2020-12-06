@@ -46,13 +46,8 @@ namespace Dapper.MoqTests
             if (x == null || y == null)
                 return false;
 
-            if (!x.GetType().Equals(y.GetType()))
-                return false;
-
             if (x.GetType().IsArray)
-            {
                 return ((IEnumerable)x).Cast<object>().SequenceEqual(((IEnumerable)y).Cast<object>());
-            }
 
             return x.Equals(y);
         }

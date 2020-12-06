@@ -24,18 +24,17 @@ namespace Dapper.MoqTests
         {
             var identities = QueryCache.Keys
                 .Cast<Dapper.SqlMapper.Identity>()
-                .Select(Key => new { Key, Value = new CacheInfoProxy(QueryCache[Key]) })
-                .Where(pair => identityComparer.Matches(mockDbCommand, pair.Key, pair.Value))
+                .Where(key => identityComparer.Matches(mockDbCommand, key))
                 .ToArray();
 
             if (identities.Length <= 1)
             {
-                return identities.Select(pair => pair.Key).SingleOrDefault()
+                return identities.SingleOrDefault()
                     ?? SingleIdentityIfTextMatches(mockDbCommand, identityComparer) 
                     ?? throw GetIdentityNotFoundException(mockDbCommand);
             }
 
-            var ambiguous = identities.Select(pair => $"`{pair.Key.type?.FullName ?? "<untyped>"}`")
+            var ambiguous = identities.Select(key => $"`{key.type?.FullName ?? "<untyped>"}`")
                 .OrderBy(id => id)
                 .ToArray();
 
@@ -51,9 +50,7 @@ namespace Dapper.MoqTests
 
             return QueryCache.Keys
                 .Cast<Dapper.SqlMapper.Identity>()
-                .Select(Key => new { Key, Value = new CacheInfoProxy(QueryCache[Key]) })
-                .Where(pair => identityComparer.TextMatches(mockDbCommand, pair.Key, pair.Value))
-                .Select(pair => pair.Key)
+                .Where(key => identityComparer.TextMatches(mockDbCommand, key))
                 .SingleOrDefault();
         }
 

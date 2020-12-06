@@ -77,7 +77,7 @@ namespace Dapper.MoqTests
                 yield return new MockDbParameter
                 {
                     ParameterName = parameterName,
-                    Value = GetReconstitutedParameterValue(buffer.Select(p => p.Value).ToArray())
+                    Value = buffer.Select(p => p.Value).ToArray()
                 };
                 parameterName = null;
                 buffer.Clear();
@@ -90,39 +90,9 @@ namespace Dapper.MoqTests
                 yield return new MockDbParameter
                 {
                     ParameterName = parameterName,
-                    Value = GetReconstitutedParameterValue(buffer.Select(p => p.Value).ToArray())
+                    Value = buffer.Select(p => p.Value).ToArray()
                 };
             }
-        }
-
-        private static object GetReconstitutedParameterValue(IReadOnlyCollection<object> values)
-        {
-            var firstValueType = values.First(v => v != null)?.GetType();
-            if (firstValueType == null)
-                return values; //all items are null
-
-            if (values.All(v => v != null && v.GetType().Equals(firstValueType)))
-            {
-                //assumes that the first item is of the 'widest' type
-                //the the value should be an array of <firstValueType> rather than an array of <object>
-                var typedArray = Array.CreateInstance(firstValueType, values.Count);
-                for (var itemIndex = 0; itemIndex < values.Count; itemIndex++)
-                {
-                    typedArray.SetValue(values.ElementAt(itemIndex), itemIndex);
-                }
-
-                return typedArray;
-            }
-
-            if (values.Any(v => v == null))
-            {
-                //value types cannot be null, so array must be of type object...
-                return values;
-            }
-
-            //no values are null, some are of different types, but the first item is of a value type
-            //TODO: cover more cases here...
-            return values;
         }
 
         private static string GetParameterName(string parameterName)
