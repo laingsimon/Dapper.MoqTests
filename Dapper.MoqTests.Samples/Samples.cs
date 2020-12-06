@@ -413,7 +413,7 @@ where Registration = @registration", It.IsAny<object>(), It.IsAny<IDbTransaction
         }
 
         [Test]
-        public async Task ExecuteInClause()
+        public async Task ExecuteSerialisedParameters()
         {
             var connectionFactory = new Mock<IDbConnectionFactory>();
             var connection = new MockDbConnection();

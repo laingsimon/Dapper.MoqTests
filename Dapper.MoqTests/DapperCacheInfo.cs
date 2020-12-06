@@ -24,7 +24,7 @@ namespace Dapper.MoqTests
         {
             var identities = QueryCache.Keys
                 .Cast<Dapper.SqlMapper.Identity>()
-                .Where(key => identityComparer.Matches(mockDbCommand, key))
+                .Where(id => identityComparer.Matches(mockDbCommand, id))
                 .ToArray();
 
             if (identities.Length <= 1)
@@ -34,7 +34,7 @@ namespace Dapper.MoqTests
                     ?? throw GetIdentityNotFoundException(mockDbCommand);
             }
 
-            var ambiguous = identities.Select(key => $"`{key.type?.FullName ?? "<untyped>"}`")
+            var ambiguous = identities.Select(id => $"`{id.type?.FullName ?? "<untyped>"}`")
                 .OrderBy(id => id)
                 .ToArray();
 
@@ -50,7 +50,7 @@ namespace Dapper.MoqTests
 
             return QueryCache.Keys
                 .Cast<Dapper.SqlMapper.Identity>()
-                .Where(key => identityComparer.TextMatches(mockDbCommand, key))
+                .Where(id => identityComparer.TextMatches(mockDbCommand, id))
                 .SingleOrDefault();
         }
 
