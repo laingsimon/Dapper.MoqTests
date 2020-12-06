@@ -75,7 +75,7 @@ namespace Dapper.MoqTests
                 { ParameterType.Map, GetMap() },
                 { ParameterType.SplitOn, GetSplitOn() },
                 { ParameterType.SqlParameters, _settings.SqlParametersBuilder.FromParameters(parameters) },
-                { ParameterType.SqlText, CommandText },
+                { ParameterType.SqlText, _settings.CommandTextHelper.ConvertDapperParametersToUserParameters(CommandText) },
                 { ParameterType.SqlTransaction, DbTransaction },
                 { ParameterType.Type, _identity.Value.type },
                 { ParameterType.Types, GetDataTypes() }

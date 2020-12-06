@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Dapper.MoqTests
@@ -43,6 +45,9 @@ namespace Dapper.MoqTests
 
             if (x == null || y == null)
                 return false;
+
+            if (x.GetType().IsArray)
+                return ((IEnumerable)x).Cast<object>().SequenceEqual(((IEnumerable)y).Cast<object>());
 
             return x.Equals(y);
         }

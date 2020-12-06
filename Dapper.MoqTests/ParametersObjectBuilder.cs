@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Text.RegularExpressions;
 using PropertyAttributes = System.Reflection.PropertyAttributes;
 
 namespace Dapper.MoqTests
@@ -24,6 +25,7 @@ namespace Dapper.MoqTests
 
             var builder = GetTypeBuilder();
 
+            parameters = ReGroupSerialisedParameters(parameters).ToArray();
             foreach (var parameter in parameters)
                 AddProperty(builder, parameter);
 
@@ -43,6 +45,64 @@ namespace Dapper.MoqTests
             }
 
             return instance;
+        }
+
+        private IEnumerable<DbParameter> ReGroupSerialisedParameters(IReadOnlyCollection<DbParameter> parameters)
+        {
+            var serialisedParameters = parameters.Where(IsSerialisedParameter).ToArray();
+            return parameters.Except(serialisedParameters).Concat(ReconstituteParameters(serialisedParameters));
+        }
+
+        private IEnumerable<DbParameter> ReconstituteParameters(IEnumerable<DbParameter> serialisedParameters)
+        {
+            var orderedParameters = serialisedParameters.OrderBy(p => p.ParameterName);
+            var buffer = new List<DbParameter>();
+            string parameterName = null;
+
+            foreach (var parameter in orderedParameters)
+            {
+                if (!buffer.Any())
+                {
+                    buffer.Add(parameter);
+                    parameterName = GetParameterName(parameter.ParameterName);
+                    continue;
+                }
+
+                if (parameter.ParameterName == parameterName + (buffer.Count + 1))
+                {
+                    buffer.Add(parameter);
+                    continue;
+                }
+
+                yield return new MockDbParameter
+                {
+                    ParameterName = parameterName,
+                    Value = buffer.Select(p => p.Value).ToArray()
+                };
+                parameterName = null;
+                buffer.Clear();
+                buffer.Add(parameter);
+                parameterName = GetParameterName(parameter.ParameterName);
+            }
+
+            if (buffer.Any())
+            {
+                yield return new MockDbParameter
+                {
+                    ParameterName = parameterName,
+                    Value = buffer.Select(p => p.Value).ToArray()
+                };
+            }
+        }
+
+        private static string GetParameterName(string parameterName)
+        {
+            return parameterName.Substring(0, parameterName.Length - 1); //lop off the last character which should be '1'
+        }
+
+        private bool IsSerialisedParameter(DbParameter parameter)
+        {
+            return Regex.IsMatch(parameter.ParameterName, @"^.+?\d+$");
         }
 
         private static string ParameterToString(DbParameter parameter)

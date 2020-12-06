@@ -6,16 +6,29 @@ namespace Dapper.MoqTests
 {
     public class DapperIdentityComparer : IIdentityComparer
     {
+        private readonly IDapperCommandTextHelper commandTextHelper;
+
+        public DapperIdentityComparer(IDapperCommandTextHelper commandTextHelper)
+        {
+            this.commandTextHelper = commandTextHelper;
+        }
+
         public bool Matches(DbCommand command, Dapper.SqlMapper.Identity identity)
         {
-            return identity.sql == command.CommandText
+            return TextMatches(command, identity)
                       && ParametersMatch(identity, command)
                       && CommandTypeMatches(identity, command);
         }
 
         public bool TextMatches(DbCommand command, Dapper.SqlMapper.Identity identity)
         {
-            return identity.sql == command.CommandText;
+            var commandText = command.CommandText;
+            if (commandText.Contains("@") && identity.sql.Contains("@"))
+            {
+                commandText = commandTextHelper.ConvertDapperParametersToUserParameters(commandText);
+            }
+
+            return identity.sql == commandText;
         }
 
         private static bool ParametersMatch(Dapper.SqlMapper.Identity identity, DbCommand mockDbCommand)

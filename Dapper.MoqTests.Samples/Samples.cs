@@ -411,5 +411,27 @@ where Registration = @registration", It.IsAny<object>(), It.IsAny<IDbTransaction
                 /*flags*/ CommandFlags.Buffered,
                 /*cancellationToken*/ cancel)));
         }
+
+        [Test]
+        public async Task ExecuteSerialisedParameters()
+        {
+            var connectionFactory = new Mock<IDbConnectionFactory>();
+            var connection = new MockDbConnection();
+            var repository = new SampleRepository(connectionFactory.Object);
+            var ids = new[] { 1, 2 };
+
+            connectionFactory
+                .Setup(f => f.OpenConnection())
+                .Returns(connection);
+
+            await repository.DeleteCarsAsync(ids);
+
+            connection.Verify(c => c.ExecuteAsync(
+                "delete from [Cars] where Id = @ids",
+                new { ids },
+                null,
+                null,
+                null));
+        }
     }
 }

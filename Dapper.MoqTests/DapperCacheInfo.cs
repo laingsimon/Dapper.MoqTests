@@ -48,7 +48,8 @@ namespace Dapper.MoqTests
                 return null;
             }
 
-            return QueryCache.Keys.Cast<Dapper.SqlMapper.Identity>()
+            return QueryCache.Keys
+                .Cast<Dapper.SqlMapper.Identity>()
                 .Where(id => identityComparer.TextMatches(mockDbCommand, id))
                 .SingleOrDefault();
         }
