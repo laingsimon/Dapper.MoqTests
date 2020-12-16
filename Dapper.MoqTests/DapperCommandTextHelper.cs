@@ -13,7 +13,7 @@ namespace Dapper.MoqTests
             foreach (Match match in matches)
             {
                 var matched = match.Value;
-                var parameterName = Regex.Match(matched, @"\((\@.+?)\d+\,");
+                var parameterName = Regex.Match(matched, @"\((\@.+?)\d+\,?");
 
                 if (parameterName.Success)
                 {
