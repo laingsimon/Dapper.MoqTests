@@ -1,8 +1,6 @@
 # Dapper.MoqTests 
-- (.net framework) [![Build status](https://ci.appveyor.com/api/projects/status/rgufiqwhiliw83d6/branch/master?svg=true)](https://ci.appveyor.com/project/laingsimon/dapper-moqtests-netfx/branch/master)
-- [![.net framework version](https://img.shields.io/nuget/v/Dapper.MoqTests.svg)](https://www.nuget.org/packages/Dapper.MoqTests/)
-- (dotnet Core) [![Build status](https://ci.appveyor.com/api/projects/status/7lus4258ta8r2g2e/branch/master?svg=true)](https://ci.appveyor.com/project/laingsimon/dapper-moqtests-core/branch/master)
-- [![dotnet core version](https://img.shields.io/nuget/v/Dapper.MoqTests.Core.svg)](https://www.nuget.org/packages/Dapper.MoqTests.Core/)
+- (.net framework) [![Build status](https://ci.appveyor.com/api/projects/status/rgufiqwhiliw83d6/branch/master?svg=true)](https://ci.appveyor.com/project/laingsimon/dapper-moqtests-netfx/branch/master) [![.net framework version](https://img.shields.io/nuget/v/Dapper.MoqTests.svg)](https://www.nuget.org/packages/Dapper.MoqTests/)
+- (dotnet Core) [![Build status](https://ci.appveyor.com/api/projects/status/7lus4258ta8r2g2e/branch/master?svg=true)](https://ci.appveyor.com/project/laingsimon/dapper-moqtests-core/branch/master) [![dotnet core version](https://img.shields.io/nuget/v/Dapper.MoqTests.Core.svg)](https://www.nuget.org/packages/Dapper.MoqTests.Core/)
 
 Assemblies to assist testing Dapper database invocations
 
