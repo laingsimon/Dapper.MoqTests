@@ -197,13 +197,15 @@ where Registration = @registration", new { registration = "ABC123" }, null, null
             {
                 Registration = "ABC123",
                 Make = "Vauxhall",
-                Model = "Astra"
+                Model = "Astra",
+                DateRegistered = null,
             };
             var ford = new Car
             {
                 Registration = "DEF456",
                 Make = "Ford",
-                Model = "Mondeo"
+                Model = "Mondeo",
+                DateRegistered = new DateTime(2022, 2, 1, 12, 11, 10),
             };
             connectionFactory
                 .Setup(f => f.OpenConnection())
@@ -215,6 +217,7 @@ order by Make, Model", It.IsAny<object>(), It.IsAny<IDbTransaction>(), true, nul
 
             var result = repository.GetCars();
 
+            Assert.That(result.Select(c => c.DateRegistered), Is.EquivalentTo(new DateTime?[] { null, new DateTime(2022, 2, 1, 12, 11, 10) }));
             Assert.That(result.Select(c => c.Model), Is.EquivalentTo(new[] { "Astra", "Mondeo" }));
         }
 

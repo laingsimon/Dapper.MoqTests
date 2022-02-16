@@ -24,13 +24,24 @@ namespace Dapper.MoqTests
 
             var properties = value.GetType()
                 .GetProperties()
-                .Where(p => IsPrimitiveType(p.PropertyType))
+                .Select(p => new { Property = p, NullablePrimitiveType = NullablePrimitiveType(p.PropertyType) })
+                .Where(p => p.NullablePrimitiveType != null || IsPrimitiveType(p.Property.PropertyType))
                 .ToArray();
             var dataTable = new DataTable();
             foreach (var property in properties)
-                dataTable.Columns.Add(property.Name, property.PropertyType);
+            {
+                if (property.NullablePrimitiveType != null)
+                {
+                    var column = new DataColumn(property.Property.Name, property.NullablePrimitiveType);
+                    column.AllowDBNull = true;
+                    dataTable.Columns.Add(column);
+                    break;
+                }
 
-            var rowValues = properties.Select(p => p.GetValue(value)).ToArray();
+                dataTable.Columns.Add(property.Property.Name, property.Property.PropertyType);
+            }
+
+            var rowValues = properties.Select(p => p.Property.GetValue(value)).ToArray();
             dataTable.Rows.Add(rowValues);
 
             return new DataTableReader(dataTable);
@@ -48,15 +59,26 @@ namespace Dapper.MoqTests
 
             var properties = elementType
                 .GetProperties()
-                .Where(p => IsPrimitiveType(p.PropertyType))
+                .Select(p => new { Property = p, NullablePrimitiveType = NullablePrimitiveType(p.PropertyType) })
+                .Where(p => p.NullablePrimitiveType != null || IsPrimitiveType(p.Property.PropertyType))
                 .ToArray();
             var dataTable = new DataTable();
             foreach (var property in properties)
-                dataTable.Columns.Add(property.Name, property.PropertyType);
+            {
+                if (property.NullablePrimitiveType != null)
+                {
+                    var column = new DataColumn(property.Property.Name, property.NullablePrimitiveType);
+                    column.AllowDBNull = true;
+                    dataTable.Columns.Add(column);
+                    break;
+                }
+
+                dataTable.Columns.Add(property.Property.Name, property.Property.PropertyType);
+            }
 
             foreach (var row in value)
             {
-                var rowValues = properties.Select(p => p.GetValue(row)).ToArray();
+                var rowValues = properties.Select(p => p.Property.GetValue(row)).ToArray();
                 dataTable.Rows.Add(rowValues);
             }
 
@@ -82,6 +104,17 @@ namespace Dapper.MoqTests
         private static bool IsPrimitiveType(Type type)
         {
             return type.IsPrimitive || PrimitiveDataTypes.Contains(type);
+        }
+        private static Type NullablePrimitiveType(Type type)
+        {
+            var underlyingType = Nullable.GetUnderlyingType(type);
+
+            if (underlyingType != null && IsPrimitiveType(underlyingType))
+            {
+                return underlyingType;
+            }
+
+            return null;
         }
     }
 }
